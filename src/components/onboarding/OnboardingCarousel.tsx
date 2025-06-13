@@ -21,8 +21,8 @@ const onboardingSteps = [
     icon: <ScanLine className="h-16 w-16 text-primary" />,
     title: "Scan Food Products",
     description: "Easily scan barcodes to get instant insights about food products.",
-    image: "https://placehold.co/600x400.png?text=Scan+Barcode",
-    dataAiHint: "barcode scanner",
+    image: "https://placehold.co/600x400.png?text=Person+Scanning+Food",
+    dataAiHint: "person scanning",
   },
   {
     icon: <UserCheck className="h-16 w-16 text-primary" />,
