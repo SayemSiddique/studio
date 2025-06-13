@@ -28,7 +28,7 @@ const onboardingSteps = [
     icon: <UserCheck className="h-16 w-16 text-primary" />,
     title: "Personalize Your Diet",
     description: "Set up your dietary preferences, allergies, and health goals.",
-    image: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxoZWFsdGh5JTIwZm9vZHxlbnwwfHx8fDE3NDk4MDg2NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://images.unsplash.com/photo-1511909525232-61113c912358?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxM3x8aGVhbHRoJTIwZGlldHxlbnwwfHx8fDE3NDk4MTQwMzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
     dataAiHint: "healthy food",
   },
   {
