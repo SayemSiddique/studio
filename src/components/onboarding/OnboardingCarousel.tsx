@@ -35,7 +35,7 @@ const onboardingSteps = [
     icon: <Sparkles className="h-16 w-16 text-primary" />,
     title: "AI-Powered Analysis",
     description: "Our AI analyzes ingredients and compatibility with your diet.",
-    image: "https://images.unsplash.com/photo-1683248893968-b5530c640b6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxudXRyaXRpb24lMjBzY2llbmNlfGVufDB8fHx8MTc0OTgwODY0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlfGVufDB8fHx8MTc0OTgxNDIyMnww&ixlib=rb-4.1.0&q=80&w=1080",
     dataAiHint: "nutrition science",
   },
   {
