@@ -102,7 +102,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hidden md:block text-center">
-             <Image src="https://placehold.co/400x300.png?text=Healthy+Eating" alt="Healthy Eating" width={400} height={300} className="rounded-lg shadow-md mx-auto" data-ai-hint="healthy eating fruits" />
+             <Image src="https://images.unsplash.com/photo-1666493555974-5f248865fb99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxoZWFsdGh5JTIwcGFja2FnZWQlMjBmb29kfGVufDB8fHx8MTc0OTgxNDYyM3ww&ixlib=rb-4.1.0&q=80&w=1080" alt="Healthy Eating" width={400} height={300} className="rounded-lg shadow-md mx-auto" data-ai-hint="healthy eating fruits" />
           </div>
         </div>
       </section>
