@@ -49,7 +49,7 @@ const onboardingSteps = [
     icon: <ListChecks className="h-16 w-16 text-primary" />,
     title: "Track Your Choices",
     description: "Keep a history of your scanned items for easy reference.",
-    image: "https://images.unsplash.com/photo-1748017185912-c2a467989758?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmb29kJTIwam91cm5hbHxlbnwwfHx8fDE3NDk4MDg2NDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://images.unsplash.com/photo-1644143153646-f36282dfb953?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyZXN1bHQlMjB0cmFja2luZ3xlbnwwfHx8fDE3NDk4MTQzMjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
     dataAiHint: "food journal",
   },
 ];
