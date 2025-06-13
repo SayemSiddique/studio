@@ -48,7 +48,7 @@ async function fetchProductData(barcode: string): Promise<ProductInfo | null> {
       barcode,
       name: 'Whole Wheat Bread',
       brand: 'Bakery Co.',
-      imageUrl: 'https://placehold.co/400x400.png?text=Wheat+Bread',
+      imageUrl: 'https://images.unsplash.com/photo-1676723066040-614d1ae56666?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3aGVhdCUyMGJyZWFkfGVufDB8fHx8MTc0OTgxNDcwNHww&ixlib=rb-4.1.0&q=80&w=1080',
       dataAiHint: "wheat bread",
       ingredients: ['Whole Wheat Flour', 'Water', 'Yeast', 'Salt', 'Sugar', 'Soybean Oil', 'Calcium Propionate'],
     };
