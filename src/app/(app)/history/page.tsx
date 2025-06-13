@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ProductCard } from '@/components/product/ProductCard';
@@ -8,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ListChecks, Search, FilterX } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
+import { Card } from '@/components/ui/card'; // Added import
+import { Label } from '@/components/ui/label'; // Added import, as it's used below
 
 const mockHistory: ScanResult[] = [
    {
