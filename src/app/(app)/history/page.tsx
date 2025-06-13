@@ -28,7 +28,7 @@ const mockHistory: ScanResult[] = [
     barcode: '9876543210987',
     name: 'Whole Wheat Bread',
     brand: 'Bakery Co.',
-    imageUrl: 'https://placehold.co/300x200.png?text=Wheat+Bread',
+    imageUrl: 'https://images.unsplash.com/photo-1676722969305-7bac24cabee5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3aGVhdCUyMGJyZWFkfGVufDB8fHx8MTc0OTgxNDcwNHww&ixlib=rb-4.1.0&q=80&w=1080',
     dataAiHint: "wheat bread",
     ingredients: ['Whole Wheat Flour', 'Water', 'Yeast', 'Salt', 'Sugar'],
     compatibility: 'Not Recommended',
