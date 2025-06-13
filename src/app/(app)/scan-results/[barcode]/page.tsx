@@ -125,3 +125,4 @@ export default function ScanResultsPage(props: { params: Promise<{ barcode: stri
     </div>
   );
 }
+
