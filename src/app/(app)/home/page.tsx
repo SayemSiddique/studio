@@ -17,7 +17,7 @@ const mockRecentScans: ScanResult[] = [
     barcode: '1234567890123',
     name: 'Organic Peanut Butter',
     brand: 'NatureNosh',
-    imageUrl: 'https://placehold.co/300x200.png?text=Peanut+Butter',
+    imageUrl: 'https://images.unsplash.com/photo-1624684244440-1130c3b65783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZWFudXQlMjBidXR0ZXJ8ZW58MHx8fHwxNzQ5ODE0Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080',
     dataAiHint: "peanut butter",
     ingredients: ['Organic Peanuts', 'Salt'],
     compatibility: 'Safe',
