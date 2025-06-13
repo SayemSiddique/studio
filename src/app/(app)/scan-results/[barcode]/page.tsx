@@ -65,8 +65,9 @@ async function fetchProductData(barcode: string): Promise<ProductInfo | null> {
 }
 
 
-export default function ScanResultsPage({ params }: { params: { barcode: string } }) {
-  const [product, setProduct] = useState<ProductInfo | null>(null);
+export default function ScanResultsPage(props: { params: Promise<{ barcode: string }> }) {
+  const params = React.use(props.params);
+	const [product, setProduct] = useState<ProductInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

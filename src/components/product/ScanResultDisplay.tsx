@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle2, XCircle, AlertTriangle, List, Brain, Lightbulb, Utensils, Loader2, Search } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, List, Brain, Lightbulb, Utensils, Loader2, Search, ScanLine } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { analyzeFoodCompatibility, AnalyzeFoodCompatibilityOutput } from '@/ai/flows/analyze-food-compatibility';
 import { summarizeIngredientInformation, SummarizeIngredientInformationOutput } from '@/ai/flows/summarize-ingredient-information';
@@ -38,7 +39,7 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
   const [summary, setSummary] = useState<SummarizeIngredientInformationOutput | null>(null);
   const [alternatives, setAlternatives] = useState<SuggestAlternativesOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = React.useState(0);
+  const [progressValue, setProgressValue] = React.useState(0); // Renamed to avoid conflict with Progress component
 
   const { profile, getProfileForAI } = useProfile();
 
@@ -49,10 +50,10 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
         return;
       }
       setIsLoading(true);
-      setProgress(10);
+      setProgressValue(10);
 
       const dietaryRestrictions = getProfileForAI();
-      setProgress(20);
+      setProgressValue(20);
 
       try {
         const [compResult, summaryResult] = await Promise.all([
@@ -60,9 +61,9 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
           summarizeIngredientInformation({ ingredients: Array.isArray(product.ingredients) ? product.ingredients.join(', ') : product.ingredients, productName: product.name })
         ]);
         setCompatibility(compResult);
-        setProgress(60);
+        setProgressValue(60);
         setSummary(summaryResult);
-        setProgress(80);
+        setProgressValue(80);
 
         if (compResult.compatibilityStatus === 'Contains Allergen' || compResult.compatibilityStatus === 'Not Recommended') {
           const userAllergies = Object.entries(profile.allergies || {})
@@ -80,7 +81,7 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
           });
           setAlternatives(altResult);
         }
-        setProgress(100);
+        setProgressValue(100);
       } catch (error) {
         console.error("AI Analysis Error:", error);
         // Set some error state to display to user
@@ -102,26 +103,25 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
       summary: summary?.summary,
       alternatives: alternatives?.alternatives,
       scannedAt: new Date().toISOString(),
+      dataAiHint: product.dataAiHint || product.name, // Ensure dataAiHint is passed
     };
 
     let history: ScanResult[] = JSON.parse(localStorage.getItem('saforaScanHistory') || '[]');
-    // Prevent duplicates by barcode if already scanned recently, update instead
     const existingIndex = history.findIndex(item => item.barcode === product.barcode);
     if (existingIndex > -1) {
-      history[existingIndex] = scanResult; // Update existing
+      history[existingIndex] = scanResult; 
     } else {
-      history.unshift(scanResult); // Add to beginning
+      history.unshift(scanResult); 
     }
-    history = history.slice(0, 50); // Keep history to a manageable size
+    history = history.slice(0, 50); 
     localStorage.setItem('saforaScanHistory', JSON.stringify(history));
-    // Could add a toast notification here
   };
 
   useEffect(() => {
     if (!isLoading && compatibility) {
       saveToHistory();
     }
-  }, [isLoading, compatibility]);
+  }, [isLoading, compatibility, product, summary, alternatives]); // Added dependencies
 
 
   return (
@@ -135,7 +135,7 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
               width={400}
               height={400}
               className="object-cover w-full h-64 md:h-full"
-              data-ai-hint={product.name}
+              data-ai-hint={product.dataAiHint || product.name}
             />
           </div>
           <div className="md:w-2/3 p-6 md:p-8">
@@ -149,7 +149,7 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Analyzing with AI...</span>
                 </div>
-                <Progress value={progress} className="w-full h-2 [&>div]:bg-primary" />
+                <Progress value={progressValue} className="w-full h-2 [&>div]:bg-primary" />
               </div>
             )}
 
@@ -159,7 +159,7 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
                 <AlertTitle className="text-xl font-semibold">{compatibility.compatibilityStatus}</AlertTitle>
                 <AlertDescription>
                   <ul className="list-disc pl-5 mt-1">
-                    {compatibility.reason.split('\n').map((line, idx) => line.trim().startsWith('- ') ? <li key={idx}>{line.trim().substring(2)}</li> : (line.trim() && <li key={idx}>{line.trim()}</li>) )}
+                    {compatibility.reason.split('\\n').map((line, idx) => line.trim().startsWith('- ') ? <li key={idx}>{line.trim().substring(2)}</li> : (line.trim() && <li key={idx}>{line.trim()}</li>) )}
                   </ul>
                 </AlertDescription>
               </Alert>
@@ -242,3 +242,6 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
     </div>
   );
 }
+    
+
+    
