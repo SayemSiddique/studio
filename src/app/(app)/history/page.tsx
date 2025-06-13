@@ -9,15 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ListChecks, Search, FilterX } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
-import { Card } from '@/components/ui/card'; // Added import
-import { Label } from '@/components/ui/label'; // Added import, as it's used below
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 const mockHistory: ScanResult[] = [
    {
     barcode: '1234567890123',
     name: 'Organic Peanut Butter',
     brand: 'NatureNosh',
-    imageUrl: 'https://placehold.co/300x200.png?text=Peanut+Butter',
+    imageUrl: 'https://images.unsplash.com/photo-1624684244440-1130c3b65783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZWFudXQlMjBidXR0ZXJ8ZW58MHx8fHwxNzQ5ODE0Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080',
     dataAiHint: "peanut butter",
     ingredients: ['Organic Peanuts', 'Salt'],
     compatibility: 'Safe',
