@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ListChecks, Search, FilterX } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 
 const mockHistory: ScanResult[] = [
@@ -39,7 +39,7 @@ const mockHistory: ScanResult[] = [
     barcode: '0049000006467',
     name: 'Coca-Cola Classic',
     brand: 'Coca-Cola',
-    imageUrl: 'https://placehold.co/300x200.png?text=Coca-Cola',
+    imageUrl: 'https://images.unsplash.com/photo-1630979805425-08f5f5f39aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb2NhY29sYXxlbnwwfHx8fDE3NDk4MTQ3MzV8MA&ixlib=rb-4.1.0&q=80&w=1080',
     dataAiHint: "coca cola",
     ingredients: ['Carbonated Water', 'High Fructose Corn Syrup', 'Caramel Color', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
     compatibility: 'Not Recommended',
