@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -120,7 +121,7 @@ export function OnboardingCarousel() {
       </div>
        {current < count && (
          <div className="mt-4 text-center">
-            <Button variant="link" onClick={() => router.push("/auth")} className="text-accent hover:text-accent/90">
+            <Button variant="link" onClick={() => router.push("/auth")} className="text-foreground hover:text-foreground/90">
                 Skip Onboarding
             </Button>
          </div>
