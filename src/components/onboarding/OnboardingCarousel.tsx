@@ -21,7 +21,7 @@ const onboardingSteps = [
     icon: <ScanLine className="h-16 w-16 text-primary" />,
     title: "Scan Food Products",
     description: "Easily scan barcodes to get instant insights about food products.",
-    image: "https://images.unsplash.com/photo-1620739516561-096d52b6d6db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjBzY2FubmluZ3xlbnwwfHx8fDE3NDk4MDg2NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYXJjb2RlfGVufDB8fHx8MTc0OTgwODUwNXww&ixlib=rb-4.1.0&q=80&w=1080",
     dataAiHint: "person scanning",
   },
   {
