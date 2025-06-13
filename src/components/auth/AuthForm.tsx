@@ -103,7 +103,7 @@ export function AuthForm() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col items-center">
-        <Button variant="link" onClick={() => setIsLogin(!isLogin)} className="text-accent hover:text-accent/90">
+        <Button variant="link" onClick={() => setIsLogin(!isLogin)} className="text-foreground hover:text-foreground/90">
           {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Log In'}
         </Button>
       </CardFooter>
