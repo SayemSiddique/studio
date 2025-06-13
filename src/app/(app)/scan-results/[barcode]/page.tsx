@@ -28,7 +28,7 @@ async function fetchProductData(barcode: string): Promise<ProductInfo | null> {
       barcode,
       name: 'KIND Bar - Dark Chocolate Nuts & Sea Salt',
       brand: 'KIND',
-      imageUrl: 'https://placehold.co/400x400.png?text=KIND+Bar',
+      imageUrl: 'https://images.unsplash.com/photo-1558022032-1356636a26ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYXIlMjBwZWFudXQlMjBmb29kfGVufDB8fHx8MTc0OTgxNTIxM3ww&ixlib=rb-4.1.0&q=80&w=1080',
       dataAiHint: "kind bar",
       ingredients: ['Almonds', 'Peanuts', 'Chicory Root Fiber', 'Honey', 'Palm Kernel Oil', 'Sugar', 'Cocoa Powder', 'Non GMO Glucose', 'Sea Salt', 'Soy Lecithin', 'Milk Powder', 'Vanilla Extract'],
     };
