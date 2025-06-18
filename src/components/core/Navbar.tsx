@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, ScanLine, ListChecks, UserCircle2, Settings, LogOut, Menu, Heart } from 'lucide-react';
+import { Home, ScanLine, ListChecks, UserCircle2, Settings, LogOut, Menu, Heart, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/core/Logo';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +23,7 @@ import * as React from 'react';
 const navLinks = [
   { href: '/home', label: 'Home', icon: <Home className="h-5 w-5" /> },
   { href: '/scan', label: 'Scan', icon: <ScanLine className="h-5 w-5" /> },
+  { href: '/products', label: 'Products', icon: <ShoppingBag className="h-5 w-5" /> },
   { href: '/history', label: 'History', icon: <ListChecks className="h-5 w-5" /> },
   { href: '/favorites', label: 'Favorites', icon: <Heart className="h-5 w-5" /> },
 ];
@@ -150,3 +151,4 @@ export function Navbar() {
     </header>
   );
 }
+

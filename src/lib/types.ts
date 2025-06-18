@@ -42,9 +42,10 @@ export interface ProductInfo {
   name: string;
   brand?: string;
   imageUrl?: string;
-  dataAiHint?: string; // Added for consistency
-  ingredients: string[] | string; // Can be array or single string
+  dataAiHint?: string;
+  ingredients: string[] | string; 
   nutritionalInfo?: Record<string, string>;
+  category?: string; // Added category
 }
 
 export type CompatibilityStatus = "Safe" | "Contains Allergen" | "Not Recommended" | "Unknown";
@@ -56,3 +57,4 @@ export interface ScanResult extends ProductInfo {
   alternatives?: string[];
   scannedAt: string; // ISO Date string
 }
+
