@@ -1,11 +1,6 @@
 
 /* Onboarding.module.css */
-body { /* Applied via globals.css or layout, ensure Poppins is the body font */
-    font-family: 'Poppins', sans-serif; /* Make sure Poppins is loaded globally */
-    overflow: hidden; /* Prevent body scroll on swipe */
-    touch-action: pan-y; /* Allow vertical scroll but prioritize horizontal for carousel */
-    background-color: #f8fafc; /* Default light gray background */
-}
+/* Removed body selector as it's not allowed in CSS Modules and its styles are handled elsewhere or dynamically */
 
 .carouselContainer {
     width: 100vw;

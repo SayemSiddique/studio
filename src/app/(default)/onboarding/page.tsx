@@ -49,7 +49,6 @@ const OnboardingSlides = [
           </div>
           <div className={cn(styles.safeCheck, "animate-fadeInOut")}>SAFE</div>
         </div>
-        {/* Scan beam removed from here */}
       </div>
     ),
     headline: "Scan in Seconds. Know Instantly.",
@@ -131,6 +130,19 @@ export default function OnboardingPage() {
   const [isDragging, setIsDragging] = useState(false);
   
   const totalSlides = OnboardingSlides.length;
+
+  useEffect(() => {
+    // Apply body styles for this page
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'pan-y'; // Or 'none' if horizontal swipe is the only desired interaction
+
+    // Cleanup function to remove styles when component unmounts
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, []);
+
 
   const handleDragStart = useCallback((clientX: number) => {
     setIsDragging(true);
@@ -277,3 +289,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
