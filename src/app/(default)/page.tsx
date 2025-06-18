@@ -1,9 +1,10 @@
+
 "use client";
 
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { UtensilsCrossed } from 'lucide-react';
+import { Leaf } from 'lucide-react'; // Changed from UtensilsCrossed
 import { Progress } from '@/components/ui/progress';
 
 export default function SplashScreen() {
@@ -35,7 +36,7 @@ export default function SplashScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary p-6">
       <div className="text-center animate-fadeIn">
-        <UtensilsCrossed className="mx-auto h-24 w-24 text-primary mb-6" />
+        <Leaf className="mx-auto h-24 w-24 text-primary mb-6" /> {/* Changed from UtensilsCrossed */}
         <h1 className="text-5xl font-bold text-primary font-headline mb-3">
           Safora
         </h1>
