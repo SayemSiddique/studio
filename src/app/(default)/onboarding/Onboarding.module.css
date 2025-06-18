@@ -1,6 +1,7 @@
 
+
 /* Onboarding.module.css */
-/* Removed body selector as it's not allowed in CSS Modules and its styles are handled elsewhere or dynamically */
+/* Styles for the body tag are handled dynamically in page.tsx or globally */
 
 .carouselContainer {
     width: 100vw;
@@ -11,6 +12,7 @@
 
 .carousel {
     display: flex;
+    /* width set dynamically based on slide count */
     height: 100%;
     transition: transform 0.5s ease-in-out;
     cursor: grab; /* Indicate draggable */
@@ -30,8 +32,6 @@
 }
 
 /* Specific Slide Backgrounds are handled by utility classes in globals.css or inline for simplicity if few */
-/* Example: .slide1 { background: linear-gradient(135deg, #ffffff 0%, #e6f7ef 100%); } */
-/* These specific slide backgrounds (like .slide-1, .slide-2) are applied via backgroundClass in OnboardingSlides data and globals.css */
 
 .indicatorContainer {
     display: flex;
@@ -75,8 +75,9 @@
 
 .illustrationContainer {
     width: 100%;
-    height: 40vh; /* Adjust as needed, or use fixed pixel value */
     min-height: 250px; /* Ensure minimum space for illustration */
+    height: auto; /* Allow height to adjust based on content */
+    max-height: 40vh; /* Max height to prevent it from becoming too large */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -183,94 +184,72 @@
     opacity: 0.6;
 }
 
-/* Adjusted Scan Container for Slide 2 */
-.scanContainer {
+/* New iPhone Mockup Styles for Slide 2 */
+.iphoneMockup {
     position: relative;
-    width: 192px; /* Reduced from 240px */
-    height: 320px; /* Reduced from 400px */
+    width: 150px; /* Base width for smaller phones */
+    height: 300px; /* Maintain aspect ratio */
+    background-color: #1c1c1e; /* Dark grey for iPhone body */
+    border-radius: 25px; /* Rounded corners */
+    padding: 8px; /* Bezel effect */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255,255,255,0.05) inset; /* Subtle inset border */
+    margin: 0 auto; /* Center in the illustration container */
 }
 
-.phoneMockup {
+.iphoneScreen {
     width: 100%;
     height: 100%;
-    background-color: #2d3748; /* gray-800 */
-    border-radius: 20px; /* Reduced from 24px */
-    padding: 10px; /* Reduced from 12px */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    background-color: #000000; /* Black screen */
+    border-radius: 18px; /* Inner screen rounding */
     position: relative;
     overflow: hidden;
 }
 
-.phoneScreen {
-    width: 100%;
-    height: 100%;
-    background-color: #1a202c; /* gray-900 */
-    border-radius: 12px; /* Reduced from 16px */
-    overflow: hidden;
-    position: relative;
-}
-
-.scanArea {
+.iphoneNotch {
     position: absolute;
-    top: 50%;
+    top: 0px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 128px; /* Reduced from 160px */
-    height: 80px; /* Reduced from 100px */
-    border: 2px solid #56ccf2; /* sky-400 */
-    border-radius: 6px; /* Reduced from 8px */
-    box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7); /* Creates the dark overlay */
-}
-
-.scanLineAnim { /* Renamed to avoid conflict with Tailwind's scan */
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background-color: #56ccf2; /* sky-400 */
-    top: 0;
-    left: 0;
-    box-shadow: 0 0 8px #56ccf2; /* sky-400 */
-    animation: scanLine 2s linear infinite; /* Ensure this animation is defined in tailwind.config or here */
-}
-
-.barcode {
-    position: absolute;
-    width: 96px; /* Reduced from 120px */
-    height: 48px; /* Reduced from 60px */
-    background: repeating-linear-gradient(to right, 
-        #000 0px, #000 1px, /* Thinner lines for smaller barcode */
-        transparent 1px, transparent 2px, 
-        #000 2px, #000 3px,
-        transparent 3px, transparent 4px,
-        #000 4px, #000 5px,
-        transparent 5px, transparent 6px);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.safeCheck {
-    position: absolute;
-    width: 64px; /* Reduced from 80px */
-    height: 64px; /* Reduced from 80px */
-    background-color: #2ecc71; /* emerald-500 */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px; /* Reduced from 32px */
-    font-weight: 700;
-    top: 70%; /* Adjust if needed */
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    /* animation: fadeInOut 3s ease-in-out infinite; Will be animate-fadeInOut from tailwind config */
-    box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
+    transform: translateX(-50%);
+    width: 50%; /* Notch width relative to screen */
+    height: 15px; /* Notch height */
+    background-color: #1c1c1e; /* Match phone body */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    z-index: 1; /* Ensure notch is above screen content if any */
 }
 
 
-/* Removed .scanBeam and @keyframes scanBeam */
+/* Responsive adjustments for iPhone mockup */
+@media (min-width: 375px) { /* iPhone SE/6/7/8 size and up */
+    .iphoneMockup {
+        width: 160px;
+        height: 320px;
+        border-radius: 28px;
+        padding: 9px;
+    }
+    .iphoneScreen {
+        border-radius: 20px;
+    }
+    .iphoneNotch {
+        height: 18px;
+    }
+}
+
+@media (min-width: 414px) { /* iPhone XR/11/Plus sizes */
+     .iphoneMockup {
+        width: 170px;
+        height: 340px;
+        border-radius: 30px;
+        padding: 10px;
+    }
+    .iphoneScreen {
+        border-radius: 22px;
+    }
+    .iphoneNotch {
+        height: 20px;
+    }
+}
+
 
 .profileContainer {
     position: relative;
@@ -303,7 +282,6 @@
     height: 140px;
     border-radius: 50%;
     border: 2px solid rgba(46, 204, 113, 0.3); /* emerald-500 with opacity */
-    /* animation: pulse 2s ease-in-out infinite; Will be animate-pulseSlow from tailwind config */
 }
 
 .dietaryIcons {
@@ -311,10 +289,9 @@
     width: 280px;
     height: 280px;
     border-radius: 50%;
-    display: flex; /* Added for centering if needed, though children are absolute */
+    display: flex; 
     align-items: center;
     justify-content: center;
-    /* animation: rotate 30s linear infinite; Will be animate-rotate from tailwind config */
 }
 
 .dietaryIcon {
@@ -362,21 +339,20 @@
     color: #ff6b6b; /* red-400 */
 }
 
-/* Adjusted positioning for icons to prevent overlap with a central element */
 .iconSugar {
-    top: 15%; /* Example: Pushes it towards top-left from center */
-    left: 15%;  /* Example: Pushes it towards top-left from center */
-    transform: translate(-20%, -20%); /* Fine-tune based on actual rotation point */
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #f1c40f; /* amber-500 */
+    top: 15%; 
+    left: 15%;  
+    transform: translate(-20%, -20%); 
+    background-color: #f8f9fa; 
+    color: #f1c40f; 
 }
 
 .iconPeanut {
-    bottom: 15%;/* Example: Pushes it towards bottom-right */
-    right: 15%; /* Example: Pushes it towards bottom-right */
-    transform: translate(20%, 20%); /* Fine-tune */
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #ff6b6b; /* red-400 */
+    bottom: 15%;
+    right: 15%; 
+    transform: translate(20%, 20%); 
+    background-color: #f8f9fa; 
+    color: #ff6b6b; 
 }
 
 
@@ -450,7 +426,6 @@
     border-radius: 50%;
     margin-bottom: 8px;
 }
-/* Specific item colors are now handled by inline styles in JSX to avoid :nth-child complexity */
 
 .badge {
     padding: 6px 12px;
@@ -499,7 +474,6 @@
 
 .swipeArrow {
     margin-left: 8px;
-    /* animation: swipeArrow 1.5s ease-in-out infinite; Will be animate-swipeArrow from tailwind config */
 }
 
 .gridOverlay {
@@ -525,42 +499,23 @@
     font-size: 20px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* animation: float 4s ease-in-out infinite; Will be animate-float from tailwind config */
 }
 
-/* Individual food item positions - these could be applied with cn() and conditional styling in JSX too */
 .food1 {
     top: 20%;
     left: 20%;
-    /* animation-delay: 0s; Applied via animate-float in JSX */
 }
 
 .food2 {
     top: 30%;
     right: 20%;
-    /* animation-delay: 0.5s; Applied via animate-float in JSX */
 }
 
 .food3 {
     bottom: 30%;
     left: 30%;
-    /* animation-delay: 1s; Applied via animate-float in JSX */
 }
 .food4 {
     bottom: 20%;
     right: 30%;
-    /* animation-delay: 1.5s; Applied via animate-float in JSX */
 }
-
-/* Animations - these are defined in tailwind.config.ts and applied with animate-* utilities */
-/* @keyframes float, @keyframes pulse, @keyframes scanLine, @keyframes fadeInOut, @keyframes rotate, @keyframes swipeArrow */
-
-/* Ensure keyframes for animations that might not be in tailwind.config.ts are here or added there */
-/* For example, scanLine is used as scanLineAnim in JSX. */
-/* If these are not in tailwind.config, they should be here: */
-
-/* @keyframes scanLine {
-    0% { top: 0; }
-    100% { top: 100%; }
-} */
-/* It's better to have them in tailwind.config.ts for consistency */

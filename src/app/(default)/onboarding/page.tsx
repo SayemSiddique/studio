@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './Onboarding.module.css';
 import { cn } from '@/lib/utils';
-import { Logo } from '../../../components/core/Logo'; // Import the main Logo component
+import { Logo } from '../../../components/core/Logo'; 
 
 const OnboardingSlides = [
   {
@@ -38,16 +38,10 @@ const OnboardingSlides = [
     backgroundClass: 'bg-onboarding-slide2',
     illustration: (
       <div className={styles.illustrationContainer}>
-        <div className={styles.scanContainer}>
-          <div className={styles.phoneMockup}>
-            <div className={styles.phoneScreen}>
-              <div className={styles.scanArea}>
-                <div className={styles.scanLineAnim}></div>
-                <div className={styles.barcode}></div>
-              </div>
-            </div>
+        <div className={styles.iphoneMockup}>
+          <div className={styles.iphoneScreen}>
+            <div className={styles.iphoneNotch}></div>
           </div>
-          <div className={cn(styles.safeCheck, "animate-fadeInOut")}>SAFE</div>
         </div>
       </div>
     ),
@@ -57,13 +51,13 @@ const OnboardingSlides = [
   },
   {
     id: 'slide-3',
-    backgroundClass: 'bg-white', // Corresponds to styles.slide3 in CSS Module
+    backgroundClass: 'bg-white', 
     illustration: (
       <div className={styles.illustrationContainer}>
         <div className={styles.profileContainer}>
           <div className={styles.profileAvatar}>👤</div>
         </div>
-        <div className={cn(styles.shieldOverlay, "animate-pulseSlow")}></div> {/* Ensure animate-pulseSlow is used if defined */}
+        <div className={cn(styles.shieldOverlay, "animate-pulseSlow")}></div> 
         <div className={cn(styles.dietaryIcons, "animate-rotate")}>
           <div className={cn(styles.dietaryIcon, styles.iconHalal)}>🌙</div>
           <div className={cn(styles.dietaryIcon, styles.iconVegan)}>🥦</div>
@@ -132,11 +126,9 @@ export default function OnboardingPage() {
   const totalSlides = OnboardingSlides.length;
 
   useEffect(() => {
-    // Apply body styles for this page
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'pan-y'; // Or 'none' if horizontal swipe is the only desired interaction
+    document.body.style.touchAction = 'pan-y'; 
 
-    // Cleanup function to remove styles when component unmounts
     return () => {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
@@ -158,9 +150,8 @@ export default function OnboardingPage() {
     const currentOffset = -currentSlide * window.innerWidth;
     
     let newTranslateX = currentOffset + diff;
-    // Add resistance to overscrolling
     if ((currentSlide === 0 && diff > 0) || (currentSlide === totalSlides - 1 && diff < 0)) {
-      newTranslateX = currentOffset + diff / 3; // Reduce swipe effect by a factor
+      newTranslateX = currentOffset + diff / 3; 
     }
     carouselRef.current.style.transform = `translateX(${newTranslateX}px)`;
   }, [isDragging, startX, currentSlide, totalSlides]);
@@ -170,8 +161,10 @@ export default function OnboardingPage() {
     setIsDragging(false);
     carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
 
-    const endTranslateX = parseFloat(carouselRef.current.style.transform.replace('translateX(', '').replace('px)', ''));
-    const threshold = window.innerWidth / 4; // A quarter of the screen width
+    const endTranslateXString = carouselRef.current.style.transform.match(/translateX\(([^px]+)px\)/);
+    const endTranslateX = endTranslateXString ? parseFloat(endTranslateXString[1]) : 0;
+
+    const threshold = window.innerWidth / 4; 
     const slideWidth = window.innerWidth;
     const currentOffset = -currentSlide * slideWidth;
     const movedDistance = endTranslateX - currentOffset;
@@ -181,7 +174,6 @@ export default function OnboardingPage() {
     } else if (movedDistance > threshold && currentSlide > 0) {
       setCurrentSlide(prev => prev - 1);
     } else {
-      // Snap back to the current slide if threshold not met
       carouselRef.current.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
     }
   }, [isDragging, currentSlide, totalSlides]);
@@ -189,17 +181,14 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (carouselRef.current) {
-        // Ensure the carousel transitions to the correct slide
         carouselRef.current.style.transform = `translateX(-${currentSlide * 100}vw)`;
     }
   }, [currentSlide]);
 
-  // Touch event handlers
   const onTouchStart = (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX);
   const onTouchMove = (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX);
   const onTouchEnd = () => handleDragEnd();
 
-  // Mouse event handlers
   const onMouseDown = (e: React.MouseEvent) => {
     handleDragStart(e.clientX);
     if(carouselRef.current) carouselRef.current.style.cursor = 'grabbing';
@@ -229,7 +218,7 @@ export default function OnboardingPage() {
       <div
         ref={carouselRef}
         className={styles.carousel}
-        style={{ width: `${totalSlides * 100}vw` }} // Total width for all slides
+        style={{ width: `${totalSlides * 100}vw` }} 
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -238,14 +227,13 @@ export default function OnboardingPage() {
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseLeave}
       >
-        {OnboardingSlides.map((slide, index) => (
+        {OnboardingSlides.map((slide) => (
           <div key={slide.id} className={cn(styles.carouselSlide, styles[slide.id], slide.backgroundClass, `font-['Poppins']`)}>
             {slide.showLogo && (
               <div className="absolute top-6 left-6 z-20">
                 <Logo />
               </div>
             )}
-            {/* Specific overlays like grid for slide-2 */}
             {slide.id === 'slide-2' && <div className={styles.gridOverlay}></div>}
 
             <div className={styles.contentContainer}>
