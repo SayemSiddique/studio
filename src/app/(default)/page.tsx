@@ -59,7 +59,7 @@ export default function SplashScreen() {
         )}
       >
         {/* Logo */}
-        <div className="mb-8 sm:mb-12 animate-fadeIn [animation-delay:0.5s]">
+        <div className="mb-8 sm:mb-12">
             <Image 
               src={MainLogo} 
               alt="Safora Logo" 
@@ -71,26 +71,26 @@ export default function SplashScreen() {
         </div>
 
         {/* Tagline */}
-        <div className="text-center mb-8 sm:mb-12 animate-fadeIn [animation-delay:1s]">
+        <div className="text-center mb-8 sm:mb-12">
           <p className="text-primary text-lg sm:text-xl font-medium">Know what's in your food</p>
           <p className="text-muted-foreground text-sm sm:text-base mt-1">Scan • Analyze • Eat Smart</p>
         </div>
 
         {/* Food Icons */}
         <div className="flex justify-center space-x-4 sm:space-x-6 md:space-x-8 mb-8 sm:mb-12">
-          <div className="flex flex-col items-center animate-fadeIn [animation-delay:1.2s]">
+          <div className="flex flex-col items-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-card rounded-full flex items-center justify-center shadow-lg border border-primary/10">
               <AllergenIcon />
             </div>
             <p className="text-xs text-center mt-2 text-foreground/80 font-medium">Allergens</p>
           </div>
-          <div className="flex flex-col items-center animate-fadeIn [animation-delay:1.4s]">
+          <div className="flex flex-col items-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-card rounded-full flex items-center justify-center shadow-lg border border-primary/10">
               <NutritionIcon />
             </div>
             <p className="text-xs text-center mt-2 text-foreground/80 font-medium">Nutrition</p>
           </div>
-          <div className="flex flex-col items-center animate-fadeIn [animation-delay:1.6s]">
+          <div className="flex flex-col items-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-card rounded-full flex items-center justify-center shadow-lg border border-primary/10">
               <WarningsIcon />
             </div>
@@ -102,7 +102,7 @@ export default function SplashScreen() {
         <div className="w-64 max-w-[90%] sm:w-72 bg-muted rounded-full h-3 overflow-hidden mx-auto mb-3 border border-border">
           <div className="h-full bg-primary rounded-full animate-progress"></div>
         </div>
-        <p className="text-muted-foreground text-sm sm:text-base animate-fadeIn [animation-delay:1.8s]">Loading your healthy future...</p>
+        <p className="text-muted-foreground text-sm sm:text-base">Loading your healthy future...</p>
       </div>
     </div>
   );
