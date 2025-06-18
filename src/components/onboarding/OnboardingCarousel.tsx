@@ -21,14 +21,14 @@ const onboardingSteps = [
     icon: <ScanLine className="h-16 w-16 text-primary" />,
     title: "Scan Food Products",
     description: "Easily scan barcodes to get instant insights about food products.",
-    image: "https://images.unsplash.com/photo-1706759755964-b0aa57a58c5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxNHx8Zm9vZCUyMHNjYW58ZW58MHx8fHwxNzQ5ODA4Mjk1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://free-barcode.com/barcode/barcode-application/barcodes-in-food-industry/6.jpg",
     dataAiHint: "barcode scanning",
   },
   {
     icon: <UserCheck className="h-16 w-16 text-primary" />,
     title: "Personalize Your Diet",
     description: "Set up your dietary preferences, allergies, and health goals.",
-    image: "https://images.unsplash.com/photo-1511909525232-61113c912358?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxM3x8aGVhbHRoJTIwZGlldHxlbnwwfHx8fDE3NDk4MTQwMzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "https://www.news-medical.net/images/Article_Images/ImageForArticle_22832_16576347062137346.jpg",
     dataAiHint: "healthy food",
   },
   {
