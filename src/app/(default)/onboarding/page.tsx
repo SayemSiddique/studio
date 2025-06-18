@@ -5,8 +5,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './Onboarding.module.css';
 import { cn } from '@/lib/utils';
-import { Logo } from '../../../components/core/Logo'; 
-import Image from 'next/image'; // Import next/image
+import { Logo } from '../../../components/core/Logo';
+import Image from 'next/image';
+import SecondOnboardingSlideImage from '@/image/2ndOnboardingSlide.png';
 
 const OnboardingSlides = [
   {
@@ -40,14 +41,12 @@ const OnboardingSlides = [
     showLogo: true,
     illustration: (
         <div className={cn(styles.illustrationContainer, styles.slide2IllustrationContainer, "flex items-center justify-center")}>
-            {/* Placeholder for GIF - assuming you'll put it in public/images/ */}
-            <Image 
-              src="/images/placeholder-animation.gif" // Replace with your actual GIF path
-              alt="Scanning animation" 
-              width={300} // Adjust based on your GIF's aspect ratio
-              height={250} // Adjust based on your GIF's aspect ratio
+            <Image
+              src={SecondOnboardingSlideImage}
+              alt="Product scanning illustration"
+              width={300}
+              height={250}
               className={styles.responsiveGif}
-              unoptimized // Recommended for GIFs
             />
         </div>
     ),
@@ -56,14 +55,14 @@ const OnboardingSlides = [
   },
   {
     id: 'slide-3',
-    backgroundClass: 'bg-white', 
+    backgroundClass: 'bg-white',
     showLogo: true,
     illustration: (
       <div className={styles.illustrationContainer}>
         <div className={styles.profileContainer}>
           <div className={styles.profileAvatar}>👤</div>
         </div>
-        <div className={cn(styles.shieldOverlay, "animate-pulseSlow")}></div> 
+        <div className={cn(styles.shieldOverlay, "animate-pulseSlow")}></div>
         <div className={cn(styles.dietaryIcons, "animate-rotate")}>
           <div className={cn(styles.dietaryIcon, styles.iconHalal)}>🌙</div>
           <div className={cn(styles.dietaryIcon, styles.iconVegan)}>🥦</div>
@@ -127,15 +126,12 @@ export default function OnboardingPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [startX, setStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   const totalSlides = OnboardingSlides.length;
 
   useEffect(() => {
-    // Apply styles to body for onboarding
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'pan-y'; // Allow vertical scroll but prioritize horizontal for carousel if mixed content was present
-
-    // Cleanup function to remove styles when component unmounts
+    document.body.style.touchAction = 'pan-y';
     return () => {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
@@ -147,7 +143,7 @@ export default function OnboardingPage() {
     setIsDragging(true);
     setStartX(clientX);
     if (carouselRef.current) {
-      carouselRef.current.style.transition = 'none'; // Disable transition during drag
+      carouselRef.current.style.transition = 'none';
     }
   }, []);
 
@@ -155,11 +151,10 @@ export default function OnboardingPage() {
     if (!isDragging || !carouselRef.current) return;
     const diff = clientX - startX;
     const currentOffset = -currentSlide * window.innerWidth;
-    
-    // Add slight resistance at boundaries
+
     let newTranslateX = currentOffset + diff;
     if ((currentSlide === 0 && diff > 0) || (currentSlide === totalSlides - 1 && diff < 0)) {
-      newTranslateX = currentOffset + diff / 3; // Dampen the effect
+      newTranslateX = currentOffset + diff / 3;
     }
     carouselRef.current.style.transform = `translateX(${newTranslateX}px)`;
   }, [isDragging, startX, currentSlide, totalSlides]);
@@ -167,15 +162,15 @@ export default function OnboardingPage() {
   const handleDragEnd = useCallback(() => {
     if (!isDragging || !carouselRef.current) return;
     setIsDragging(false);
-    carouselRef.current.style.transition = 'transform 0.5s ease-in-out'; // Re-enable transition
+    carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
 
     const endTranslateXString = carouselRef.current.style.transform.match(/translateX\(([^px]+)px\)/);
     const endTranslateX = endTranslateXString ? parseFloat(endTranslateXString[1]) : 0;
 
-    const threshold = window.innerWidth / 4; // Swipe threshold
+    const threshold = window.innerWidth / 4;
     const slideWidth = window.innerWidth;
     const currentOffset = -currentSlide * slideWidth;
-    const movedDistance = endTranslateX - currentOffset; 
+    const movedDistance = endTranslateX - currentOffset;
 
     if (movedDistance < -threshold && currentSlide < totalSlides - 1) {
       setCurrentSlide(prev => prev + 1);
@@ -193,12 +188,10 @@ export default function OnboardingPage() {
     }
   }, [currentSlide]);
 
-  // Touch events
   const onTouchStart = (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX);
   const onTouchMove = (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX);
   const onTouchEnd = () => handleDragEnd();
 
-  // Mouse events
   const onMouseDown = (e: React.MouseEvent) => {
     handleDragStart(e.clientX);
     if(carouselRef.current) carouselRef.current.style.cursor = 'grabbing';
@@ -209,7 +202,7 @@ export default function OnboardingPage() {
     if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
   };
   const onMouseLeave = () => {
-    if (isDragging) { 
+    if (isDragging) {
         handleDragEnd();
         if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
     }
@@ -228,7 +221,7 @@ export default function OnboardingPage() {
       <div
         ref={carouselRef}
         className={styles.carousel}
-        style={{ width: `${totalSlides * 100}vw` }} 
+        style={{ width: `${totalSlides * 100}vw` }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -242,7 +235,7 @@ export default function OnboardingPage() {
              {slide.showLogo && (
                 <div className={cn(
                     "absolute z-20",
-                    slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6" // Consistent top-left for all slides with logo
+                     slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6"
                 )}>
                     <Logo />
                 </div>
@@ -292,4 +285,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-
