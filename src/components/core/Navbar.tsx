@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, ScanLine, ListChecks, UserCircle2, Settings, LogOut, Menu } from 'lucide-react';
+import { Home, ScanLine, ListChecks, UserCircle2, Settings, LogOut, Menu, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/core/Logo';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +24,7 @@ const navLinks = [
   { href: '/home', label: 'Home', icon: <Home className="h-5 w-5" /> },
   { href: '/scan', label: 'Scan', icon: <ScanLine className="h-5 w-5" /> },
   { href: '/history', label: 'History', icon: <ListChecks className="h-5 w-5" /> },
+  { href: '/favorites', label: 'Favorites', icon: <Heart className="h-5 w-5" /> },
 ];
 
 export function Navbar() {
@@ -53,7 +55,7 @@ export function Navbar() {
     </Button>
   );
   
-  const userInitial = user?.email ? user.email.charAt(0).toUpperCase() : "S";
+  const userInitial = user?.email ? user.email.charAt(0).toUpperCase() : (user?.displayName ? user.displayName.charAt(0).toUpperCase() : "S");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
@@ -84,11 +86,15 @@ export function Navbar() {
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-1 lg:gap-2">
           {navLinks.map((link) => (
             <Button key={link.href} variant={pathname === link.href ? "secondary" : "ghost"} asChild 
-              className={cn(pathname === link.href && "bg-primary/10 text-primary hover:bg-primary/20")}>
-              <Link href={link.href} className="flex items-center gap-2 px-3 py-2 text-sm font-medium">
+              className={cn(
+                "px-3 py-2 text-sm font-medium",
+                pathname === link.href && "bg-primary/10 text-primary hover:bg-primary/20"
+              )}
+            >
+              <Link href={link.href} className="flex items-center gap-2">
                 {link.icon}
                 {link.label}
               </Link>
@@ -100,9 +106,9 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-9 w-9">
+                <Avatar className="h-9 w-9 border border-primary/20">
                   <AvatarImage src={user.photoURL || `https://placehold.co/100x100.png?text=${userInitial}`} alt={user.displayName || user.email || "User"} data-ai-hint="profile avatar" />
-                  <AvatarFallback>{userInitial}</AvatarFallback>
+                  <AvatarFallback className="bg-muted">{userInitial}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -110,9 +116,9 @@ export function Navbar() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user.displayName || user.email?.split('@')[0]}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  {user.email && <p className="text-xs leading-none text-muted-foreground">
                     {user.email}
-                  </p>
+                  </p>}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

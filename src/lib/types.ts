@@ -1,3 +1,4 @@
+
 export interface DietaryPreferences {
   isVegetarian: boolean;
   isVegan: boolean;
@@ -33,7 +34,7 @@ export interface UserProfile {
   dietaryPreferences: Partial<DietaryPreferences>;
   allergies: Partial<Allergies>;
   healthGoals: Partial<HealthGoals>;
-  customRestrictions?: string; // Consolidated for AI
+  customRestrictions?: string;
 }
 
 export interface ProductInfo {
@@ -41,16 +42,17 @@ export interface ProductInfo {
   name: string;
   brand?: string;
   imageUrl?: string;
-  ingredients: string[]; // Or a single string
-  nutritionalInfo?: Record<string, string>; // e.g. { calories: '100', protein: '5g' }
+  dataAiHint?: string; // Added for consistency
+  ingredients: string[] | string; // Can be array or single string
+  nutritionalInfo?: Record<string, string>;
 }
 
 export type CompatibilityStatus = "Safe" | "Contains Allergen" | "Not Recommended" | "Unknown";
 
 export interface ScanResult extends ProductInfo {
   compatibility: CompatibilityStatus;
-  reason: string; // From AI
-  summary?: string; // From AI
-  alternatives?: string[]; // From AI
+  reason: string;
+  summary?: string;
+  alternatives?: string[];
   scannedAt: string; // ISO Date string
 }

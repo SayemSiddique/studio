@@ -6,7 +6,7 @@ import { ScanResult } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ListChecks, Search, FilterX } from 'lucide-react';
+import { ListChecks, Search, FilterX, ShoppingBasket } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,7 +124,7 @@ const mockHistory: ScanResult[] = [
     scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 90).toISOString(),
   },
   {
-    barcode: '1234567890123', // Original mock item
+    barcode: '1234567890123',
     name: 'Organic Peanut Butter',
     brand: 'NatureNosh',
     imageUrl: 'https://images.unsplash.com/photo-1624684244440-1130c3b65783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZWFudXQlMjBidXR0ZXJ8ZW58MHx8fHwxNzQ5ODE0Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080',
@@ -135,7 +135,7 @@ const mockHistory: ScanResult[] = [
     scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 100).toISOString(),
   },
   {
-    barcode: '9876543210987', // Original mock item
+    barcode: '9876543210987',
     name: 'Whole Wheat Bread',
     brand: 'Bakery Co.',
     imageUrl: 'https://images.unsplash.com/photo-1676723066040-614d1ae56666?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3aGVhdCUyMGJyZWFkfGVufDB8fHx8MTc0OTgxNDcwNHww&ixlib=rb-4.1.0&q=80&w=1080',
@@ -247,14 +247,13 @@ export default function HistoryPage() {
     if (storedHistory) {
       setScanHistory(JSON.parse(storedHistory));
     } else {
-      // Populate with mock if nothing in local storage for demo
       setScanHistory(mockHistory);
       localStorage.setItem('saforaScanHistory', JSON.stringify(mockHistory));
     }
   }, []);
 
   const filteredAndSortedHistory = useMemo(() => {
-    let result = scanHistory;
+    let result = [...scanHistory]; // Create a copy to avoid mutating original state directly
 
     if (searchTerm) {
       result = result.filter(item =>
@@ -304,54 +303,60 @@ export default function HistoryPage() {
       </div>
 
       <Card className="p-6 shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-end">
-          <div className="lg:col-span-2">
-            <Label htmlFor="search" className="text-sm font-medium">Search by Name/Brand</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                id="search"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+        <CardHeader className="p-0 pb-6">
+            <CardTitle className="text-xl">Filter & Sort Scans</CardTitle>
+            <CardDescription>Refine your view of previously scanned products.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-end">
+            <div className="lg:col-span-2">
+                <Label htmlFor="search" className="text-sm font-medium">Search by Name/Brand</Label>
+                <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                    id="search"
+                    placeholder="E.g., 'Apples' or 'Nature's Crisp'"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                />
+                </div>
             </div>
-          </div>
-          <div>
-            <Label htmlFor="filterStatus" className="text-sm font-medium">Filter by Status</Label>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger id="filterStatus">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="Safe">Safe</SelectItem>
-                <SelectItem value="Contains Allergen">Contains Allergen</SelectItem>
-                <SelectItem value="Not Recommended">Not Recommended</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="sortBy" className="text-sm font-medium">Sort By</Label>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger id="sortBy">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date_desc">Date (Newest First)</SelectItem>
-                <SelectItem value="date_asc">Date (Oldest First)</SelectItem>
-                <SelectItem value="name_asc">Name (A-Z)</SelectItem>
-                <SelectItem value="name_desc">Name (Z-A)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        {(searchTerm || filterStatus !== 'all' || sortBy !== 'date_desc') && (
-          <Button variant="ghost" onClick={clearFilters} className="mb-4 text-accent hover:text-accent/90">
-            <FilterX className="mr-2 h-4 w-4" /> Clear Filters & Sort
-          </Button>
-        )}
+            <div>
+                <Label htmlFor="filterStatus" className="text-sm font-medium">Filter by Status</Label>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger id="filterStatus">
+                    <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="Safe">Safe</SelectItem>
+                    <SelectItem value="Contains Allergen">Contains Allergen</SelectItem>
+                    <SelectItem value="Not Recommended">Not Recommended</SelectItem>
+                </SelectContent>
+                </Select>
+            </div>
+            <div>
+                <Label htmlFor="sortBy" className="text-sm font-medium">Sort By</Label>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger id="sortBy">
+                    <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="date_desc">Date (Newest First)</SelectItem>
+                    <SelectItem value="date_asc">Date (Oldest First)</SelectItem>
+                    <SelectItem value="name_asc">Name (A-Z)</SelectItem>
+                    <SelectItem value="name_desc">Name (Z-A)</SelectItem>
+                </SelectContent>
+                </Select>
+            </div>
+            </div>
+            {(searchTerm || filterStatus !== 'all' || sortBy !== 'date_desc') && (
+            <Button variant="ghost" onClick={clearFilters} className="mb-4 text-primary hover:text-primary/90 hover:bg-primary/5">
+                <FilterX className="mr-2 h-4 w-4" /> Clear Filters & Sort
+            </Button>
+            )}
+        </CardContent>
       </Card>
 
 
@@ -362,15 +367,20 @@ export default function HistoryPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <ListChecks className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold text-foreground mb-2">No Scans Found</h3>
-          <p className="text-muted-foreground">
-            {scanHistory.length === 0 ? "You haven't scanned any products yet." : "No products match your current filters."}
+        <div className="text-center py-12 min-h-[40vh] flex flex-col items-center justify-center bg-muted/30 rounded-lg">
+          <ShoppingBasket className="mx-auto h-20 w-20 text-muted-foreground mb-6" />
+          <h3 className="text-2xl font-semibold text-foreground mb-2">No Scans Found</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            {scanHistory.length === 0 ? "You haven't scanned any products yet. Start scanning to build your history!" : "No products match your current filters. Try adjusting your search or filter criteria."}
           </p>
-          {scanHistory.length > 0 && searchTerm && (
-             <Button variant="link" onClick={() => setSearchTerm('')} className="mt-2 text-accent hover:text-accent/90">
-                Clear search
+          {scanHistory.length > 0 && (searchTerm || filterStatus !== 'all') && (
+             <Button variant="link" onClick={clearFilters} className="mt-4 text-lg text-primary hover:text-primary/90">
+                Clear Filters & Search
+            </Button>
+          )}
+           {scanHistory.length === 0 && (
+             <Button asChild className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Link href="/scan">Scan First Product</Link>
             </Button>
           )}
         </div>

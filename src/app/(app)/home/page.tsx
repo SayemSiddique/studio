@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { ArrowRight, CheckCircle, ListChecks, ScanLine, UserCircle2, UtensilsCrossed } from 'lucide-react';
+import { ArrowRight, CheckCircle, ListChecks, ScanLine, UserCircle2, HeartPulse, Utensils, ShieldCheck } from 'lucide-react';
 import { ScanResult } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import * as React from 'react';
@@ -59,21 +59,20 @@ export default function HomePage() {
     const storedHistory = localStorage.getItem('saforaScanHistory');
     if (storedHistory) {
       const history: ScanResult[] = JSON.parse(storedHistory);
-      // Sort by date to get the most recent ones, then slice
       const sortedHistory = history.sort((a,b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
       setRecentScans(sortedHistory.slice(0,3));
     } else {
-       setRecentScans(mockRecentScans.slice(0,3)); // Use the updated internal mockRecentScans
+       setRecentScans(mockRecentScans.slice(0,3));
     }
 
   }, []);
 
 
   const isProfileSetup = profile && (
-    Object.keys(profile.dietaryPreferences).length > 0 ||
-    Object.keys(profile.allergies).length > 0 ||
-    Object.keys(profile.healthGoals).length > 0 ||
-    (profile.customRestrictions && profile.customRestrictions.length > 0)
+    Object.values(profile.dietaryPreferences).some(value => value === true) ||
+    Object.values(profile.allergies).some(value => value === true) ||
+    Object.values(profile.healthGoals).some(value => value === true) ||
+    (profile.customRestrictions && profile.customRestrictions.trim().length > 0)
   );
 
   return (
@@ -103,7 +102,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hidden md:block text-center">
-             <Image src="https://images.unsplash.com/photo-1666493555974-5f248865fb99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxoZWFsdGh5JTIwcGFja2FnZWQlMjBmb29kfGVufDB8fHx8MTc0OTgxNDYyM3ww&ixlib=rb-4.1.0&q=80&w=1080" alt="Healthy Eating" width={400} height={300} className="rounded-lg shadow-md mx-auto" data-ai-hint="healthy eating fruits" />
+             <Image src="https://images.unsplash.com/photo-1666493555974-5f248865fb99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxoZWFsdGh5JTIwcGFja2FnZWQlMjBmb29kfGVufDB8fHx8MTc0OTgxNDYyM3ww&ixlib=rb-4.1.0&q=80&w=1080" alt="Healthy Eating" width={400} height={300} className="rounded-lg shadow-xl mx-auto" data-ai-hint="healthy eating fruits" />
           </div>
         </div>
       </section>
@@ -111,16 +110,16 @@ export default function HomePage() {
       {!profileLoading && !isProfileSetup && (
         <Card className="bg-accent/20 border-accent shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-accent-foreground flex items-center gap-2">
-              <UserCircle2 className="h-7 w-7 text-accent" />
+            <CardTitle className="text-2xl text-accent-foreground flex items-center gap-3">
+              <UserCircle2 className="h-8 w-8 text-accent" />
               Complete Your Dietary Profile
             </CardTitle>
-            <CardDescription className="text-accent-foreground/80">
+            <CardDescription className="text-accent-foreground/80 mt-1">
               Personalize your experience by setting up your dietary preferences, allergies, and health goals. This will enable Safora to provide accurate insights.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground text-base">
               <Link href="/dietary-profile">
                 Set Up Profile Now <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -130,18 +129,18 @@ export default function HomePage() {
       )}
       
       {isProfileSetup && (
-         <Card className="bg-green-50 border-green-300 shadow-md">
+         <Card className="bg-green-500/10 border-green-500 shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-green-700 flex items-center gap-2">
-              <CheckCircle className="h-7 w-7 text-green-600" />
+            <CardTitle className="text-2xl text-green-700 flex items-center gap-3">
+              <CheckCircle className="h-8 w-8 text-green-600" />
               Dietary Profile Active
             </CardTitle>
-            <CardDescription className="text-green-700/80">
+            <CardDescription className="text-green-700/80 mt-1">
               Your dietary profile is set up. Safora will now use this information to analyze food products.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-600/10">
+            <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-600/10 text-base">
               <Link href="/profile">
                 View or Edit Profile <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -206,7 +205,7 @@ export default function HomePage() {
               <ProductCard key={`${item.barcode}-${item.scannedAt}`} product={item} />
             ))}
           </div>
-           {recentScans.length >= 3 && ( // Check if there are more items than displayed
+           {recentScans.length >= 3 && (
             <div className="mt-8 text-center">
               <Button asChild variant="outline">
                 <Link href="/history">
