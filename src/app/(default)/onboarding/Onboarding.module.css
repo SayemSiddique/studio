@@ -88,7 +88,7 @@
 /* Specific styling for slide 2 illustration container to ensure it behaves well with the content */
 .slide2IllustrationContainer {
     min-height: auto; 
-    max-height: 35vh; 
+    max-height: 28vh; /* Further reduced for smaller image */
 }
 
 .responsiveGif {
@@ -479,5 +479,6 @@
 /* @keyframes pulseSlow, @keyframes rotate, @keyframes float, @keyframes swipeArrow are used by other slides.
 */
 /* scanAnimation and pulseAnimation for the iphone scanner specific to slide 2 */
+
 
 
