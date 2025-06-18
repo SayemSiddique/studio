@@ -110,7 +110,7 @@ body {
   }
 }
 
-/* Added custom splash screen background */
 .splash-background {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Updated to use theme's light green HSL variables */
+  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
 }
