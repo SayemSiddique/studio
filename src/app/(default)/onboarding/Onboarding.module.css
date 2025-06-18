@@ -1,18 +1,24 @@
 
+/* Onboarding.module.css */
+body { /* Applied via globals.css or layout, ensure Poppins is the body font */
+    font-family: 'Poppins', sans-serif; /* Make sure Poppins is loaded globally */
+    overflow: hidden; /* Prevent body scroll on swipe */
+    touch-action: pan-y; /* Allow vertical scroll but prioritize horizontal for carousel */
+    background-color: #f8fafc; /* Default light gray background */
+}
+
 .carouselContainer {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
     position: relative;
-    font-family: 'Poppins', sans-serif; 
-    background-color: #f8fafc; 
 }
 
 .carousel {
     display: flex;
     height: 100%;
     transition: transform 0.5s ease-in-out;
-    cursor: grab;
+    cursor: grab; /* Indicate draggable */
 }
 
 .carouselSlide {
@@ -22,19 +28,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 2rem 1.5rem;
+    justify-content: space-between; /* Pushes indicator to bottom */
+    padding: 2rem 1.5rem; /* Consistent padding */
     position: relative;
-    overflow: hidden;
+    overflow: hidden; /* Clip any overflowing decorative elements */
 }
 
+/* Specific Slide Backgrounds are handled by utility classes in globals.css or inline for simplicity if few */
+/* Example: .slide1 { background: linear-gradient(135deg, #ffffff 0%, #e6f7ef 100%); } */
+/* These specific slide backgrounds (like .slide-1, .slide-2) are applied via backgroundClass in OnboardingSlides data and globals.css */
 
 .indicatorContainer {
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 1.5rem;
-    z-index: 10;
+    margin-bottom: 1.5rem; /* Space from bottom */
+    z-index: 10; /* Above slide content */
 }
 
 .indicator {
@@ -47,10 +56,11 @@
 }
 
 .indicator.active {
-    width: 24px;
-    border-radius: 4px;
+    width: 24px; /* Elongate active indicator */
+    border-radius: 4px; /* Rounded rectangle */
 }
 
+/* Active indicator colors matching slide themes */
 .indicator-0.active { background-color: #2ecc71; } /* emerald-500 */
 .indicator-1.active { background-color: #56ccf2; } /* sky-400 */
 .indicator-2.active { background-color: #6c63ff; } /* indigo-500 */
@@ -58,14 +68,14 @@
 
 .contentContainer {
     width: 100%;
-    max-width: 360px;
+    max-width: 360px; /* Limit content width for readability */
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     z-index: 5;
-    flex-grow: 1;
-    justify-content: center;
+    flex-grow: 1; /* Allow content to take available space */
+    justify-content: center; /* Center content vertically */
 }
 
 .illustrationContainer {
@@ -100,12 +110,12 @@
     color: white;
     font-weight: 600;
     padding: 0.75rem 2rem;
-    border-radius: 50px;
+    border-radius: 50px; /* Pill shape */
     box-shadow: 0 4px 6px rgba(46, 204, 113, 0.25);
     transition: all 0.3s ease;
     cursor: pointer;
-    margin-top: 1rem;
-    border: none;
+    margin-top: 1rem; /* Space above button */
+    border: none; /* Remove default border */
 }
 
 .ctaButton:hover {
@@ -126,6 +136,7 @@
     align-items: center;
     justify-content: center;
     color: white;
+    /* font-size is handled by text-4xl in JSX */
     position: absolute;
     opacity: 0.9;
     box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
@@ -177,18 +188,19 @@
     opacity: 0.6;
 }
 
+/* Adjusted Scan Container for Slide 2 */
 .scanContainer {
     position: relative;
-    width: 240px;
-    height: 400px; /* Or make it responsive */
+    width: 192px; /* Reduced from 240px */
+    height: 320px; /* Reduced from 400px */
 }
 
 .phoneMockup {
     width: 100%;
     height: 100%;
     background-color: #2d3748; /* gray-800 */
-    border-radius: 24px;
-    padding: 12px;
+    border-radius: 20px; /* Reduced from 24px */
+    padding: 10px; /* Reduced from 12px */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
@@ -198,7 +210,7 @@
     width: 100%;
     height: 100%;
     background-color: #1a202c; /* gray-900 */
-    border-radius: 16px;
+    border-radius: 12px; /* Reduced from 16px */
     overflow: hidden;
     position: relative;
 }
@@ -208,10 +220,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 160px;
-    height: 100px;
+    width: 128px; /* Reduced from 160px */
+    height: 80px; /* Reduced from 100px */
     border: 2px solid #56ccf2; /* sky-400 */
-    border-radius: 8px;
+    border-radius: 6px; /* Reduced from 8px */
     box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7); /* Creates the dark overlay */
 }
 
@@ -223,20 +235,20 @@
     top: 0;
     left: 0;
     box-shadow: 0 0 8px #56ccf2; /* sky-400 */
-    animation: scanLine 2s linear infinite;
+    animation: scanLine 2s linear infinite; /* Ensure this animation is defined in tailwind.config or here */
 }
 
 .barcode {
     position: absolute;
-    width: 120px;
-    height: 60px;
+    width: 96px; /* Reduced from 120px */
+    height: 48px; /* Reduced from 60px */
     background: repeating-linear-gradient(to right, 
-        #000 0px, #000 2px, 
-        transparent 2px, transparent 4px, 
-        #000 4px, #000 6px,
-        transparent 6px, transparent 8px,
-        #000 8px, #000 10px,
-        transparent 10px, transparent 12px);
+        #000 0px, #000 1px, /* Thinner lines for smaller barcode */
+        transparent 1px, transparent 2px, 
+        #000 2px, #000 3px,
+        transparent 3px, transparent 4px,
+        #000 4px, #000 5px,
+        transparent 5px, transparent 6px);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -244,35 +256,26 @@
 
 .safeCheck {
     position: absolute;
-    width: 80px;
-    height: 80px;
+    width: 64px; /* Reduced from 80px */
+    height: 64px; /* Reduced from 80px */
     background-color: #2ecc71; /* emerald-500 */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 24px; 
+    font-size: 24px; /* Reduced from 32px */
     font-weight: 700;
-    top: 70%;
+    top: 70%; /* Adjust if needed */
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
+    /* animation: fadeInOut 3s ease-in-out infinite; Will be animate-fadeInOut from tailwind config */
     box-shadow: 0 0 20px rgba(46, 204, 113, 0.6);
 }
 
-.scanBeam {
-    position: absolute;
-    width: 40px;
-    height: 100px;
-    background: linear-gradient(90deg, 
-        rgba(46, 204, 113, 0) 0%, 
-        rgba(46, 204, 113, 0.6) 50%, 
-        rgba(46, 204, 113, 0) 100%);
-    top: 50%;
-    left: 100%;
-    transform: translate(-50%, -50%);
-}
+
+/* Removed .scanBeam and @keyframes scanBeam */
 
 .profileContainer {
     position: relative;
@@ -305,7 +308,7 @@
     height: 140px;
     border-radius: 50%;
     border: 2px solid rgba(46, 204, 113, 0.3); /* emerald-500 with opacity */
-    animation: pulse 2s ease-in-out infinite;
+    /* animation: pulse 2s ease-in-out infinite; Will be animate-pulseSlow from tailwind config */
 }
 
 .dietaryIcons {
@@ -313,9 +316,10 @@
     width: 280px;
     height: 280px;
     border-radius: 50%;
-    display: flex; 
+    display: flex; /* Added for centering if needed, though children are absolute */
     align-items: center;
     justify-content: center;
+    /* animation: rotate 30s linear infinite; Will be animate-rotate from tailwind config */
 }
 
 .dietaryIcon {
@@ -363,20 +367,21 @@
     color: #ff6b6b; /* red-400 */
 }
 
+/* Adjusted positioning for icons to prevent overlap with a central element */
 .iconSugar {
-    top: 15%; 
-    left: 15%;  
-    transform: translate(-20%, -20%); 
-    background-color: #f8f9fa; 
-    color: #f1c40f; 
+    top: 15%; /* Example: Pushes it towards top-left from center */
+    left: 15%;  /* Example: Pushes it towards top-left from center */
+    transform: translate(-20%, -20%); /* Fine-tune based on actual rotation point */
+    background-color: #f8f9fa; /* cool-gray-50 */
+    color: #f1c40f; /* amber-500 */
 }
 
 .iconPeanut {
-    bottom: 15%;
-    right: 15%;
-    transform: translate(20%, 20%); 
-    background-color: #f8f9fa; 
-    color: #ff6b6b; 
+    bottom: 15%;/* Example: Pushes it towards bottom-right */
+    right: 15%; /* Example: Pushes it towards bottom-right */
+    transform: translate(20%, 20%); /* Fine-tune */
+    background-color: #f8f9fa; /* cool-gray-50 */
+    color: #ff6b6b; /* red-400 */
 }
 
 
@@ -450,7 +455,7 @@
     border-radius: 50%;
     margin-bottom: 8px;
 }
-
+/* Specific item colors are now handled by inline styles in JSX to avoid :nth-child complexity */
 
 .badge {
     padding: 6px 12px;
@@ -499,6 +504,7 @@
 
 .swipeArrow {
     margin-left: 8px;
+    /* animation: swipeArrow 1.5s ease-in-out infinite; Will be animate-swipeArrow from tailwind config */
 }
 
 .gridOverlay {
@@ -510,7 +516,7 @@
     background-image: linear-gradient(rgba(86, 204, 242, 0.05) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(86, 204, 242, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
-    z-index: 1;
+    z-index: 1; /* Ensure it's behind content but above slide background */
 }
 
 .floatingFood {
@@ -524,58 +530,42 @@
     font-size: 20px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* animation: float 4s ease-in-out infinite; Will be animate-float from tailwind config */
 }
 
+/* Individual food item positions - these could be applied with cn() and conditional styling in JSX too */
 .food1 {
     top: 20%;
     left: 20%;
+    /* animation-delay: 0s; Applied via animate-float in JSX */
 }
 
 .food2 {
     top: 30%;
     right: 20%;
+    /* animation-delay: 0.5s; Applied via animate-float in JSX */
 }
 
 .food3 {
     bottom: 30%;
     left: 30%;
+    /* animation-delay: 1s; Applied via animate-float in JSX */
 }
 .food4 {
     bottom: 20%;
     right: 30%;
+    /* animation-delay: 1.5s; Applied via animate-float in JSX */
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
+/* Animations - these are defined in tailwind.config.ts and applied with animate-* utilities */
+/* @keyframes float, @keyframes pulse, @keyframes scanLine, @keyframes fadeInOut, @keyframes rotate, @keyframes swipeArrow */
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 0.8; }
-}
+/* Ensure keyframes for animations that might not be in tailwind.config.ts are here or added there */
+/* For example, scanLine is used as scanLineAnim in JSX. */
+/* If these are not in tailwind.config, they should be here: */
 
-@keyframes scanLine {
+/* @keyframes scanLine {
     0% { top: 0; }
     100% { top: 100%; }
-}
-
-@keyframes fadeInOut {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
-}
-
-@keyframes scanBeam {
-    0% { left: 0; }
-    100% { left: 100%; }
-}
-
-@keyframes rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes swipeArrow {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(8px); }
-}
+} */
+/* It's better to have them in tailwind.config.ts for consistency */
