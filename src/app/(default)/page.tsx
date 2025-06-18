@@ -58,8 +58,8 @@ export default function SplashScreen() {
           fadeOut ? "opacity-0" : "opacity-100"
         )}
       >
-        {/* Logo */}
-        <div className="mb-8 sm:mb-12">
+        {/* Logo and App Name */}
+        <div className="mb-6 sm:mb-8">
             <Image 
               src={MainLogo} 
               alt="Safora Logo" 
@@ -68,6 +68,9 @@ export default function SplashScreen() {
               className="mx-auto h-20 w-20 sm:h-24 sm:w-24 object-contain"
               priority // Preload logo image
             />
+            <h1 className="mt-4 text-4xl sm:text-5xl font-bold text-primary uppercase tracking-wider">
+              SAFORA
+            </h1>
         </div>
 
         {/* Tagline */}
@@ -107,3 +110,4 @@ export default function SplashScreen() {
     </div>
   );
 }
+
