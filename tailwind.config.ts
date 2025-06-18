@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -10,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Poppins', 'sans-serif'], // Changed from PT Sans to Poppins
-        headline: ['Poppins', 'sans-serif'], // Changed from PT Sans to Poppins
+        body: ['Poppins', 'sans-serif'], 
+        headline: ['Poppins', 'sans-serif'], 
         code: ['monospace'],
       },
       colors: {
@@ -88,27 +89,64 @@ export default {
             height: '0',
           },
         },
-        'fadeIn': { // Renamed from 'fadeInCustom' to 'fadeIn'
+        'fadeIn': { 
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        'fadeOut': { // Added fadeOut for container
+        'fadeOut': { 
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
-        'progress': { // Added progress animation
+        'progress': { 
           from: { width: '0%' },
           to: { width: '100%' },
+        },
+        'float': {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-10px)' },
+        },
+        'pulseSlow': { // Renamed from pulse to avoid conflict
+            '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+            '50%': { transform: 'scale(1.1)', opacity: '0.8' },
+        },
+        'scanLine': {
+            '0%': { top: '0' },
+            '100%': { top: '100%' },
+        },
+        'fadeInOut': {
+            '0%, 100%': { opacity: '0' },
+            '50%': { opacity: '1' },
+        },
+        'scanBeam': {
+            '0%': { left: '0' }, /* Adjusted for better visual start */
+            '100%': { left: '100%' },
+        },
+        'rotate': {
+            '0%': { transform: 'rotate(0deg)' },
+            '100%': { transform: 'rotate(360deg)' },
+        },
+        'swipeArrow': {
+            '0%, 100%': { transform: 'translateX(0)' },
+            '50%': { transform: 'translateX(8px)' },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fadeIn': 'fadeIn 2s forwards', // Renamed and adjusted duration
-        'fadeOut': 'fadeOut 0.5s ease-in-out forwards', // Added fadeOut animation
-        'progress': 'progress 3s forwards', // Added progress animation
+        'fadeIn': 'fadeIn 0.5s ease-in-out forwards', // General fadeIn
+        'fadeOut': 'fadeOut 0.5s ease-in-out forwards', 
+        'progress': 'progress 3s forwards',
+        'float': 'float 3s ease-in-out infinite',
+        'pulseSlow': 'pulseSlow 2s ease-in-out infinite',
+        'scanLine': 'scanLine 2s linear infinite',
+        'fadeInOut': 'fadeInOut 3s ease-in-out infinite',
+        'scanBeam': 'scanBeam 3s linear infinite',
+        'rotate': 'rotate 30s linear infinite',
+        'swipeArrow': 'swipeArrow 1.5s ease-in-out infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -114,3 +115,16 @@ body {
   /* Updated to use theme's light green HSL variables */
   background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
 }
+
+/* Onboarding Slide Backgrounds */
+.bg-onboarding-slide1 {
+  background: linear-gradient(135deg, #ffffff 0%, #e6f7ef 100%); /* white to light emerald */
+}
+.bg-onboarding-slide2 {
+  background: linear-gradient(135deg, #e6f7ff 0%, #ffffff 100%); /* light sky to white */
+}
+.bg-onboarding-slide4 {
+   background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%); /* light amber to white */
+}
+
+    
