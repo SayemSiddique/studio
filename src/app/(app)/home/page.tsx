@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -14,37 +15,37 @@ import * as React from 'react';
 
 const mockRecentScans: ScanResult[] = [
   {
-    barcode: '1234567890123',
-    name: 'Organic Peanut Butter',
-    brand: 'NatureNosh',
-    imageUrl: 'https://images.unsplash.com/photo-1624684244440-1130c3b65783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZWFudXQlMjBidXR0ZXJ8ZW58MHx8fHwxNzQ5ODE0Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "peanut butter",
-    ingredients: ['Organic Peanuts', 'Salt'],
+    barcode: 'SAFORA-MOCK-001',
+    name: 'Organic Fuji Apples (Bag)',
+    brand: 'Nature\'s Crisp',
+    imageUrl: 'https://images.unsplash.com/photo-1579613832125-5d34a13ffe2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhcHBsZXN8ZW58MHx8fHwxNzEwMjU0NzU3fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    dataAiHint: 'red apples',
+    ingredients: ['Organic Fuji Apples'],
     compatibility: 'Safe',
-    reason: 'Aligns with your preferences.',
-    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    reason: 'Fresh, organic, and nutritious choice.',
+    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
   },
   {
-    barcode: '9876543210987',
-    name: 'Whole Wheat Bread',
-    brand: 'Bakery Co.',
-    imageUrl: 'https://placehold.co/300x200.png?text=Wheat+Bread',
-    dataAiHint: "wheat bread",
-    ingredients: ['Whole Wheat Flour', 'Water', 'Yeast', 'Salt', 'Sugar'],
+    barcode: '0049000006467',
+    name: 'Coca-Cola Classic',
+    brand: 'Coca-Cola',
+    imageUrl: 'https://images.unsplash.com/photo-1630979805425-08f5f5f39aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb2NhY29sYXxlbnwwfHx8fDE3NDk4MTQ3MzV8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    dataAiHint: "coca cola",
+    ingredients: ['Carbonated Water', 'High Fructose Corn Syrup', 'Caramel Color', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
     compatibility: 'Not Recommended',
-    reason: 'Contains wheat, which you are avoiding.',
-    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    reason: 'High sugar content, not aligned with health goals.',
+    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
   },
-   {
-    barcode: '5432109876543',
-    name: 'Almond Milk',
-    brand: 'NutriMilks',
-    imageUrl: 'https://placehold.co/300x200.png?text=Almond+Milk',
-    dataAiHint: "almond milk",
-    ingredients: ['Almonds', 'Water', 'Calcium Carbonate', 'Sea Salt'],
-    compatibility: 'Safe',
-    reason: 'Good dairy-free alternative.',
-    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+  {
+    barcode: 'SAFORA-MOCK-003',
+    name: 'Artisan Sourdough Bread',
+    brand: 'The Rustic Loaf',
+    imageUrl: 'https://images.unsplash.com/photo-1534623228078-9f1irythh32Q7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb3VyZG91Z2glMjBicmVhZHxlbnwwfHx8fDE3MTAyNTQ4Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    dataAiHint: 'sourdough bread',
+    ingredients: ['Unbleached Wheat Flour', 'Water', 'Sourdough Starter (Wheat Flour, Water)', 'Salt'],
+    compatibility: 'Not Recommended',
+    reason: 'Contains wheat/gluten. Check your gluten preference.',
+    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(),
   },
 ];
 
@@ -55,14 +56,14 @@ export default function HomePage() {
   const [recentScans, setRecentScans] = React.useState<ScanResult[]>([]);
 
   React.useEffect(() => {
-    // In a real app, fetch recent scans for the user
-    // For now, use mock data and potentially filter/sort
     const storedHistory = localStorage.getItem('saforaScanHistory');
     if (storedHistory) {
       const history: ScanResult[] = JSON.parse(storedHistory);
-      setRecentScans(history.slice(0,3)); // show latest 3
+      // Sort by date to get the most recent ones, then slice
+      const sortedHistory = history.sort((a,b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
+      setRecentScans(sortedHistory.slice(0,3));
     } else {
-       setRecentScans(mockRecentScans.slice(0,3));
+       setRecentScans(mockRecentScans.slice(0,3)); // Use the updated internal mockRecentScans
     }
 
   }, []);
@@ -202,10 +203,10 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold font-headline text-primary mb-6">Recently Scanned</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentScans.map((item) => (
-              <ProductCard key={item.barcode} product={item} />
+              <ProductCard key={`${item.barcode}-${item.scannedAt}`} product={item} />
             ))}
           </div>
-           {recentScans.length >= 3 && (
+           {recentScans.length >= 3 && ( // Check if there are more items than displayed
             <div className="mt-8 text-center">
               <Button asChild variant="outline">
                 <Link href="/history">
