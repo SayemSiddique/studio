@@ -75,9 +75,9 @@
 
 .illustrationContainer {
     width: 100%;
-    min-height: 200px; /* Reduced min-height */
+    min-height: 200px; 
     height: auto; 
-    max-height: 30vh; /* Reduced max-height */
+    max-height: 30vh; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,10 +85,16 @@
     margin-bottom: 1.5rem;
 }
 
-/* Specific styling for slide 2 illustration container to ensure it behaves well with the iphone mockup */
+/* Specific styling for slide 2 illustration container to ensure it behaves well with the content */
 .slide2IllustrationContainer {
-    min-height: auto; /* Override general min-height if needed for this specific slide */
-    max-height: 35vh; /* Allow slightly more if the content demands, but still constrained */
+    min-height: auto; 
+    max-height: 35vh; 
+}
+
+.responsiveGif {
+    max-width: 100%;
+    max-height: 100%; /* Ensure GIF scales down within its container */
+    object-fit: contain; /* Maintain aspect ratio */
 }
 
 
@@ -190,71 +196,6 @@
     font-size: 14px;
     opacity: 0.6;
 }
-
-/* New iPhone Scanner Styles for Slide 2 */
-.iphoneContainerRelative {
-    max-width: 200px; /* Reduced base size */
-    margin: 0 auto;
-    position: relative;
-}
-
-@media (min-width: 640px) { /* sm breakpoint */
-    .iphoneContainerRelative {
-        max-width: 230px; /* Reduced sm size */
-    }
-}
-
-@media (min-width: 768px) { /* md breakpoint */
-    .iphoneContainerRelative {
-        max-width: 260px; /* Reduced md size */
-    }
-}
-
-.iphoneNotchNew {
-    border-radius: 0 0 15px 15px; /* Slightly smaller radius */
-    width: 40%;
-    height: 20px; /* Reduced height */
-    background-color: #000; /* black */
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10; /* Ensure notch is above screen content */
-}
-
-.iphoneButtonNew {
-    width: 4px; /* Slightly thinner */
-    height: 30px; /* Reduced height */
-    background-color: #2D3748; /* gray-800, matching frame */
-    position: absolute;
-    right: -4px; /* Adjusted for p-2 padding on parent */
-    top: 80px; /* Adjusted top */
-    border-radius: 0 2px 2px 0; /* Smaller radius */
-}
-
-.iphoneButtonNew.left {
-    left: -4px; /* Adjusted for p-2 padding on parent */
-    right: auto;
-    border-radius: 2px 0 0 2px; /* Smaller radius */
-}
-
-.iphoneButtonNew.left.volumeUp { 
-    top: 80px; /* Adjusted top */
-}
-
-.iphoneButtonNew.left.volumeDown { 
-    top: 120px; /* Adjusted top for volume down */
-}
-
-.scanLineNew { 
-    animation: scanAnimation 2s infinite ease-in-out;
-}
-
-.productPulse {
-    animation: pulseAnimation 2s infinite ease-in-out;
-}
-
-/* End iPhone Scanner Styles */
 
 
 .profileContainer {
@@ -536,13 +477,7 @@
 
 /*Ensure these keyframes from tailwind.config.ts are correctly referenced or defined if not global */
 /* @keyframes pulseSlow, @keyframes rotate, @keyframes float, @keyframes swipeArrow are used by other slides.
-   New animations specific to slide 2 design should be added to tailwind.config.ts if not already via module styles.
 */
 /* scanAnimation and pulseAnimation for the iphone scanner specific to slide 2 */
-.scanLineNew {
-  animation: scanAnimation 2s infinite ease-in-out;
-}
-.productPulse {
-  animation: pulseAnimation 2s infinite ease-in-out;
-}
+
 

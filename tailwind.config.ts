@@ -109,7 +109,7 @@ export default {
             '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
             '50%': { transform: 'scale(1.1)', opacity: '0.8' },
         },
-        'scanLineAnim': { // Renamed to avoid conflict with existing Tailwind 'scan' if any
+        'scanLineAnim': { 
             '0%': { top: '0' },
             '100%': { top: '100%' },
         },
@@ -125,16 +125,6 @@ export default {
             '0%, 100%': { transform: 'translateX(0)' },
             '50%': { transform: 'translateX(8px)' },
         },
-        'scanAnimation': { /* New from user HTML */
-            '0%': { top: '10%', opacity: '1' },
-            '50%': { opacity: '0.5' },
-            '100%': { top: '90%', opacity: '1' },
-        },
-        'pulseAnimation': { /* New from user HTML */
-            '0%': { transform: 'scale(1)', opacity: '0.7' },
-            '50%': { transform: 'scale(1.05)', opacity: '1' },
-            '100%': { transform: 'scale(1)', opacity: '0.7' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -148,8 +138,6 @@ export default {
         'fadeInOut': 'fadeInOut 3s ease-in-out infinite',
         'rotate': 'rotate 30s linear infinite',
         'swipeArrow': 'swipeArrow 1.5s ease-in-out infinite',
-        'scanAnimation': 'scanAnimation 2s infinite ease-in-out', /* New */
-        'pulseAnimation': 'pulseAnimation 2s infinite ease-in-out', /* New */
       },
     },
   },
@@ -157,3 +145,4 @@ export default {
 } satisfies Config;
 
     
+

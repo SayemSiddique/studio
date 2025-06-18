@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import styles from './Onboarding.module.css';
 import { cn } from '@/lib/utils';
 import { Logo } from '../../../components/core/Logo'; 
+import Image from 'next/image'; // Import next/image
 
 const OnboardingSlides = [
   {
@@ -38,88 +39,16 @@ const OnboardingSlides = [
     backgroundClass: 'bg-onboarding-slide2',
     showLogo: true,
     illustration: (
-        <div className={styles.iphoneContainerRelative}>
-            {/* iPhone Frame */}
-            <div className="relative bg-gray-800 rounded-[40px] p-2 shadow-2xl mx-auto">
-                {/* iPhone Notch */}
-                <div className={styles.iphoneNotchNew}></div>
-                
-                {/* iPhone Side Buttons */}
-                <div className={styles.iphoneButtonNew}></div>
-                <div className={cn(styles.iphoneButtonNew, styles.left, styles.volumeUp)}></div>
-                <div className={cn(styles.iphoneButtonNew, styles.left, styles.volumeDown)}></div>
-                
-                {/* iPhone Screen */}
-                <div className="bg-gray-100 rounded-[32px] overflow-hidden aspect-[9/19]">
-                    {/* App Interface */}
-                    <div className="h-full w-full bg-gray-900 flex flex-col">
-                        {/* App Header */}
-                        <div className="bg-gray-800 text-white p-3 flex justify-between items-center">
-                            <div className="text-xs sm:text-sm font-semibold text-white">Scan Product</div>
-                            <div className="flex space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                                </svg>
-                            </div>
-                        </div>
-                        
-                        {/* Scanner View */}
-                        <div className="flex-1 relative flex items-center justify-center">
-                            {/* Scanner Frame */}
-                            <div className="absolute inset-4 border-2 border-white/30 rounded-lg flex items-center justify-center">
-                                {/* Scanner Corners */}
-                                <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-blue-400"></div>
-                                <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-blue-400"></div>
-                                <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-blue-400"></div>
-                                <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-blue-400"></div>
-                                
-                                {/* Product Placeholder */}
-                                <div className={cn(styles.productPulse, "w-3/5 h-2/5 bg-white rounded-md flex flex-col items-center justify-between p-2")}>
-                                    {/* Product Label Lines */}
-                                    <div className="w-full h-2 bg-blue-500 rounded-sm"></div>
-                                    <div className="w-full h-1 bg-gray-300 rounded-sm"></div>
-                                    <div className="w-3/4 h-1 bg-gray-300 rounded-sm"></div>
-                                    
-                                    {/* Barcode Representation */}
-                                    <div className="w-full flex justify-center items-center space-x-0.5 my-2">
-                                        <div className="h-10 w-0.5 bg-black"></div> <div className="h-10 w-1 bg-black"></div>
-                                        <div className="h-10 w-0.5 bg-black"></div> <div className="h-10 w-1.5 bg-black"></div>
-                                        <div className="h-10 w-0.5 bg-black"></div> <div className="h-10 w-1 bg-black"></div>
-                                        <div className="h-10 w-1.5 bg-black"></div> <div className="h-10 w-0.5 bg-black"></div>
-                                        <div className="h-10 w-1 bg-black"></div> <div className="h-10 w-0.5 bg-black"></div>
-                                        <div className="h-10 w-1.5 bg-black"></div> <div className="h-10 w-1 bg-black"></div>
-                                        <div className="h-10 w-0.5 bg-black"></div>
-                                    </div>
-                                    
-                                    <div className="w-full h-1 bg-gray-300 rounded-sm"></div>
-                                </div>
-                                
-                                {/* Animated Scan Line */}
-                                <div className={cn(styles.scanLineNew, "absolute w-full h-0.5 bg-blue-500 opacity-70")}></div>
-                            </div>
-                            
-                            {/* Camera View Dark Overlay */}
-                            <div className="absolute inset-0 bg-black/50 pointer-events-none"></div>
-                        </div>
-                        
-                        {/* Bottom Controls Bar */}
-                        <div className="bg-gray-800 p-3 flex justify-between items-center">
-                            <button className="bg-gray-700 text-white text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 rounded-full hover:bg-gray-600 transition-colors">History</button>
-                            <button className="bg-blue-600 text-white rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center hover:bg-blue-700 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            </button>
-                            <button className="bg-gray-700 text-white text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 rounded-full hover:bg-gray-600 transition-colors">Gallery</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div className={cn(styles.illustrationContainer, styles.slide2IllustrationContainer, "flex items-center justify-center")}>
+            {/* Placeholder for GIF - assuming you'll put it in public/images/ */}
+            <Image 
+              src="/images/placeholder-animation.gif" // Replace with your actual GIF path
+              alt="Scanning animation" 
+              width={300} // Adjust based on your GIF's aspect ratio
+              height={250} // Adjust based on your GIF's aspect ratio
+              className={styles.responsiveGif}
+              unoptimized // Recommended for GIFs
+            />
         </div>
     ),
     headline: "Scan in Seconds. Know Instantly.",
@@ -240,21 +169,19 @@ export default function OnboardingPage() {
     setIsDragging(false);
     carouselRef.current.style.transition = 'transform 0.5s ease-in-out'; // Re-enable transition
 
-    // Determine current position based on transform (safer than relying on moveX if touchend/mouseup doesn't provide clientX)
     const endTranslateXString = carouselRef.current.style.transform.match(/translateX\(([^px]+)px\)/);
     const endTranslateX = endTranslateXString ? parseFloat(endTranslateXString[1]) : 0;
 
     const threshold = window.innerWidth / 4; // Swipe threshold
     const slideWidth = window.innerWidth;
     const currentOffset = -currentSlide * slideWidth;
-    const movedDistance = endTranslateX - currentOffset; // How much it moved from the current slide's resting position
+    const movedDistance = endTranslateX - currentOffset; 
 
     if (movedDistance < -threshold && currentSlide < totalSlides - 1) {
       setCurrentSlide(prev => prev + 1);
     } else if (movedDistance > threshold && currentSlide > 0) {
       setCurrentSlide(prev => prev - 1);
     } else {
-      // Snap back to current slide if threshold not met
       carouselRef.current.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
     }
   }, [isDragging, currentSlide, totalSlides]);
@@ -262,7 +189,6 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (carouselRef.current) {
-        // Ensure carousel snaps to the correct slide index when currentSlide changes programmatically or after drag
         carouselRef.current.style.transform = `translateX(-${currentSlide * 100}vw)`;
     }
   }, [currentSlide]);
@@ -283,7 +209,7 @@ export default function OnboardingPage() {
     if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
   };
   const onMouseLeave = () => {
-    if (isDragging) { // If mouse leaves while dragging, end the drag
+    if (isDragging) { 
         handleDragEnd();
         if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
     }
@@ -314,7 +240,10 @@ export default function OnboardingPage() {
         {OnboardingSlides.map((slide) => (
           <div key={slide.id} className={cn(styles.carouselSlide, styles[slide.id], slide.backgroundClass, `font-['Poppins']`)}>
              {slide.showLogo && (
-                <div className="absolute top-6 left-6 z-20">
+                <div className={cn(
+                    "absolute z-20",
+                    slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6" // Consistent top-left for all slides with logo
+                )}>
                     <Logo />
                 </div>
             )}
