@@ -40,7 +40,7 @@ const mockRecentScans: ScanResult[] = [
     barcode: 'SAFORA-MOCK-003',
     name: 'Artisan Sourdough Bread',
     brand: 'The Rustic Loaf',
-    imageUrl: 'https://images.unsplash.com/photo-1534623228078-9f1irythh32Q7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb3VyZG91Z2glMjBicmVhZHxlbnwwfHx8fDE3MTAyNTQ4Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_29132c2d-a484-40d1-ab91-99e94b42570b?wid=600&hei=600&qlt=80&fmt=webp',
     dataAiHint: 'sourdough bread',
     ingredients: ['Unbleached Wheat Flour', 'Water', 'Sourdough Starter (Wheat Flour, Water)', 'Salt'],
     compatibility: 'Not Recommended',
