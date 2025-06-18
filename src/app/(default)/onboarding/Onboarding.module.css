@@ -75,15 +75,22 @@
 
 .illustrationContainer {
     width: 100%;
-    min-height: 250px; /* Ensure minimum space for illustration */
-    height: auto; /* Allow height to adjust based on content */
-    max-height: 40vh; /* Max height to prevent it from becoming too large */
+    min-height: 200px; /* Reduced min-height */
+    height: auto; 
+    max-height: 30vh; /* Reduced max-height */
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     margin-bottom: 1.5rem;
 }
+
+/* Specific styling for slide 2 illustration container to ensure it behaves well with the iphone mockup */
+.slide2IllustrationContainer {
+    min-height: auto; /* Override general min-height if needed for this specific slide */
+    max-height: 35vh; /* Allow slightly more if the content demands, but still constrained */
+}
+
 
 .headline {
     font-weight: 700;
@@ -185,28 +192,28 @@
 }
 
 /* New iPhone Scanner Styles for Slide 2 */
-.iphoneContainerRelative { /* Renamed to avoid conflict if any global .container exists */
-    max-width: 280px;
+.iphoneContainerRelative {
+    max-width: 200px; /* Reduced base size */
     margin: 0 auto;
-    position: relative; /* Added for absolute positioning of buttons */
+    position: relative;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 640px) { /* sm breakpoint */
     .iphoneContainerRelative {
-        max-width: 320px;
+        max-width: 230px; /* Reduced sm size */
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) { /* md breakpoint */
     .iphoneContainerRelative {
-        max-width: 350px;
+        max-width: 260px; /* Reduced md size */
     }
 }
 
-.iphoneNotchNew { /* Renamed to avoid conflict */
-    border-radius: 0 0 20px 20px;
+.iphoneNotchNew {
+    border-radius: 0 0 15px 15px; /* Slightly smaller radius */
     width: 40%;
-    height: 25px;
+    height: 20px; /* Reduced height */
     background-color: #000; /* black */
     position: absolute;
     top: 0;
@@ -215,31 +222,31 @@
     z-index: 10; /* Ensure notch is above screen content */
 }
 
-.iphoneButtonNew { /* Renamed */
-    width: 5px;
-    height: 40px;
+.iphoneButtonNew {
+    width: 4px; /* Slightly thinner */
+    height: 30px; /* Reduced height */
     background-color: #2D3748; /* gray-800, matching frame */
     position: absolute;
-    right: -5px; /* Adjusted for p-2 padding on parent */
-    top: 100px;
-    border-radius: 0 3px 3px 0;
+    right: -4px; /* Adjusted for p-2 padding on parent */
+    top: 80px; /* Adjusted top */
+    border-radius: 0 2px 2px 0; /* Smaller radius */
 }
 
 .iphoneButtonNew.left {
-    left: -5px; /* Adjusted for p-2 padding on parent */
+    left: -4px; /* Adjusted for p-2 padding on parent */
     right: auto;
-    border-radius: 3px 0 0 3px;
+    border-radius: 2px 0 0 2px; /* Smaller radius */
 }
 
-.iphoneButtonNew.left.volumeUp { /* Combined class names */
-    top: 100px;
+.iphoneButtonNew.left.volumeUp { 
+    top: 80px; /* Adjusted top */
 }
 
-.iphoneButtonNew.left.volumeDown { /* Combined class names */
-    top: 160px;
+.iphoneButtonNew.left.volumeDown { 
+    top: 120px; /* Adjusted top for volume down */
 }
 
-.scanLineNew { /* Renamed for specificity */
+.scanLineNew { 
     animation: scanAnimation 2s infinite ease-in-out;
 }
 
@@ -281,6 +288,7 @@
     height: 140px;
     border-radius: 50%;
     border: 2px solid rgba(46, 204, 113, 0.3); /* emerald-500 with opacity */
+    animation: pulseSlow 2s ease-in-out infinite; /* Using existing pulseSlow */
 }
 
 .dietaryIcons {
@@ -291,6 +299,7 @@
     display: flex; 
     align-items: center;
     justify-content: center;
+    animation: rotate 30s linear infinite; /* Using existing rotate */
 }
 
 .dietaryIcon {
@@ -473,6 +482,7 @@
 
 .swipeArrow {
     margin-left: 8px;
+    animation: swipeArrow 1.5s ease-in-out infinite;
 }
 
 .gridOverlay {
@@ -498,23 +508,41 @@
     font-size: 20px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: float 4s ease-in-out infinite;
 }
 
 .food1 {
     top: 20%;
     left: 20%;
+    animation-delay: 0s; /* Explicitly set for clarity if needed */
 }
 
 .food2 {
     top: 30%;
     right: 20%;
+    animation-delay: 0.5s;
 }
 
 .food3 {
     bottom: 30%;
     left: 30%;
+    animation-delay: 1s;
 }
 .food4 {
     bottom: 20%;
     right: 30%;
+    animation-delay: 1.5s;
 }
+
+/*Ensure these keyframes from tailwind.config.ts are correctly referenced or defined if not global */
+/* @keyframes pulseSlow, @keyframes rotate, @keyframes float, @keyframes swipeArrow are used by other slides.
+   New animations specific to slide 2 design should be added to tailwind.config.ts if not already via module styles.
+*/
+/* scanAnimation and pulseAnimation for the iphone scanner specific to slide 2 */
+.scanLineNew {
+  animation: scanAnimation 2s infinite ease-in-out;
+}
+.productPulse {
+  animation: pulseAnimation 2s infinite ease-in-out;
+}
+
