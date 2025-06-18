@@ -16,7 +16,7 @@ import { suggestAlternatives, SuggestAlternativesOutput } from '@/ai/flows/sugge
 import { useProfile } from '@/hooks/useProfile';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
-
+import { addFavorite, removeFavorite, isFavorite } from '@/lib/favorites';
 interface ScanResultDisplayProps {
   product: ProductInfo;
 }
@@ -37,6 +37,7 @@ const getStatusVisuals = (status: CompatibilityStatus | undefined) => {
 export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
   const [compatibility, setCompatibility] = useState<AnalyzeFoodCompatibilityOutput | null>(null);
   const [summary, setSummary] = useState<SummarizeIngredientInformationOutput | null>(null);
+  const [isProductFavorite, setIsProductFavorite] = useState(false);
   const [alternatives, setAlternatives] = useState<SuggestAlternativesOutput | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [progressValue, setProgressValue] = React.useState(0); // Renamed to avoid conflict with Progress component
@@ -93,6 +94,10 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
     runAIAnalysis();
   }, [product, profile, getProfileForAI]);
 
+  useEffect(() => {
+    setIsProductFavorite(isFavorite(product.barcode));
+  }, [product.barcode]);
+
   const statusVisuals = getStatusVisuals(compatibility?.compatibilityStatus as CompatibilityStatus);
 
   const saveToHistory = () => {
@@ -115,6 +120,15 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
     }
     history = history.slice(0, 50); 
     localStorage.setItem('saforaScanHistory', JSON.stringify(history));
+  };
+
+  const handleFavoriteToggle = () => {
+    if (isProductFavorite) {
+      removeFavorite(product.barcode);
+    } else {
+      addFavorite(product.barcode);
+    }
+    setIsProductFavorite(!isProductFavorite);
   };
 
   useEffect(() => {
@@ -141,6 +155,9 @@ export function ScanResultDisplay({ product }: ScanResultDisplayProps) {
           <div className="md:w-2/3 p-6 md:p-8">
             {product.brand && <p className="text-sm text-muted-foreground mb-1">{product.brand}</p>}
             <CardTitle className="text-3xl md:text-4xl font-headline mb-4">{product.name}</CardTitle>
+            <Button variant="ghost" size="icon" onClick={handleFavoriteToggle} aria-label={isProductFavorite ? "Remove from favorites" : "Add to favorites"}>
+              {isProductFavorite ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-red-500"><path d="m11.645 20.917-7.393-7.393a1.5 1.5 0 0 1-.436-1.052V9.272a3 3 0 0 1 3-3h1.026a3 3 0 0 1 2.121.879l1.415 1.415a1.5 1.5 0 0 0 2.121 0l1.415-1.415a3 3 0 0 1 2.121-.879h1.026a3 3 0 0 1 3 3v3.202a1.5 1.5 0 0 1-.436 1.052l-7.393 7.393a1.5 1.5 0 0 1-2.121 0Z" /></svg> : <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" /></svg>}
+            </Button>
             <Badge variant="outline" className="mb-6 text-sm py-1 px-3">Barcode: {product.barcode}</Badge>
 
             {isLoading && (
