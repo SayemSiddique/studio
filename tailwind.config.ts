@@ -105,21 +105,17 @@ export default {
             '0%, 100%': { transform: 'translateY(0)' },
             '50%': { transform: 'translateY(-10px)' },
         },
-        'pulseSlow': { // Renamed from pulse to avoid conflict
+        'pulseSlow': { 
             '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
             '50%': { transform: 'scale(1.1)', opacity: '0.8' },
         },
-        'scanLine': {
+        'scanLineAnim': { // Renamed to avoid conflict with existing Tailwind 'scan' if any
             '0%': { top: '0' },
             '100%': { top: '100%' },
         },
         'fadeInOut': {
             '0%, 100%': { opacity: '0' },
             '50%': { opacity: '1' },
-        },
-        'scanBeam': {
-            '0%': { left: '0' }, /* Adjusted for better visual start */
-            '100%': { left: '100%' },
         },
         'rotate': {
             '0%': { transform: 'rotate(0deg)' },
@@ -128,21 +124,32 @@ export default {
         'swipeArrow': {
             '0%, 100%': { transform: 'translateX(0)' },
             '50%': { transform: 'translateX(8px)' },
-        }
+        },
+        'scanAnimation': { /* New from user HTML */
+            '0%': { top: '10%', opacity: '1' },
+            '50%': { opacity: '0.5' },
+            '100%': { top: '90%', opacity: '1' },
+        },
+        'pulseAnimation': { /* New from user HTML */
+            '0%': { transform: 'scale(1)', opacity: '0.7' },
+            '50%': { transform: 'scale(1.05)', opacity: '1' },
+            '100%': { transform: 'scale(1)', opacity: '0.7' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fadeIn': 'fadeIn 0.5s ease-in-out forwards', // General fadeIn
+        'fadeIn': 'fadeIn 0.5s ease-in-out forwards',
         'fadeOut': 'fadeOut 0.5s ease-in-out forwards', 
         'progress': 'progress 3s forwards',
         'float': 'float 3s ease-in-out infinite',
         'pulseSlow': 'pulseSlow 2s ease-in-out infinite',
-        'scanLine': 'scanLine 2s linear infinite',
+        'scanLineAnim': 'scanLineAnim 2s linear infinite',
         'fadeInOut': 'fadeInOut 3s ease-in-out infinite',
-        'scanBeam': 'scanBeam 3s linear infinite',
         'rotate': 'rotate 30s linear infinite',
         'swipeArrow': 'swipeArrow 1.5s ease-in-out infinite',
+        'scanAnimation': 'scanAnimation 2s infinite ease-in-out', /* New */
+        'pulseAnimation': 'pulseAnimation 2s infinite ease-in-out', /* New */
       },
     },
   },
