@@ -26,26 +26,26 @@ const mockRecentScans: ScanResult[] = [
     scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
   },
   {
-    barcode: '0049000006467',
-    name: 'Coca-Cola Classic',
-    brand: 'Coca-Cola',
-    imageUrl: 'https://images.unsplash.com/photo-1630979805425-08f5f5f39aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb2NhY29sYXxlbnwwfHx8fDE3NDk4MTQ3MzV8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "coca cola",
-    ingredients: ['Carbonated Water', 'High Fructose Corn Syrup', 'Caramel Color', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
-    compatibility: 'Not Recommended',
-    reason: 'High sugar content, not aligned with health goals.',
-    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    barcode: 'SAFORA-MOCK-005',
+    name: 'Plain Greek Yogurt, 32oz',
+    brand: 'Olympus Farms',
+    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_08a934cb-a966-4011-9d23-c5f0e1c76b31?wid=600&hei=600&qlt=80&fmt=webp',
+    dataAiHint: 'greek yogurt',
+    ingredients: ['Cultured Pasteurized Grade A Nonfat Milk', 'Live and Active Cultures (S. Thermophilus, L. Bulgaricus, L. Acidophilus, Bifidus, L. Casei)'],
+    compatibility: 'Safe',
+    reason: 'High in protein, good for gut health if dairy is tolerated.',
+    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
   },
   {
-    barcode: 'SAFORA-MOCK-003',
-    name: 'Artisan Sourdough Bread',
-    brand: 'The Rustic Loaf',
-    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_29132c2d-a484-40d1-ab91-99e94b42570b?wid=600&hei=600&qlt=80&fmt=webp',
-    dataAiHint: 'sourdough bread',
-    ingredients: ['Unbleached Wheat Flour', 'Water', 'Sourdough Starter (Wheat Flour, Water)', 'Salt'],
-    compatibility: 'Not Recommended',
-    reason: 'Contains wheat/gluten. Check your gluten preference.',
-    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(),
+    barcode: 'SAFORA-MOCK-009',
+    name: 'Dark Chocolate Bar (70% Cacao)',
+    brand: 'ChocoLux',
+    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_4c260465-90fb-4123-875c-828519bdd9e1?wid=600&hei=600&qlt=80&fmt=webp',
+    dataAiHint: 'dark chocolate',
+    ingredients: ['Cocoa Beans', 'Sugar', 'Cocoa Butter', 'Soy Lecithin (emulsifier)', 'Vanilla Extract'],
+    compatibility: 'Safe',
+    reason: 'Generally healthy in moderation. Contains soy.',
+    scannedAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
   },
 ];
 
@@ -59,9 +59,12 @@ export default function HomePage() {
     const storedHistory = localStorage.getItem('saforaScanHistory');
     if (storedHistory) {
       const history: ScanResult[] = JSON.parse(storedHistory);
-      const sortedHistory = history.sort((a,b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
+      // Filter to ensure only SAFORA-MOCK products are considered for recent scans from history
+      const saforaMockHistory = history.filter(item => item.barcode.startsWith('SAFORA-MOCK'));
+      const sortedHistory = saforaMockHistory.sort((a,b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
       setRecentScans(sortedHistory.slice(0,3));
     } else {
+       // If no history, use the refined mockRecentScans which should only contain SAFORA-MOCK items
        setRecentScans(mockRecentScans.slice(0,3));
     }
 

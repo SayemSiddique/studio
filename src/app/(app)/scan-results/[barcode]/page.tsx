@@ -457,42 +457,6 @@ export const productDatabase: Record<string, ProductInfo> = {
     ingredients: ['Whole Grain Rolled Oats'],
     category: 'Breakfast',
   },
-  '0049000006467': { 
-    barcode: '0049000006467',
-    name: 'Coca-Cola Classic',
-    brand: 'Coca-Cola',
-    imageUrl: 'https://images.unsplash.com/photo-1630979805425-08f5f5f39aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjb2NhY29sYXxlbnwwfHx8fDE3NDk4MTQ3MzV8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "coca cola",
-    ingredients: ['Carbonated Water', 'High Fructose Corn Syrup', 'Caramel Color', 'Phosphoric Acid', 'Natural Flavors', 'Caffeine'],
-    category: 'Beverages',
-  },
-  '070847811169': { 
-    barcode: '070847811169',
-    name: 'KIND Bar - Dark Chocolate Nuts & Sea Salt',
-    brand: 'KIND',
-    imageUrl: 'https://images.unsplash.com/photo-1558022032-1356636a26ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYXIlMjBwZWFudCUyMGZvb2R8ZW58MHx8fHwxNzQ5ODE1MjEzfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "kind bar",
-    ingredients: ['Almonds', 'Peanuts', 'Chicory Root Fiber', 'Honey', 'Palm Kernel Oil', 'Sugar', 'Cocoa Powder', 'Non GMO Glucose', 'Sea Salt', 'Soy Lecithin', 'Milk Powder', 'Vanilla Extract'],
-    category: 'Snacks',
-  },
-   '1234567890123': { 
-    barcode: '1234567890123',
-    name: 'Organic Peanut Butter',
-    brand: 'NatureNosh',
-    imageUrl: 'https://images.unsplash.com/photo-1624684244440-1130c3b65783?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZWFudXQlMjBidXR0ZXJ8ZW58MHx8fHwxNzQ5ODE0Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "peanut butter",
-    ingredients: ['Organic Peanuts', 'Salt'],
-    category: 'Pantry Staples',
-  },
-  '9876543210987': { 
-    barcode: '9876543210987',
-    name: 'Whole Wheat Bread',
-    brand: 'Bakery Co.',
-    imageUrl: 'https://images.unsplash.com/photo-1676723066040-614d1ae56666?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3aGVhdCUyMGJyZWFkfGVufDB8fHx8MTc0OTgxNDcwNHww&ixlib=rb-4.1.0&q=80&w=1080',
-    dataAiHint: "wheat bread",
-    ingredients: ['Whole Wheat Flour', 'Water', 'Yeast', 'Salt', 'Sugar', 'Soybean Oil', 'Calcium Propionate'],
-    category: 'Bakery & Grains',
-  },
 };
 
 async function fetchProductData(barcode: string): Promise<ProductInfo | null> {
@@ -503,6 +467,8 @@ async function fetchProductData(barcode: string): Promise<ProductInfo | null> {
     return productDatabase[barcode];
   }
 
+  // Fallback for unknown barcodes - useful for testing manual input
+  // but in a real app, you'd likely show a "product not found" message sooner.
   return {
     barcode,
     name: `Sample Product ${barcode}`,
