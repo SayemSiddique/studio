@@ -4,8 +4,14 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProfileProvider } from '@/contexts/ProfileContext';
 import { cn } from '@/lib/utils';
-import { Inter } from 'next/font/google';
-const inter = Inter({ subsets: ['latin'] })
+import { Poppins } from 'next/font/google'; // Changed from Inter to Poppins
+
+// Configure Poppins font
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'] 
+});
+
 export const metadata: Metadata = {
   title: 'Safora: AI Food Insights',
   description: 'AI-Powered Dietary Analysis and Food Compatibility',
@@ -19,16 +25,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+        {/* Google Fonts link for PT Sans is removed as Poppins is now loaded via next/font */}
       </head>
-      <body className={inter.className} suppressHydrationWarning={true}>
+      <body className={poppins.className} suppressHydrationWarning={true}> {/* Changed to poppins.className */}
         <AuthProvider>
           <ProfileProvider>
             {children}
-            <Toaster />          </ProfileProvider>
+            <Toaster />
+          </ProfileProvider>
         </AuthProvider>
       </body>
-    </html>  );
+    </html>
+  );
 }

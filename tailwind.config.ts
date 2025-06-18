@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['PT Sans', 'sans-serif'],
+        body: ['Poppins', 'sans-serif'], // Changed from PT Sans to Poppins
+        headline: ['Poppins', 'sans-serif'], // Changed from PT Sans to Poppins
         code: ['monospace'],
       },
       colors: {
@@ -88,20 +88,25 @@ export default {
             height: '0',
           },
         },
-        'fadeIn': {
+        'fadeIn': { // Renamed from 'fadeInCustom' to 'fadeIn'
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        'fadeOut': {
+        'fadeOut': { // Added fadeOut for container
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
+        'progress': { // Added progress animation
+          from: { width: '0%' },
+          to: { width: '100%' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fadeIn': 'fadeIn 0.5s ease-in-out',
-        'fadeOut': 'fadeOut 0.5s ease-in-out',
+        'fadeIn': 'fadeIn 2s forwards', // Renamed and adjusted duration
+        'fadeOut': 'fadeOut 0.5s ease-in-out forwards', // Added fadeOut animation
+        'progress': 'progress 3s forwards', // Added progress animation
       },
     },
   },
