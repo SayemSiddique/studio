@@ -11,12 +11,12 @@ import { cn } from '@/lib/utils';
 import styles from './Onboarding.module.css';
 import { useProfile } from '@/hooks/useProfile';
 import type { UserProfile, UserProfileLocation } from '@/lib/types';
-import { HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle, Mail, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, Briefcase, ShieldQuestion, Milestone } from 'lucide-react';
+import { HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle, Mail, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, Briefcase, ShieldQuestion, Milestone, Edit3 } from 'lucide-react';
 import Image from 'next/image';
 import SecondOnboardingSlideImage from '@/image/2ndOnboardingSlide.png';
 import { countryData, regions, dietaryPaths, ingredientsToAvoidOptions, commonAllergens, healthConditionsOptions, healthGoalsOptions } from '@/lib/onboardingOptions';
 
-// Constants for the visual slides
+// Constants
 const TOTAL_VISUAL_SLIDES = 4;
 const TOTAL_DATA_COLLECTION_STEPS = 10; 
 
@@ -115,8 +115,8 @@ export default function OnboardingPage() {
   
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     name: "",
-    dateOfBirth: "", // YYYY-MM-DD
-    location: {},
+    dateOfBirth: "",
+    location: { region: "", country: "", city: "" },
     selectedDiets: [],
     ingredientsToAvoid: [],
     customIngredientsToAvoid: "",
@@ -124,9 +124,9 @@ export default function OnboardingPage() {
     customAllergens: "",
     healthConditions: [],
     healthGoalsList: [],
+    profileCompletionStatus: 'initial',
   });
 
-  // State for location dropdowns
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
@@ -136,14 +136,13 @@ export default function OnboardingPage() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Initialize formData from profile when component mounts or profile changes
   useEffect(() => {
     if (profile) {
       setFormData(prev => ({
         ...prev,
         name: profile.name || "",
         dateOfBirth: profile.dateOfBirth || "",
-        location: profile.location || {},
+        location: profile.location || { region: "", country: "", city: "" },
         selectedDiets: profile.selectedDiets || [],
         ingredientsToAvoid: profile.ingredientsToAvoid || [],
         customIngredientsToAvoid: profile.customIngredientsToAvoid || "",
@@ -151,23 +150,22 @@ export default function OnboardingPage() {
         customAllergens: profile.customAllergens || "",
         healthConditions: profile.healthConditions || [],
         healthGoalsList: profile.healthGoalsList || [],
+        profileCompletionStatus: profile.profileCompletionStatus || 'initial',
       }));
       if (profile.location?.region) setSelectedRegion(profile.location.region);
       if (profile.location?.country) {
          setSelectedCountry(profile.location.country);
-         // Ensure countryData has an entry for this country before trying to access it
          if (profile.location.country && countryData[profile.location.country]) {
             setAvailableCities(countryData[profile.location.country].sort() || []);
          } else {
-            setAvailableCities([]); // Set to empty if country not in countryData
+            setAvailableCities([]);
          }
       }
       if (profile.location?.city) setSelectedCity(profile.location.city);
     }
   }, [profile]);
 
-
-  const handleInputChange = (field: keyof UserProfile, value: any) => {
+  const handleInputChange = (field: keyof Pick<UserProfile, 'name' | 'dateOfBirth' | 'customIngredientsToAvoid' | 'customAllergens'>, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   
@@ -186,13 +184,12 @@ export default function OnboardingPage() {
     handleLocationChange();
   }, [handleLocationChange]);
 
-
   const handleNextVisualSlide = useCallback(async () => {
     if (currentVisualSlide < TOTAL_VISUAL_SLIDES - 1) {
       setCurrentVisualSlide(prev => prev + 1);
     } else {
       await updateProfile({ ...formData, profileCompletionStatus: 'visual_complete' });
-      setCurrentDataCollectionStep(1);
+      setCurrentDataCollectionStep(1); // Start data collection
     }
   }, [currentVisualSlide, updateProfile, formData]);
 
@@ -203,7 +200,8 @@ export default function OnboardingPage() {
   }, [currentVisualSlide]);
 
   const handleNextDataStep = useCallback(async () => {
-     await updateProfile({ ...formData, profileCompletionStatus: 'data_collection_started' });
+    // Save current step's data before moving
+    await updateProfile({ ...formData, profileCompletionStatus: 'data_collection_started' });
     if (currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS) {
       setCurrentDataCollectionStep(prev => prev + 1);
     }
@@ -212,15 +210,15 @@ export default function OnboardingPage() {
   const handlePrevDataStep = useCallback(() => {
     if (currentDataCollectionStep > 1) {
       setCurrentDataCollectionStep(prev => prev - 1);
-    } else if (currentDataCollectionStep === 1) {
-      setCurrentDataCollectionStep(0); // Go back to visual slides
+    } else if (currentDataCollectionStep === 1) { // Going from first data step back to visual
+      setCurrentDataCollectionStep(0); 
     }
   }, [currentDataCollectionStep]);
   
   const skipToAuth = async () => {
     await updateProfile({ 
       ...formData, 
-      profileCompletionStatus: currentDataCollectionStep > 0 ? 'data_partial' : 'visual_complete' 
+      profileCompletionStatus: 'data_partial' 
     });
     router.push('/auth');
   };
@@ -235,7 +233,6 @@ export default function OnboardingPage() {
     router.push('/home');
   };
 
-
   useEffect(() => {
     let touchstartX = 0;
     let touchendX = 0;
@@ -246,10 +243,10 @@ export default function OnboardingPage() {
       const deltaX = touchendX - touchstartX;
       const deltaY = touchendY - touchstartY;
 
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) { // Threshold for swipe
-        if (currentDataCollectionStep === 0) { // Visual slides
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) { 
+        if (currentDataCollectionStep === 0) { 
           if (deltaX < 0) handleNextVisualSlide(); else handlePrevVisualSlide();
-        } else { // Data collection steps
+        } else { 
           if (deltaX < 0) handleNextDataStep(); else handlePrevDataStep();
         }
       }
@@ -282,7 +279,6 @@ export default function OnboardingPage() {
   const visualProgressPercentage = ((currentVisualSlide + 1) / TOTAL_VISUAL_SLIDES) * 100;
   const dataCollectionProgressPercentage = (currentDataCollectionStep / TOTAL_DATA_COLLECTION_STEPS) * 100;
 
-  // Dropdown logic
   const toggleDropdown = (dropdownName: 'region' | 'country' | 'city' | null) => {
     setOpenDropdown(prev => (prev === dropdownName ? null : dropdownName));
   };
@@ -290,9 +286,9 @@ export default function OnboardingPage() {
   const handleRegionSelect = (region: string) => {
     setSelectedRegion(region);
     const countriesForRegion = Object.keys(countryData).filter(country => {
-      if (region === "North America") return ["United States", "Canada", "Mexico"].includes(country);
-      if (region === "Europe") return ["United Kingdom", "Germany", "France", "Italy", "Spain"].includes(country);
-      return true; 
+      const regionForCountry = Object.entries(regions).find(([_, countries]) => countries.includes(country))?.[0];
+      if (region === "All Regions") return true; // Show all if "All Regions" is selected
+      return regionForCountry === region;
     });
     setAvailableCountries(countriesForRegion.length > 0 ? countriesForRegion.sort() : Object.keys(countryData).sort());
     setSelectedCountry(''); setAvailableCities([]); setSelectedCity('');
@@ -321,7 +317,6 @@ export default function OnboardingPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   const handleChipToggle = (
     itemValue: string, 
     fieldName: keyof Pick<UserProfile, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>
@@ -336,10 +331,10 @@ export default function OnboardingPage() {
   };
 
   const renderDataCollectionStep1 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-1">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 1 ? styles.active : styles.inactiveRight)} id="data-screen-1">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>😊</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>😊</div>
         <h1 className={cn(styles.newData_h1, "text-3xl font-bold mb-4")}>Hi there! I'm Saf</h1>
         <p className="text-gray-600 mb-8 text-center">Let's build your food profile so I can protect you from hidden risks.</p>
         <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Let's Begin</button></div>
@@ -348,10 +343,10 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep2 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-2">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 2 ? styles.active : (currentDataCollectionStep < 2 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-2">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>👋</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>👋</div>
         <h1 className={cn(styles.newData_h1, "text-3xl font-bold mb-6")}>First, what should I call you?</h1>
         <Input 
           type="text" 
@@ -362,7 +357,7 @@ export default function OnboardingPage() {
         />
         <h2 className="text-xl font-semibold mt-6 mb-4 text-gray-700">When were you born?</h2>
         <Input 
-          type="text" // Placeholder for date picker
+          type="text" 
           className={styles.newData_inputField} 
           placeholder="YYYY-MM-DD"
           value={formData.dateOfBirth || ''}
@@ -375,49 +370,43 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep3 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-3" ref={dropdownRef}>
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 3 ? styles.active : (currentDataCollectionStep < 3 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-3" ref={dropdownRef}>
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>🌎</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>🌎</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Where are you based?</h1>
         
         <div className={styles.newData_dropdownField}>
           <div className={cn(styles.newData_dropdownSelected, openDropdown === 'region' && styles.active)} onClick={() => toggleDropdown('region')}>
             <span>{selectedRegion || "Select your region"}</span> <ChevronDown />
           </div>
-          {openDropdown === 'region' && (
-            <div className={cn(styles.newData_dropdownOptions, styles.show)}>
-              {regions.map(region => (
-                <div key={region} className={cn(styles.newData_dropdownOption, selectedRegion === region && styles.selected)} onClick={() => handleRegionSelect(region)}>{region}</div>
-              ))}
-            </div>
-          )}
+          <div className={cn(styles.newData_dropdownOptions, openDropdown === 'region' && styles.show)}>
+            {Object.keys(regions).map(region => (
+              <div key={region} className={cn(styles.newData_dropdownOption, selectedRegion === region && styles.selected)} onClick={() => handleRegionSelect(region)}>{region}</div>
+            ))}
+          </div>
         </div>
 
         <div className={styles.newData_dropdownField}>
-          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'country' && styles.active)} onClick={() => selectedRegion && toggleDropdown('country')}>
+          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'country' && styles.active, !selectedRegion && "opacity-50 cursor-not-allowed")} onClick={() => selectedRegion && toggleDropdown('country')}>
             <span>{selectedCountry || "Select your country"}</span> <ChevronDown />
           </div>
-          {openDropdown === 'country' && (
-            <div className={cn(styles.newData_dropdownOptions, styles.show)}>
-              {availableCountries.length > 0 ? availableCountries.map(country => (
-                <div key={country} className={cn(styles.newData_dropdownOption, selectedCountry === country && styles.selected)} onClick={() => handleCountrySelect(country)}>{country}</div>
-              )) : <div className={cn(styles.newData_dropdownOption, styles.disabled)}>Please select a region first</div>}
-            </div>
-          )}
+          <div className={cn(styles.newData_dropdownOptions, openDropdown === 'country' && styles.show)}>
+            {availableCountries.length > 0 ? availableCountries.map(country => (
+              <div key={country} className={cn(styles.newData_dropdownOption, selectedCountry === country && styles.selected)} onClick={() => handleCountrySelect(country)}>{country}</div>
+            )) : <div className={cn(styles.newData_dropdownOption, styles.disabled)}>Please select a region first</div>}
+          </div>
         </div>
 
         <div className={styles.newData_dropdownField}>
-          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'city' && styles.active)} onClick={() => selectedCountry && toggleDropdown('city')}>
+          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'city' && styles.active, !selectedCountry && "opacity-50 cursor-not-allowed")} onClick={() => selectedCountry && toggleDropdown('city')}>
             <span>{selectedCity || "Select your city"}</span> <ChevronDown />
           </div>
-          {openDropdown === 'city' && (
-            <div className={cn(styles.newData_dropdownOptions, styles.show)}>
-              {availableCities.length > 0 ? availableCities.map(city => (
-                <div key={city} className={cn(styles.newData_dropdownOption, selectedCity === city && styles.selected)} onClick={() => handleCitySelect(city)}>{city}</div>
-              )) : <div className={cn(styles.newData_dropdownOption, styles.disabled)}>Please select a country first</div>}
-            </div>
-          )}
+          <div className={cn(styles.newData_dropdownOptions, openDropdown === 'city' && styles.show)}>
+            {availableCities.length > 0 ? availableCities.map(city => (
+              <div key={city} className={cn(styles.newData_dropdownOption, selectedCity === city && styles.selected)} onClick={() => handleCitySelect(city)}>{city}</div>
+            )) : <div className={cn(styles.newData_dropdownOption, styles.disabled)}>Please select a country first</div>}
+          </div>
         </div>
         
         <button className={cn(styles.newData_btnSecondary, "mb-6 flex items-center justify-center")}>
@@ -426,10 +415,7 @@ export default function OnboardingPage() {
         
         <div className={styles.newData_safMessage}>
             I'll use this to match local food products and ingredients.
-            <div className={styles.newData_tooltip}>
-                <Info size={16}/>
-                <span className={styles.newData_tooltipText}>Different regions have different food regulations and ingredients.</span>
-            </div>
+            <div className={styles.newData_tooltip}> <Info size={16}/> <span className={styles.newData_tooltipText}>Different regions have different food regulations and ingredients.</span> </div>
         </div>
         <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</button></div>
       </div>
@@ -437,18 +423,14 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep4 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-4">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 4 ? styles.active : (currentDataCollectionStep < 4 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-4">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>🥗</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>🥗</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Do you follow any of these dietary paths?</h1>
         <div className={styles.newData_chipContainer}>
           {dietaryPaths.map(diet => (
-            <div 
-              key={diet} 
-              className={cn(styles.newData_chip, formData.selectedDiets?.includes(diet) && styles.selected)} 
-              onClick={() => handleChipToggle(diet, 'selectedDiets')}
-            >
+            <div key={diet} className={cn(styles.newData_chip, formData.selectedDiets?.includes(diet) && styles.selected)} onClick={() => handleChipToggle(diet, 'selectedDiets')}>
               <span>{diet}</span>
             </div>
           ))}
@@ -460,30 +442,20 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep5 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-5">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 5 ? styles.active : (currentDataCollectionStep < 5 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-5">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>🚫</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>🚫</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Any ingredients you avoid for personal, religious, or ethical reasons?</h1>
         <div className={styles.newData_chipContainer}>
           {ingredientsToAvoidOptions.map(opt => (
-            <div 
-              key={opt.name} 
-              className={cn(styles.newData_chip, formData.ingredientsToAvoid?.includes(opt.name) && styles.selected)} 
-              onClick={() => handleChipToggle(opt.name, 'ingredientsToAvoid')}
-            >
+            <div key={opt.name} className={cn(styles.newData_chip, formData.ingredientsToAvoid?.includes(opt.name) && styles.selected)}  onClick={() => handleChipToggle(opt.name, 'ingredientsToAvoid')}>
               {opt.emoji && <span className="mr-1">{opt.emoji}</span>}
               <span>{opt.name}</span>
             </div>
           ))}
         </div>
-        <Input 
-            type="text" 
-            className={cn(styles.newData_inputField, "mt-4")} 
-            placeholder="List other ingredients to avoid, separated by commas" 
-            value={formData.customIngredientsToAvoid || ''}
-            onChange={(e) => handleInputChange('customIngredientsToAvoid', e.target.value)}
-        />
+        <Input type="text" className={cn(styles.newData_inputField, "mt-4")} placeholder="List other ingredients to avoid, separated by commas" value={formData.customIngredientsToAvoid || ''} onChange={(e) => handleInputChange('customIngredientsToAvoid', e.target.value)} />
         <p className="text-gray-500 text-sm mt-6 text-center">Don't worry, you can change this later.</p>
         <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</button></div>
       </div>
@@ -491,30 +463,20 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep6 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-6">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 6 ? styles.active : (currentDataCollectionStep < 6 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-6">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>⚠️</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>⚠️</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Let's make sure you stay safe. Any known allergies?</h1>
         <div className={styles.newData_chipContainer}>
           {commonAllergens.map(allergen => (
-            <div 
-              key={allergen.name} 
-              className={cn(styles.newData_chip, formData.knownAllergens?.includes(allergen.name) && styles.selected)} 
-              onClick={() => handleChipToggle(allergen.name, 'knownAllergens')}
-            >
+            <div key={allergen.name} className={cn(styles.newData_chip, formData.knownAllergens?.includes(allergen.name) && styles.selected)} onClick={() => handleChipToggle(allergen.name, 'knownAllergens')}>
               {allergen.emoji && <span className="mr-1">{allergen.emoji}</span>}
               <span>{allergen.name}</span>
             </div>
           ))}
         </div>
-        <Input 
-            type="text" 
-            className={cn(styles.newData_inputField, "mt-4")} 
-            placeholder="Add other allergies, separated by commas"
-            value={formData.customAllergens || ''}
-            onChange={(e) => handleInputChange('customAllergens', e.target.value)}
-        />
+        <Input type="text" className={cn(styles.newData_inputField, "mt-4")} placeholder="Add other allergies, separated by commas" value={formData.customAllergens || ''} onChange={(e) => handleInputChange('customAllergens', e.target.value)} />
         <div className={styles.newData_safMessage}>I'll make sure these ingredients are flagged in every scan.</div>
         <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</button></div>
       </div>
@@ -522,18 +484,14 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep7 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-7">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 7 ? styles.active : (currentDataCollectionStep < 7 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-7">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>❤️</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>❤️</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Any health conditions I should be aware of?</h1>
         <div className={styles.newData_chipContainer}>
           {healthConditionsOptions.map(condition => (
-            <div 
-              key={condition} 
-              className={cn(styles.newData_chip, formData.healthConditions?.includes(condition) && styles.selected)} 
-              onClick={() => handleChipToggle(condition, 'healthConditions')}
-            >
+            <div key={condition} className={cn(styles.newData_chip, formData.healthConditions?.includes(condition) && styles.selected)} onClick={() => handleChipToggle(condition, 'healthConditions')}>
               <span>{condition}</span>
             </div>
           ))}
@@ -545,18 +503,14 @@ export default function OnboardingPage() {
   );
 
   const renderDataCollectionStep8 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-8">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 8 ? styles.active : (currentDataCollectionStep < 8 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-8">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>🎯</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>🎯</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>What are your current health goals?</h1>
         <div className={styles.newData_chipContainer}>
           {healthGoalsOptions.map(goal => (
-            <div 
-              key={goal} 
-              className={cn(styles.newData_chip, formData.healthGoalsList?.includes(goal) && styles.selected)} 
-              onClick={() => handleChipToggle(goal, 'healthGoalsList')}
-            >
+            <div key={goal} className={cn(styles.newData_chip, formData.healthGoalsList?.includes(goal) && styles.selected)} onClick={() => handleChipToggle(goal, 'healthGoalsList')}>
               <span>{goal}</span>
             </div>
           ))}
@@ -582,20 +536,20 @@ export default function OnboardingPage() {
   };
 
   const renderDataCollectionStep9 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-9">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 9 ? styles.active : (currentDataCollectionStep < 9 ? styles.inactiveRight : styles.inactiveLeft) )} id="data-screen-9">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>📋</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>📋</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Your Dietary Profile Summary</h1>
-        <div className="bg-gray-50 p-4 rounded-xl mb-6 w-full max-w-md text-left">
+        <div className="bg-gray-50 p-4 rounded-xl mb-6 w-full max-w-md text-left overflow-y-auto max-h-[50vh]">
           <SummaryDisplayItem icon={<User size={18}/>} label="Name" value={formData.name} />
           <SummaryDisplayItem icon={<CalendarDays size={18}/>} label="Date of Birth" value={formData.dateOfBirth} />
-          <SummaryDisplayItem icon={<MapPin size={18}/>} label="Location" value={`${formData.location?.city || ''}${formData.location?.city && formData.location?.country ? ', ' : ''}${formData.location?.country || ''}`} />
+          <SummaryDisplayItem icon={<MapPin size={18}/>} label="Location" value={`${formData.location?.city || ''}${formData.location?.city && (formData.location?.country || formData.location?.region) ? ', ' : ''}${formData.location?.country || ''}${formData.location?.country && formData.location?.region ? ', ' : ''}${formData.location?.region || ''}`} />
           <SummaryDisplayItem icon={<Utensils size={18}/>} label="Dietary Paths" value={formData.selectedDiets} />
           <SummaryDisplayItem icon={<Ban size={18}/>} label="Ingredients to Avoid" value={formData.ingredientsToAvoid} />
-          {formData.customIngredientsToAvoid && <SummaryDisplayItem icon={<Ban size={18}/>} label="Custom Avoidances" value={formData.customIngredientsToAvoid} />}
+          {formData.customIngredientsToAvoid && <SummaryDisplayItem icon={<Edit3 size={18}/>} label="Custom Avoidances" value={formData.customIngredientsToAvoid} />}
           <SummaryDisplayItem icon={<AlertTriangleIcon size={18}/>} label="Allergies" value={formData.knownAllergens} />
-           {formData.customAllergens && <SummaryDisplayItem icon={<AlertTriangleIcon size={18}/>} label="Custom Allergies" value={formData.customAllergens} />}
+           {formData.customAllergens && <SummaryDisplayItem icon={<Edit3 size={18}/>} label="Custom Allergies" value={formData.customAllergens} />}
           <SummaryDisplayItem icon={<ListChecks size={18}/>} label="Health Conditions" value={formData.healthConditions} />
           <SummaryDisplayItem icon={<BarChart3 size={18}/>} label="Health Goals" value={formData.healthGoalsList} />
         </div>
@@ -606,10 +560,10 @@ export default function OnboardingPage() {
   );
   
   const renderDataCollectionStep10 = () => (
-    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-10">
+    <div className={cn(styles.newData_screen, currentDataCollectionStep === 10 ? styles.active : styles.inactiveLeft )} id="data-screen-10">
       <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
       <div className={styles.newData_screenContent}>
-        <div className={styles.newData_safAvatar}>🎉</div>
+        <div className={cn(styles.newData_safAvatar, "animate-float")}>🎉</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-4")}>You're all set!</h1>
         <p className="text-gray-600 mb-8 text-center">Create a free Safora account to save your profile and start scanning safely.</p>
         
@@ -619,8 +573,8 @@ export default function OnboardingPage() {
         
         <button 
           className={cn(styles.newData_btnPrimary, "mb-6 flex items-center justify-center")} 
-          style={{background: 'linear-gradient(90deg, #4285F4, #3c78dc)'}} // Google Blue
-          onClick={() => router.push('/auth?provider=google')} // Example for specific provider on auth page
+          style={{background: 'linear-gradient(90deg, #4285F4, #3c78dc)'}}
+          onClick={() => router.push('/auth?provider=google')}
         >
           <GoogleIconSvg /> Sign Up with Google
         </button>
@@ -636,7 +590,7 @@ export default function OnboardingPage() {
 
   if (profileLoading && !profile) {
     return (
-      <div className={styles.newData_onboardingContainer}> {/* Use new container for loading */}
+      <div className={styles.onboardingRoot}> 
         <div className="flex items-center justify-center min-h-screen">
           <Sparkles className="w-16 h-16 text-primary animate-ping" />
         </div>
@@ -656,15 +610,13 @@ export default function OnboardingPage() {
       case 8: return renderDataCollectionStep8();
       case 9: return renderDataCollectionStep9();
       case 10: return renderDataCollectionStep10();
-      default: return null; // Should not happen if logic is correct
+      default: return null;
     }
   };
-
 
   return (
     <div className={styles.onboardingRoot}>
       <div className={cn(styles.onboardingContainer, currentDataCollectionStep > 0 && styles.newData_onboardingContainer)}>
-        {/* Logo is positioned based on whether it's visual or data collection phase */}
         <div className={cn(styles.logoContainer, currentDataCollectionStep > 0 && styles.newData_logoContainer)}>
           <Logo />
         </div>
@@ -693,7 +645,7 @@ export default function OnboardingPage() {
                       className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg shadow-md w-full max-w-xs"
                       onClick={handleNextVisualSlide}
                     >
-                      {currentVisualSlide === TOTAL_VISUAL_SLIDES - 1 ? "Let's Get Started" : "Next"}
+                      {currentVisualSlide === TOTAL_VISUAL_SLIDES - 1 ? "Let's Begin Data Setup" : "Next"}
                     </Button>
                   </div>
                 )}
@@ -704,13 +656,22 @@ export default function OnboardingPage() {
                 <div className={styles.visualProgressFill} style={{ width: `${visualProgressPercentage}%` }}></div>
               </div>
             </div>
-            {currentVisualSlide < TOTAL_VISUAL_SLIDES - 1 && (
+             {currentVisualSlide < TOTAL_VISUAL_SLIDES - 1 && (
               <Button variant="ghost" onClick={skipToAuth} className={styles.skipButton}>Skip Visual Intro</Button>
             )}
           </>
         ) : (
-          <div className={cn(styles.newData_innerContainer)}> {/* Wrapper for new data collection screens */}
+          <div className={cn(styles.newData_innerContainer)}>
             {renderActiveDataCollectionScreen()}
+             {currentDataCollectionStep > 0 && currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS && (
+              <button 
+                onClick={handlePrevDataStep} 
+                className="absolute top-4 left-4 p-2 bg-gray-200/50 hover:bg-gray-300/70 rounded-full z-20"
+                aria-label="Go back"
+              >
+                <ChevronLeft size={24} className="text-gray-700"/>
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -38,11 +38,11 @@ export interface UserProfileLocation {
 }
 
 export interface UserProfile {
-  // Fields from original visual onboarding form (can be deprecated later if fully replaced)
+  // Old structure fields (can be progressively deprecated or used for migration)
   dietaryPreferences: Partial<DietaryPreferences>; 
   allergies: Partial<Allergies>; 
   healthGoals: Partial<HealthGoals>; 
-  customRestrictions?: string; // General custom notes from old form
+  customRestrictions?: string;
 
   // New detailed fields from multi-step data collection
   name?: string;

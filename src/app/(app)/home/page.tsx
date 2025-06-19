@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { ArrowRight, CheckCircle, ListChecks, ScanLine, UserCircle2, HeartPulse, Utensils, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle, ListChecks, ScanLine, UserCircle2, HeartPulse, Utensils, ShieldCheck, Edit3 } from 'lucide-react';
 import { ScanResult } from '@/lib/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import * as React from 'react';
@@ -59,24 +59,24 @@ export default function HomePage() {
     const storedHistory = localStorage.getItem('saforaScanHistory');
     if (storedHistory) {
       const history: ScanResult[] = JSON.parse(storedHistory);
-      // Filter to ensure only SAFORA-MOCK products are considered for recent scans from history
       const saforaMockHistory = history.filter(item => item.barcode.startsWith('SAFORA-MOCK'));
       const sortedHistory = saforaMockHistory.sort((a,b) => new Date(b.scannedAt).getTime() - new Date(a.scannedAt).getTime());
       setRecentScans(sortedHistory.slice(0,3));
     } else {
-       // If no history, use the refined mockRecentScans which should only contain SAFORA-MOCK items
        setRecentScans(mockRecentScans.slice(0,3));
     }
-
   }, []);
 
+  const isProfileConsideredComplete = profile && 
+    (profile.profileCompletionStatus === 'data_complete' || profile.profileCompletionStatus === 'data_complete_guest');
+  
+  const showCompleteProfilePrompt = !profileLoading && profile && 
+    (profile.profileCompletionStatus === 'initial' || 
+     profile.profileCompletionStatus === 'visual_complete' || 
+     profile.profileCompletionStatus === 'data_collection_started' ||
+     profile.profileCompletionStatus === 'data_partial' ||
+     !profile.profileCompletionStatus);
 
-  const isProfileSetup = profile && (
-    Object.values(profile.dietaryPreferences).some(value => value === true) ||
-    Object.values(profile.allergies).some(value => value === true) ||
-    Object.values(profile.healthGoals).some(value => value === true) ||
-    (profile.customRestrictions && profile.customRestrictions.trim().length > 0)
-  );
 
   return (
     <div className="space-y-12">
@@ -84,7 +84,7 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-4">
-              Welcome, {user?.displayName || user?.email?.split('@')[0] || 'User'}!
+              Welcome, {profile?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}!
             </h1>
             <p className="text-lg text-foreground/80 mb-8">
               Ready to make informed food choices? Safora helps you understand what's in your food and if it fits your lifestyle.
@@ -110,28 +110,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {!profileLoading && !isProfileSetup && (
+      {showCompleteProfilePrompt && (
         <Card className="bg-accent/20 border-accent shadow-md">
           <CardHeader>
             <CardTitle className="text-2xl text-accent-foreground flex items-center gap-3">
-              <UserCircle2 className="h-8 w-8 text-accent" />
+              <Edit3 className="h-8 w-8 text-accent" />
               Complete Your Dietary Profile
             </CardTitle>
             <CardDescription className="text-accent-foreground/80 mt-1">
-              Personalize your experience by setting up your dietary preferences, allergies, and health goals. This will enable Safora to provide accurate insights.
+              Personalize your experience by finishing your dietary preferences, allergies, and health goals. This enables Safora to provide the most accurate insights.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground text-base">
               <Link href="/dietary-profile">
-                Set Up Profile Now <ArrowRight className="ml-2 h-4 w-4" />
+                Complete Profile Now <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </CardContent>
         </Card>
       )}
       
-      {isProfileSetup && (
+      {isProfileConsideredComplete && (
          <Card className="bg-green-500/10 border-green-500 shadow-md">
           <CardHeader>
             <CardTitle className="text-2xl text-green-700 flex items-center gap-3">
@@ -139,7 +139,7 @@ export default function HomePage() {
               Dietary Profile Active
             </CardTitle>
             <CardDescription className="text-green-700/80 mt-1">
-              Your dietary profile is set up. Safora will now use this information to analyze food products.
+              Your dietary profile is set up. Safora will use this information to analyze food products.
             </CardDescription>
           </CardHeader>
           <CardContent>
