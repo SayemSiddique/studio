@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -10,15 +11,14 @@ import { cn } from '@/lib/utils';
 import styles from './Onboarding.module.css';
 import { useProfile } from '@/hooks/useProfile';
 import type { UserProfile, UserProfileLocation } from '@/lib/types';
-import { HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle } from 'lucide-react';
+import { HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle, Mail, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, Briefcase, ShieldQuestion, Milestone } from 'lucide-react';
 import Image from 'next/image';
 import SecondOnboardingSlideImage from '@/image/2ndOnboardingSlide.png';
-import { countryData, regions, dietaryPaths, ingredientsToAvoidOptions, commonAllergens } from '@/lib/onboardingOptions';
+import { countryData, regions, dietaryPaths, ingredientsToAvoidOptions, commonAllergens, healthConditionsOptions, healthGoalsOptions } from '@/lib/onboardingOptions';
 
 // Constants for the visual slides
 const TOTAL_VISUAL_SLIDES = 4;
-// Constants for the new data collection screens
-const TOTAL_DATA_COLLECTION_STEPS = 10; // As per your HTML structure
+const TOTAL_DATA_COLLECTION_STEPS = 10; 
 
 interface VisualSlide {
   id: string;
@@ -99,6 +99,13 @@ const VisualOnboardingSlides: VisualSlide[] = [
   }
 ];
 
+const GoogleIconSvg = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+      <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" fill="white"/>
+    </svg>
+);
+
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { profile, updateProfile, loading: profileLoading } = useProfile();
@@ -108,7 +115,7 @@ export default function OnboardingPage() {
   
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     name: "",
-    dateOfBirth: "",
+    dateOfBirth: "", // YYYY-MM-DD
     location: {},
     selectedDiets: [],
     ingredientsToAvoid: [],
@@ -129,10 +136,11 @@ export default function OnboardingPage() {
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Initialize formData from profile when component mounts or profile changes
   useEffect(() => {
     if (profile) {
       setFormData(prev => ({
-        ...prev, // Keep existing form data if any
+        ...prev,
         name: profile.name || "",
         dateOfBirth: profile.dateOfBirth || "",
         location: profile.location || {},
@@ -144,15 +152,15 @@ export default function OnboardingPage() {
         healthConditions: profile.healthConditions || [],
         healthGoalsList: profile.healthGoalsList || [],
       }));
-      // Pre-fill location dropdowns if data exists
       if (profile.location?.region) setSelectedRegion(profile.location.region);
       if (profile.location?.country) {
-        setSelectedCountry(profile.location.country);
-        if (profile.location.region && countryData[profile.location.country]) { // Ensure countryData has an entry for this country
-            setAvailableCities(countryData[profile.location.country] || []);
-        } else if (profile.location.country && countryData[profile.location.country]) { // Fallback if region not set but country is
-            setAvailableCities(countryData[profile.location.country] || []);
-        }
+         setSelectedCountry(profile.location.country);
+         // Ensure countryData has an entry for this country before trying to access it
+         if (profile.location.country && countryData[profile.location.country]) {
+            setAvailableCities(countryData[profile.location.country].sort() || []);
+         } else {
+            setAvailableCities([]); // Set to empty if country not in countryData
+         }
       }
       if (profile.location?.city) setSelectedCity(profile.location.city);
     }
@@ -162,7 +170,7 @@ export default function OnboardingPage() {
   const handleInputChange = (field: keyof UserProfile, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
-
+  
   const handleLocationChange = useCallback(() => {
     setFormData(prev => ({
       ...prev,
@@ -183,10 +191,10 @@ export default function OnboardingPage() {
     if (currentVisualSlide < TOTAL_VISUAL_SLIDES - 1) {
       setCurrentVisualSlide(prev => prev + 1);
     } else {
-      await updateProfile({ profileCompletionStatus: 'visual_complete' });
+      await updateProfile({ ...formData, profileCompletionStatus: 'visual_complete' });
       setCurrentDataCollectionStep(1);
     }
-  }, [currentVisualSlide, updateProfile]);
+  }, [currentVisualSlide, updateProfile, formData]);
 
   const handlePrevVisualSlide = useCallback(() => {
     if (currentVisualSlide > 0) {
@@ -195,33 +203,38 @@ export default function OnboardingPage() {
   }, [currentVisualSlide]);
 
   const handleNextDataStep = useCallback(async () => {
-    // Save current step's data before proceeding
-    await updateProfile({ ...formData, profileCompletionStatus: 'data_collection_started' });
-
+     await updateProfile({ ...formData, profileCompletionStatus: 'data_collection_started' });
     if (currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS) {
       setCurrentDataCollectionStep(prev => prev + 1);
-    } else if (currentDataCollectionStep === TOTAL_DATA_COLLECTION_STEPS) { // Last data step is Account Creation Prompt
-      router.push('/auth'); // Or handle guest continuation
     }
-  }, [currentDataCollectionStep, formData, updateProfile, router]);
+  }, [currentDataCollectionStep, formData, updateProfile]);
 
   const handlePrevDataStep = useCallback(() => {
     if (currentDataCollectionStep > 1) {
       setCurrentDataCollectionStep(prev => prev - 1);
     } else if (currentDataCollectionStep === 1) {
-      // Go back to visual slides
-      setCurrentDataCollectionStep(0);
-      // Optionally reset visual_complete status or handle as needed
+      setCurrentDataCollectionStep(0); // Go back to visual slides
     }
   }, [currentDataCollectionStep]);
   
   const skipToAuth = async () => {
     await updateProfile({ 
       ...formData, 
-      profileCompletionStatus: currentDataCollectionStep > 0 ? 'data_collection_started' : 'visual_complete' 
+      profileCompletionStatus: currentDataCollectionStep > 0 ? 'data_partial' : 'visual_complete' 
     });
     router.push('/auth');
   };
+
+  const handleSaveProfileAndRedirect = async () => {
+    await updateProfile({ ...formData, profileCompletionStatus: 'data_complete'});
+    router.push('/auth');
+  };
+  
+  const handleContinueAsGuest = async () => {
+    await updateProfile({ ...formData, profileCompletionStatus: 'data_complete_guest'});
+    router.push('/home');
+  };
+
 
   useEffect(() => {
     let touchstartX = 0;
@@ -233,10 +246,10 @@ export default function OnboardingPage() {
       const deltaX = touchendX - touchstartX;
       const deltaY = touchendY - touchstartY;
 
-      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) {
-        if (currentDataCollectionStep === 0) {
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) { // Threshold for swipe
+        if (currentDataCollectionStep === 0) { // Visual slides
           if (deltaX < 0) handleNextVisualSlide(); else handlePrevVisualSlide();
-        } else {
+        } else { // Data collection steps
           if (deltaX < 0) handleNextDataStep(); else handlePrevDataStep();
         }
       }
@@ -244,12 +257,15 @@ export default function OnboardingPage() {
 
     const handleTouchStart = (e: TouchEvent) => { touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY; };
     const handleTouchEnd = (e: TouchEvent) => { touchendX = e.changedTouches[0].screenX; touchendY = e.changedTouches[0].screenY; handleSwipeGesture(); };
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return; // Ignore keydown in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (currentDataCollectionStep === 0) {
-        if (e.key === 'ArrowRight') handleNextVisualSlide(); if (e.key === 'ArrowLeft') handlePrevVisualSlide();
+        if (e.key === 'ArrowRight') handleNextVisualSlide();
+        if (e.key === 'ArrowLeft') handlePrevVisualSlide();
       } else {
-        if (e.key === 'ArrowRight') handleNextDataStep(); if (e.key === 'ArrowLeft') handlePrevDataStep();
+         if (e.key === 'ArrowRight') handleNextDataStep();
+         if (e.key === 'ArrowLeft') handlePrevDataStep();
       }
     };
 
@@ -274,16 +290,12 @@ export default function OnboardingPage() {
   const handleRegionSelect = (region: string) => {
     setSelectedRegion(region);
     const countriesForRegion = Object.keys(countryData).filter(country => {
-      // Basic region mapping (can be improved)
       if (region === "North America") return ["United States", "Canada", "Mexico"].includes(country);
       if (region === "Europe") return ["United Kingdom", "Germany", "France", "Italy", "Spain"].includes(country);
-      // Add more mappings or use a more structured region data
-      return true; // Default: show all if no specific region map
+      return true; 
     });
-    setAvailableCountries(countriesForRegion.length > 0 ? countriesForRegion : Object.keys(countryData).sort()); // Fallback to all countries
-    setSelectedCountry('');
-    setAvailableCities([]);
-    setSelectedCity('');
+    setAvailableCountries(countriesForRegion.length > 0 ? countriesForRegion.sort() : Object.keys(countryData).sort());
+    setSelectedCountry(''); setAvailableCities([]); setSelectedCity('');
     setOpenDropdown(null);
   };
 
@@ -299,7 +311,6 @@ export default function OnboardingPage() {
     setOpenDropdown(null);
   };
   
-  // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -313,7 +324,7 @@ export default function OnboardingPage() {
 
   const handleChipToggle = (
     itemValue: string, 
-    fieldName: keyof Pick<UserProfile, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens'>
+    fieldName: keyof Pick<UserProfile, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>
   ) => {
     setFormData(prev => {
       const currentArray = prev[fieldName] as string[] || [];
@@ -351,7 +362,7 @@ export default function OnboardingPage() {
         />
         <h2 className="text-xl font-semibold mt-6 mb-4 text-gray-700">When were you born?</h2>
         <Input 
-          type="text"
+          type="text" // Placeholder for date picker
           className={styles.newData_inputField} 
           placeholder="YYYY-MM-DD"
           value={formData.dateOfBirth || ''}
@@ -370,7 +381,6 @@ export default function OnboardingPage() {
         <div className={styles.newData_safAvatar}>🌎</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Where are you based?</h1>
         
-        {/* Region Dropdown */}
         <div className={styles.newData_dropdownField}>
           <div className={cn(styles.newData_dropdownSelected, openDropdown === 'region' && styles.active)} onClick={() => toggleDropdown('region')}>
             <span>{selectedRegion || "Select your region"}</span> <ChevronDown />
@@ -384,7 +394,6 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        {/* Country Dropdown */}
         <div className={styles.newData_dropdownField}>
           <div className={cn(styles.newData_dropdownSelected, openDropdown === 'country' && styles.active)} onClick={() => selectedRegion && toggleDropdown('country')}>
             <span>{selectedCountry || "Select your country"}</span> <ChevronDown />
@@ -398,7 +407,6 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        {/* City Dropdown */}
         <div className={styles.newData_dropdownField}>
           <div className={cn(styles.newData_dropdownSelected, openDropdown === 'city' && styles.active)} onClick={() => selectedCountry && toggleDropdown('city')}>
             <span>{selectedCity || "Select your city"}</span> <ChevronDown />
@@ -434,7 +442,7 @@ export default function OnboardingPage() {
       <div className={styles.newData_screenContent}>
         <div className={styles.newData_safAvatar}>🥗</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Do you follow any of these dietary paths?</h1>
-        <div className="flex flex-wrap justify-center">
+        <div className={styles.newData_chipContainer}>
           {dietaryPaths.map(diet => (
             <div 
               key={diet} 
@@ -457,7 +465,7 @@ export default function OnboardingPage() {
       <div className={styles.newData_screenContent}>
         <div className={styles.newData_safAvatar}>🚫</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Any ingredients you avoid for personal, religious, or ethical reasons?</h1>
-        <div className="flex flex-wrap justify-center">
+        <div className={styles.newData_chipContainer}>
           {ingredientsToAvoidOptions.map(opt => (
             <div 
               key={opt.name} 
@@ -468,7 +476,6 @@ export default function OnboardingPage() {
               <span>{opt.name}</span>
             </div>
           ))}
-          <div className={cn(styles.newData_chip)}><span>➕ Add Custom</span></div> {/* Placeholder */}
         </div>
         <Input 
             type="text" 
@@ -489,7 +496,7 @@ export default function OnboardingPage() {
       <div className={styles.newData_screenContent}>
         <div className={styles.newData_safAvatar}>⚠️</div>
         <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Let's make sure you stay safe. Any known allergies?</h1>
-        <div className="flex flex-wrap justify-center">
+        <div className={styles.newData_chipContainer}>
           {commonAllergens.map(allergen => (
             <div 
               key={allergen.name} 
@@ -514,11 +521,125 @@ export default function OnboardingPage() {
     </div>
   );
 
+  const renderDataCollectionStep7 = () => (
+    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-7">
+      <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
+      <div className={styles.newData_screenContent}>
+        <div className={styles.newData_safAvatar}>❤️</div>
+        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Any health conditions I should be aware of?</h1>
+        <div className={styles.newData_chipContainer}>
+          {healthConditionsOptions.map(condition => (
+            <div 
+              key={condition} 
+              className={cn(styles.newData_chip, formData.healthConditions?.includes(condition) && styles.selected)} 
+              onClick={() => handleChipToggle(condition, 'healthConditions')}
+            >
+              <span>{condition}</span>
+            </div>
+          ))}
+        </div>
+        <button className={cn(styles.newData_btnSecondary, "mt-6")} onClick={skipToAuth}>I'll fill this later</button>
+        <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</button></div>
+      </div>
+    </div>
+  );
+
+  const renderDataCollectionStep8 = () => (
+    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-8">
+      <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
+      <div className={styles.newData_screenContent}>
+        <div className={styles.newData_safAvatar}>🎯</div>
+        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>What are your current health goals?</h1>
+        <div className={styles.newData_chipContainer}>
+          {healthGoalsOptions.map(goal => (
+            <div 
+              key={goal} 
+              className={cn(styles.newData_chip, formData.healthGoalsList?.includes(goal) && styles.selected)} 
+              onClick={() => handleChipToggle(goal, 'healthGoalsList')}
+            >
+              <span>{goal}</span>
+            </div>
+          ))}
+        </div>
+         <button className={cn(styles.newData_btnSecondary, "mt-6")} onClick={skipToAuth}>I'll fill this later</button>
+        <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</button></div>
+      </div>
+    </div>
+  );
+
+  const SummaryDisplayItem: React.FC<{icon: React.ReactNode; label: string; value?: string | string[] | null}> = ({icon, label, value}) => {
+    if (!value || (Array.isArray(value) && value.length === 0)) return null;
+    const displayValue = Array.isArray(value) ? value.join(', ') : value;
+    return (
+      <div className={styles.newData_summaryItem}>
+        <div className={styles.newData_summaryIcon}>{icon}</div>
+        <div>
+          <div className="font-medium text-gray-700">{label}</div>
+          <div className="text-sm text-gray-500">{displayValue}</div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDataCollectionStep9 = () => (
+    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-9">
+      <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
+      <div className={styles.newData_screenContent}>
+        <div className={styles.newData_safAvatar}>📋</div>
+        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Your Dietary Profile Summary</h1>
+        <div className="bg-gray-50 p-4 rounded-xl mb-6 w-full max-w-md text-left">
+          <SummaryDisplayItem icon={<User size={18}/>} label="Name" value={formData.name} />
+          <SummaryDisplayItem icon={<CalendarDays size={18}/>} label="Date of Birth" value={formData.dateOfBirth} />
+          <SummaryDisplayItem icon={<MapPin size={18}/>} label="Location" value={`${formData.location?.city || ''}${formData.location?.city && formData.location?.country ? ', ' : ''}${formData.location?.country || ''}`} />
+          <SummaryDisplayItem icon={<Utensils size={18}/>} label="Dietary Paths" value={formData.selectedDiets} />
+          <SummaryDisplayItem icon={<Ban size={18}/>} label="Ingredients to Avoid" value={formData.ingredientsToAvoid} />
+          {formData.customIngredientsToAvoid && <SummaryDisplayItem icon={<Ban size={18}/>} label="Custom Avoidances" value={formData.customIngredientsToAvoid} />}
+          <SummaryDisplayItem icon={<AlertTriangleIcon size={18}/>} label="Allergies" value={formData.knownAllergens} />
+           {formData.customAllergens && <SummaryDisplayItem icon={<AlertTriangleIcon size={18}/>} label="Custom Allergies" value={formData.customAllergens} />}
+          <SummaryDisplayItem icon={<ListChecks size={18}/>} label="Health Conditions" value={formData.healthConditions} />
+          <SummaryDisplayItem icon={<BarChart3 size={18}/>} label="Health Goals" value={formData.healthGoalsList} />
+        </div>
+        <div className={styles.newData_safMessage}>Done! This helps me scan your food with your needs in mind.</div>
+        <div className={styles.newData_bottomActions}><button className={styles.newData_btnPrimary} onClick={handleSaveProfileAndRedirect}>Save My Profile</button></div>
+      </div>
+    </div>
+  );
+  
+  const renderDataCollectionStep10 = () => (
+    <div className={cn(styles.newData_screen, styles.active)} id="data-screen-10">
+      <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
+      <div className={styles.newData_screenContent}>
+        <div className={styles.newData_safAvatar}>🎉</div>
+        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-4")}>You're all set!</h1>
+        <p className="text-gray-600 mb-8 text-center">Create a free Safora account to save your profile and start scanning safely.</p>
+        
+        <button className={cn(styles.newData_btnPrimary, "mb-4 flex items-center justify-center")} onClick={() => router.push('/auth')}>
+          <Mail size={20} className="mr-2"/> Sign Up with Email
+        </button>
+        
+        <button 
+          className={cn(styles.newData_btnPrimary, "mb-6 flex items-center justify-center")} 
+          style={{background: 'linear-gradient(90deg, #4285F4, #3c78dc)'}} // Google Blue
+          onClick={() => router.push('/auth?provider=google')} // Example for specific provider on auth page
+        >
+          <GoogleIconSvg /> Sign Up with Google
+        </button>
+        
+        <button className={cn(styles.newData_btnSecondary, "w-full")} onClick={handleContinueAsGuest}>
+          Continue as Guest
+        </button>
+        <p className="text-gray-500 text-xs text-center mt-2">Limited features available</p>
+      </div>
+    </div>
+  );
+
 
   if (profileLoading && !profile) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-100">
-        <Sparkles className="w-16 h-16 text-primary animate-ping" />
+      <div className={styles.newData_onboardingContainer}> {/* Use new container for loading */}
+        <div className="flex items-center justify-center min-h-screen">
+          <Sparkles className="w-16 h-16 text-primary animate-ping" />
+        </div>
       </div>
     );
   }
@@ -531,31 +652,11 @@ export default function OnboardingPage() {
       case 4: return renderDataCollectionStep4();
       case 5: return renderDataCollectionStep5();
       case 6: return renderDataCollectionStep6();
-      // Placeholder for future screens
-      case 7:
-      case 8:
-      case 9:
-      case 10:
-        return (
-          <div className={cn(styles.newData_screen, styles.active)}>
-            <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-            <div className={styles.newData_screenContent}>
-              <h1 className={cn(styles.newData_h1, "text-2xl")}>Data Collection Step {currentDataCollectionStep}</h1>
-              <p>Content for step {currentDataCollectionStep} will go here.</p>
-              <div className={styles.newData_bottomActions}>
-                <button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>
-                  {currentDataCollectionStep === TOTAL_DATA_COLLECTION_STEPS ? "Finish & Go to Sign Up" : "Continue"}
-                </button>
-                {currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS &&
-                  <button className={cn(styles.newData_btnSecondary, "mt-2")} onClick={skipToAuth}>
-                    I'll fill this later
-                  </button>
-                }
-              </div>
-            </div>
-          </div>
-        );
-      default: return null;
+      case 7: return renderDataCollectionStep7();
+      case 8: return renderDataCollectionStep8();
+      case 9: return renderDataCollectionStep9();
+      case 10: return renderDataCollectionStep10();
+      default: return null; // Should not happen if logic is correct
     }
   };
 
@@ -563,6 +664,7 @@ export default function OnboardingPage() {
   return (
     <div className={styles.onboardingRoot}>
       <div className={cn(styles.onboardingContainer, currentDataCollectionStep > 0 && styles.newData_onboardingContainer)}>
+        {/* Logo is positioned based on whether it's visual or data collection phase */}
         <div className={cn(styles.logoContainer, currentDataCollectionStep > 0 && styles.newData_logoContainer)}>
           <Logo />
         </div>
@@ -607,7 +709,7 @@ export default function OnboardingPage() {
             )}
           </>
         ) : (
-          <div className={cn(styles.newData_innerContainer)}>
+          <div className={cn(styles.newData_innerContainer)}> {/* Wrapper for new data collection screens */}
             {renderActiveDataCollectionScreen()}
           </div>
         )}
@@ -615,3 +717,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+

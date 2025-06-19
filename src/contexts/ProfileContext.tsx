@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -73,54 +74,61 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     let restrictionsStr = "User Dietary Profile:\n";
     
     if (profile.name) restrictionsStr += `Name: ${profile.name}\n`;
-    if (profile.dateOfBirth) restrictionsStr += `Date of Birth: ${profile.dateOfBirth}\n`;
-    if (profile.location?.country) restrictionsStr += `Location: ${profile.location.city ? profile.location.city + ', ' : ''}${profile.location.country}\n`;
+    if (profile.dateOfBirth) restrictionsStr += `DOB: ${profile.dateOfBirth}\n`;
+    if (profile.location) {
+      const locParts = [];
+      if (profile.location.city) locParts.push(profile.location.city);
+      if (profile.location.country) locParts.push(profile.location.country);
+      if (locParts.length > 0) restrictionsStr += `Location: ${locParts.join(', ')}\n`;
+    }
     
-    const formatArraySection = (title: string, items: string[] | undefined, customItem?: string | undefined, prefix: string = "") => {
+    const formatArraySection = (title: string, items?: string[], customItem?: string, itemPrefix: string = "- ") => {
+      let sectionContent = "";
       if (items && items.length > 0) {
-        restrictionsStr += `${title}:\n${items.map(item => `- ${prefix}${item}`).join("\n")}\n`;
+        sectionContent += items.map(item => `${itemPrefix}${item}`).join("\n") + "\n";
       }
       if (customItem && customItem.trim() !== "") {
-        restrictionsStr += `Custom ${title.toLowerCase()}:\n- ${customItem}\n`;
+        // Ensure custom items are also prefixed if a prefix is usually applied
+        sectionContent += `${itemPrefix}${customItem.trim()}\n`;
+      }
+      if (sectionContent) {
+        restrictionsStr += `${title}:\n${sectionContent}`;
       }
     };
     
     formatArraySection("Dietary Choices", profile.selectedDiets);
     formatArraySection("Ingredients to Avoid", profile.ingredientsToAvoid, profile.customIngredientsToAvoid);
-    formatArraySection("Known Allergens", profile.knownAllergens, profile.customAllergens, "Allergic to ");
+    formatArraySection("Allergies", profile.knownAllergens, profile.customAllergens);
     formatArraySection("Health Conditions", profile.healthConditions);
     formatArraySection("Health Goals", profile.healthGoalsList);
     
-    if (profile.customRestrictions && profile.customRestrictions.trim() !== "") {
-      restrictionsStr += `Other General Notes/Restrictions:\n- ${profile.customRestrictions}\n`;
-    }
-    
     // Include old boolean preferences if they exist and new arrays are empty (for backward compatibility during transition)
     // This part can be removed once fully migrated to new array fields
-    if ((!profile.selectedDiets || profile.selectedDiets.length === 0) && Object.values(profile.dietaryPreferences).some(v => v)) {
-      restrictionsStr += "Legacy Dietary Preferences:\n";
-      Object.entries(profile.dietaryPreferences).forEach(([key, value]) => {
-        if (value === true && !key.startsWith("other")) {
-          restrictionsStr += `- ${key.replace("is", "")}\n`;
+    const addLegacyData = (legacyField: keyof UserProfile, title: string, keyPrefixToRemove: string) => {
+      const legacyData = profile[legacyField] as Record<string, any> | undefined;
+      if (legacyData && Object.values(legacyData).some(v => v === true)) {
+        const items = Object.entries(legacyData)
+          .filter(([key, value]) => value === true && !key.startsWith("other"))
+          .map(([key]) => `- ${key.replace(keyPrefixToRemove, "").replace(/([A-Z])/g, ' $1').trim()}`);
+        if (items.length > 0) {
+          restrictionsStr += `${title} (Legacy):\n${items.join("\n")}\n`;
         }
-      });
+      }
+    };
+
+    if (!profile.selectedDiets || profile.selectedDiets.length === 0) {
+       addLegacyData('dietaryPreferences', "Dietary Preferences", "is");
     }
-     if ((!profile.knownAllergens || profile.knownAllergens.length === 0) && Object.values(profile.allergies).some(v => v)) {
-      restrictionsStr += "Legacy Allergies:\n";
-      Object.entries(profile.allergies).forEach(([key, value]) => {
-        if (value === true && !key.startsWith("other")) {
-          restrictionsStr += `- ${key.replace("has", "")}\n`;
-        }
-      });
+    if (!profile.knownAllergens || profile.knownAllergens.length === 0) {
+       addLegacyData('allergies', "Allergies", "has");
     }
-     if ((!profile.healthGoalsList || profile.healthGoalsList.length === 0) && Object.values(profile.healthGoals).some(v => v)) {
-      restrictionsStr += "Legacy Health Goals:\n";
-      Object.entries(profile.healthGoals).forEach(([key, value]) => {
-        if (value === true && !key.startsWith("other")) {
-          restrictionsStr += `- ${key.replace("wants", "")}\n`;
-        }
-      });
+    if (!profile.healthGoalsList || profile.healthGoalsList.length === 0) {
+      addLegacyData('healthGoals', "Health Goals", "wants");
     }
+     if (profile.customRestrictions && profile.customRestrictions.trim() !== "") {
+      restrictionsStr += `Other General Notes/Restrictions (Legacy):\n- ${profile.customRestrictions}\n`;
+    }
+
 
     if (restrictionsStr === "User Dietary Profile:\n") return "No specific dietary restrictions, preferences, or goals set.";
 
@@ -134,3 +142,4 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     </ProfileContext.Provider>
   );
 };
+

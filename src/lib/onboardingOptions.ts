@@ -1,7 +1,7 @@
 
+
 // src/lib/onboardingOptions.ts
 
-// Data from user's HTML <script> tag
 export const countryData: Record<string, string[]> = {
     "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco", "Indianapolis", "Seattle", "Denver", "Washington DC", "Boston", "El Paso", "Nashville", "Detroit", "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque", "Tucson", "Fresno", "Sacramento", "Kansas City", "Mesa", "Atlanta", "Omaha", "Colorado Springs", "Raleigh", "Miami", "Long Beach", "Virginia Beach", "Oakland", "Minneapolis", "Tampa", "Tulsa", "Arlington", "New Orleans", "Wichita"],
     "Canada": ["Toronto", "Montreal", "Vancouver", "Calgary", "Edmonton", "Ottawa", "Mississauga", "Winnipeg", "Quebec City", "Hamilton", "Brampton", "Surrey", "Laval", "Halifax", "London", "Markham", "Vaughan", "Gatineau", "Saskatoon", "Longueuil", "Burnaby", "Regina", "Richmond", "Richmond Hill", "Oakville", "Burlington", "Sherbrooke", "Oshawa", "Saguenay", "Lévis", "Barrie", "Abbotsford", "Coquitlam", "Terrebonne", "St. Catharines", "Cambridge", "Kingston", "Whitby", "Guelph", "Kelowna"],
@@ -18,7 +18,7 @@ export const countryData: Record<string, string[]> = {
     "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Changwon", "Goyang", "Yongin", "Seongnam", "Bucheon", "Cheongju", "Ansan", "Jeonju", "Anyang", "Cheonan", "Pohang", "Uijeongbu", "Siheung", "Paju", "Gimhae", "Hwaseong", "Jeju City", "Pyeongtaek", "Gunsan", "Iksan", "Yangsan", "Suncheon", "Chuncheon", "Wonju", "Gangneung", "Asan", "Mokpo", "Yeosu", "Tongyeong", "Gyeongju", "Sokcho", "Andong"]
 };
 
-export const regions: string[] = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America", "Other"]; // Added Other
+export const regions: string[] = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America", "Other"];
 
 export const dietaryPaths: string[] = [
   "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto", 

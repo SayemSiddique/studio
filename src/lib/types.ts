@@ -1,4 +1,5 @@
 
+
 export interface DietaryPreferences {
   isVegetarian: boolean;
   isVegan: boolean;
@@ -37,11 +38,11 @@ export interface UserProfileLocation {
 }
 
 export interface UserProfile {
-  // Fields from original visual onboarding form
-  dietaryPreferences: Partial<DietaryPreferences>; // Keep for now, can be deprecated later
-  allergies: Partial<Allergies>; // Keep for now, can be deprecated later
-  healthGoals: Partial<HealthGoals>; // Keep for now, can be deprecated later
-  customRestrictions?: string; // General custom notes
+  // Fields from original visual onboarding form (can be deprecated later if fully replaced)
+  dietaryPreferences: Partial<DietaryPreferences>; 
+  allergies: Partial<Allergies>; 
+  healthGoals: Partial<HealthGoals>; 
+  customRestrictions?: string; // General custom notes from old form
 
   // New detailed fields from multi-step data collection
   name?: string;
@@ -58,7 +59,7 @@ export interface UserProfile {
   healthConditions?: string[];
   healthGoalsList?: string[];
 
-  profileCompletionStatus?: 'initial' | 'visual_complete' | 'data_collection_started' | 'data_collection_complete';
+  profileCompletionStatus?: 'initial' | 'visual_complete' | 'data_collection_started' | 'data_partial' | 'data_complete' | 'data_complete_guest';
 }
 
 
@@ -82,3 +83,4 @@ export interface ScanResult extends ProductInfo {
   alternatives?: string[];
   scannedAt: string; // ISO Date string
 }
+
