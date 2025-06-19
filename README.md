@@ -81,4 +81,4 @@ The project follows standard Next.js App Router conventions:
 
 ## Note
 
-This `README.md` provides a high-level overview of the Safora application as prototyped in Firebase Studio. The authentication and data persistence for profile, history, and favorites are currently mocked using `localStorage` for rapid prototyping. A full production deployment would involve integrating with live Firebase Authentication and Firestore services.
+This `README.md` provides a high-level overview of the Safora application as prototyped. The authentication and data persistence for profile, history, and favorites are currently mocked using `localStorage` for rapid prototyping. A full production deployment would involve integrating with live Firebase Authentication and Firestore services.
