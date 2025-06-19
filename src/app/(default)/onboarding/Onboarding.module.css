@@ -1,5 +1,4 @@
 
-
 /* Onboarding.module.css */
 /* Styles for the body tag are handled dynamically in page.tsx or globally */
 
@@ -229,7 +228,7 @@
     height: 140px;
     border-radius: 50%;
     border: 2px solid rgba(46, 204, 113, 0.3); /* emerald-500 with opacity */
-    animation: pulseSlow 2s ease-in-out infinite; /* Using existing pulseSlow */
+    /* Animation applied via Tailwind: animate-pulseSlow */
 }
 
 .dietaryIcons {
@@ -240,7 +239,7 @@
     display: flex; 
     align-items: center;
     justify-content: center;
-    animation: rotate 30s linear infinite; /* Using existing rotate */
+    /* Animation applied via Tailwind: animate-rotate */
 }
 
 .dietaryIcon {
@@ -423,7 +422,7 @@
 
 .swipeArrow {
     margin-left: 8px;
-    animation: swipeArrow 1.5s ease-in-out infinite;
+    /* Animation applied via Tailwind: animate-swipeArrow */
 }
 
 .gridOverlay {
@@ -449,36 +448,28 @@
     font-size: 20px;
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    animation: float 4s ease-in-out infinite;
+    /* Animation applied via Tailwind: animate-float and inline animationDelay */
 }
 
 .food1 {
     top: 20%;
     left: 20%;
-    animation-delay: 0s; /* Explicitly set for clarity if needed */
+    /* animation-delay: 0s; applied inline */
 }
 
 .food2 {
     top: 30%;
     right: 20%;
-    animation-delay: 0.5s;
+    /* animation-delay: 0.5s; applied inline */
 }
 
 .food3 {
     bottom: 30%;
     left: 30%;
-    animation-delay: 1s;
+    /* animation-delay: 1s; applied inline */
 }
 .food4 {
     bottom: 20%;
     right: 30%;
-    animation-delay: 1.5s;
+    /* animation-delay: 1.5s; applied inline */
 }
-
-/*Ensure these keyframes from tailwind.config.ts are correctly referenced or defined if not global */
-/* @keyframes pulseSlow, @keyframes rotate, @keyframes float, @keyframes swipeArrow are used by other slides.
-*/
-/* scanAnimation and pulseAnimation for the iphone scanner specific to slide 2 */
-
-
-

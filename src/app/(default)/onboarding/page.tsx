@@ -44,7 +44,7 @@ const OnboardingSlides = [
             <Image
               src={SecondOnboardingSlideImage}
               alt="Product scanning illustration"
-              width={160}
+              width={160} 
               height={133}
               className={styles.responsiveGif}
             />
@@ -235,7 +235,7 @@ export default function OnboardingPage() {
              {slide.showLogo && (
                 <div className={cn(
                     "absolute z-20",
-                     slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6" 
+                     (slide.id === 'slide-2' || slide.id === 'slide-3' || slide.id === 'slide-4') ? "top-6 left-6" : "top-6 left-6" 
                 )}>
                     <Logo />
                 </div>
@@ -285,3 +285,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
