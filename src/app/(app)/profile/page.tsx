@@ -6,38 +6,47 @@ import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserCircle2, Edit3, ShieldCheck, HeartPulse, Utensils, Loader2, AlertTriangle, Settings, ListFilter } from 'lucide-react';
+import { UserCircle2, Edit3, ShieldCheck, HeartPulse, Utensils, Loader2, AlertTriangle, Settings, ListFilter, CalendarDays, MapPin, Ban, Info } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import { format, parseISO, isValid } from 'date-fns';
 
-const DetailItem: React.FC<{ label: string; value?: string | null; items?: string[] }> = ({ label, value, items }) => {
-  if (!value && (!items || items.length === 0)) return null;
+const DetailItem: React.FC<{ label: string; value?: string | number | null; items?: string[], customItems?: string | null }> = ({ label, value, items, customItems }) => {
+  const hasValue = value !== undefined && value !== null && String(value).trim() !== "";
+  const hasItems = items && items.length > 0;
+  const hasCustomItems = customItems && customItems.trim() !== "";
+
+  if (!hasValue && !hasItems && !hasCustomItems) {
+    return (
+      <div className="mb-3">
+        <h4 className="text-sm font-semibold text-muted-foreground">{label}</h4>
+        <p className="text-foreground/70 italic text-sm">Not specified.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-3">
       <h4 className="text-sm font-semibold text-muted-foreground">{label}</h4>
-      {value && <p className="text-foreground/90">{value}</p>}
-      {items && items.length > 0 && (
-        <ul className="list-disc list-inside text-foreground/90 space-y-1">
+      {hasValue && <p className="text-foreground/90">{String(value)}</p>}
+      {hasItems && (
+        <ul className="list-disc list-inside text-foreground/90 space-y-1 ml-4 text-sm">
           {items.map((item, index) => <li key={index}>{item}</li>)}
         </ul>
       )}
+      {hasCustomItems && (
+         <div className="mt-1">
+            <p className="text-xs font-medium text-muted-foreground/80">Custom additions:</p>
+            <p className="text-foreground/80 text-sm pl-2 border-l-2 border-primary/30 ml-2">{customItems}</p>
+         </div>
+      )}
+       {!hasItems && !hasCustomItems && hasValue && String(value).trim() === "" && (
+         <p className="text-foreground/70 italic text-sm">Not specified.</p>
+       )}
     </div>
   );
 };
 
-const formatBooleanArray = (data: Record<string, any> | undefined): string[] => {
-  if (!data) return [];
-  return Object.entries(data)
-    .filter(([key, value]) => value === true && !key.startsWith("other")) // Exclude "other..." fields
-    .map(([key]) => {
-       // Improved name formatting: "isVegetarian" -> "Vegetarian", "wantsWeightLoss" -> "Weight Loss"
-      let name = key;
-      if (name.startsWith("is")) name = name.substring(2);
-      else if (name.startsWith("has")) name = name.substring(3);
-      else if (name.startsWith("wants")) name = name.substring(5);
-      return name.replace(/([A-Z])/g, ' $1').trim(); // Add space before capitals
-    });
-};
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -61,26 +70,29 @@ export default function ProfilePage() {
     );
   }
   
-  const userInitial = user.email ? user.email.charAt(0).toUpperCase() : (user.displayName ? user.displayName.charAt(0).toUpperCase() : "S");
+  const userInitial = user.email ? user.email.charAt(0).toUpperCase() : (user.displayName ? user.displayName.charAt(0).toUpperCase() : (profile?.firstName ? profile.firstName.charAt(0).toUpperCase() : "S"));
+  const displayName = profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}` : profile?.firstName || profile?.name || user.displayName || user.email?.split('@')[0];
 
-  const preferencesList = formatBooleanArray(profile?.dietaryPreferences);
-  const allergiesList = formatBooleanArray(profile?.allergies);
-  const goalsList = formatBooleanArray(profile?.healthGoals);
+  const formattedDOB = profile?.dateOfBirth && isValid(parseISO(profile.dateOfBirth)) 
+    ? format(parseISO(profile.dateOfBirth), "PPP") 
+    : profile?.dateOfBirth || null;
+
+  const locationString = [profile?.location?.city, profile?.location?.country, profile?.location?.region].filter(Boolean).join(', ');
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-center gap-6 pb-8 border-b">
         <Avatar className="h-24 w-24 border-2 border-primary shadow-md">
-          <AvatarImage src={user.photoURL || `https://placehold.co/100x100.png?text=${userInitial}`} alt={user.displayName || user.email || "User"} data-ai-hint="profile avatar large" />
+          <AvatarImage src={user.photoURL || `https://placehold.co/100x100.png?text=${userInitial}`} alt={displayName || "User"} data-ai-hint="profile avatar large" />
           <AvatarFallback className="text-3xl bg-muted">{userInitial}</AvatarFallback>
         </Avatar>
         <div>
-          <h1 className="text-4xl font-bold font-headline text-primary">{user.displayName || user.email?.split('@')[0]}</h1>
+          <h1 className="text-4xl font-bold font-headline text-primary">{displayName}</h1>
           <p className="text-lg text-muted-foreground">{user.email}</p>
         </div>
         <Button asChild variant="outline" className="ml-auto mt-4 sm:mt-0">
             <Link href="/dietary-profile">
-              <Edit3 className="mr-2 h-4 w-4" /> Edit Dietary Profile
+              <Edit3 className="mr-2 h-4 w-4" /> Edit Profile
             </Link>
           </Button>
       </div>
@@ -88,28 +100,43 @@ export default function ProfilePage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-3 text-primary">
-            <UserCircle2 className="h-7 w-7" /> Account Information
+            <UserCircle2 className="h-7 w-7" /> Personal Information
           </CardTitle>
-          <CardDescription>Your personal and login details.</CardDescription>
+          <CardDescription>Your basic profile details.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <DetailItem label="Display Name" value={user.displayName || "Not set"} />
-          <DetailItem label="Email Address" value={user.email} />
+          <DetailItem label="First Name" value={profile?.firstName} />
+          <DetailItem label="Last Name" value={profile?.lastName} />
+          <DetailItem label="Date of Birth" value={formattedDOB} />
+          {profile?.age !== undefined && <DetailItem label="Age" value={`${profile.age} years old`} />}
+          <DetailItem label="Location" value={locationString} />
         </CardContent>
       </Card>
 
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-3 text-primary">
-            <Utensils className="h-7 w-7" /> Dietary Preferences
+            <Utensils className="h-7 w-7" /> Dietary Paths
           </CardTitle>
-          <CardDescription>How Safora tailors insights for you.</CardDescription>
+          <CardDescription>Your chosen dietary lifestyles.</CardDescription>
         </CardHeader>
         <CardContent>
-            {preferencesList.length > 0 ? <DetailItem items={preferencesList} /> : <p className="text-muted-foreground italic">No specific dietary preferences set.</p>}
+            <DetailItem items={profile?.selectedDiets} />
         </CardContent>
       </Card>
       
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-3 text-primary">
+            <Ban className="h-7 w-7" /> Ingredients to Avoid (Non-Allergy)
+          </CardTitle>
+          <CardDescription>Specific ingredients you avoid for personal reasons.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <DetailItem items={profile?.ingredientsToAvoid} customItems={profile?.customIngredientsToAvoid} />
+        </CardContent>
+      </Card>
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-3 text-primary">
@@ -118,19 +145,31 @@ export default function ProfilePage() {
           <CardDescription>Allergens Safora helps you avoid.</CardDescription>
         </CardHeader>
         <CardContent>
-          {allergiesList.length > 0 ? <DetailItem items={allergiesList} /> : <p className="text-muted-foreground italic">No allergies specified.</p>}
+          <DetailItem items={profile?.knownAllergens} customItems={profile?.customAllergens}/>
         </CardContent>
       </Card>
 
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-3 text-primary">
-            <HeartPulse className="h-7 w-7" /> Health Goals
+            <HeartPulse className="h-7 w-7" /> Health Conditions
+          </CardTitle>
+          <CardDescription>Your health conditions Safora should be aware of.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DetailItem items={profile?.healthConditions} />
+        </CardContent>
+      </Card>
+      
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-3 text-primary">
+            <ListChecks className="h-7 w-7" /> Health Goals
           </CardTitle>
           <CardDescription>Your wellness objectives.</CardDescription>
         </CardHeader>
         <CardContent>
-          {goalsList.length > 0 ? <DetailItem items={goalsList} /> : <p className="text-muted-foreground italic">No health goals specified.</p>}
+          <DetailItem items={profile?.healthGoalsList} />
         </CardContent>
       </Card>
 
@@ -138,7 +177,7 @@ export default function ProfilePage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-3 text-primary">
-              <ListFilter className="h-7 w-7" /> Other Notes & Restrictions
+              <Info className="h-7 w-7" /> Other General Notes/Restrictions
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -157,3 +196,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

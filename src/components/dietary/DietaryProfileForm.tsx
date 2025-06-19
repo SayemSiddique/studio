@@ -14,10 +14,12 @@ import type { UserProfile, UserProfileLocation } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader2, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, ShieldQuestion } from 'lucide-react';
+import { Loader2, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, ShieldQuestion, Edit3 } from 'lucide-react';
+import { parseISO, format, isValid, differenceInYears } from 'date-fns';
 
 // Helper to transform comma-separated string to array of strings
-const stringToArray = (value?: string): string[] => {
+const stringToArray = (value?: string | string[]): string[] => {
+  if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(item => item.length > 0);
   if (!value || typeof value !== 'string') return [];
   return value.split(',').map(item => item.trim()).filter(item => item.length > 0);
 };
@@ -29,31 +31,43 @@ const arrayToString = (value?: string[]): string => {
 };
 
 const profileSchema = z.object({
-  name: z.string().optional().default(""),
-  dateOfBirth: z.string().optional().default(""), // Consider a date-specific validation if using a date picker
+  firstName: z.string().optional().default(""),
+  lastName: z.string().optional().default(""),
+  dateOfBirth: z.string().optional().refine(val => !val || isValid(parseISO(val)), {
+    message: "Invalid date format. Please use YYYY-MM-DD.",
+  }).default(""),
   location: z.object({
     region: z.string().optional().default(""),
     country: z.string().optional().default(""),
     city: z.string().optional().default(""),
   }).optional().default({ region: "", country: "", city: "" }),
   
-  selectedDiets: z.string().transform(stringToArray).optional().default([]),
-  ingredientsToAvoid: z.string().transform(stringToArray).optional().default([]),
+  selectedDiets: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
+  ingredientsToAvoid: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
   customIngredientsToAvoid: z.string().optional().default(""),
-  knownAllergens: z.string().transform(stringToArray).optional().default([]),
+  knownAllergens: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
   customAllergens: z.string().optional().default(""),
-  healthConditions: z.string().transform(stringToArray).optional().default([]),
-  healthGoalsList: z.string().transform(stringToArray).optional().default([]),
+  healthConditions: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
+  healthGoalsList: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
   
-  customRestrictions: z.string().optional().default(""), // Retain old general custom field if needed
+  customRestrictions: z.string().optional().default(""),
 });
 
-type FormData = z.infer<typeof profileSchema>;
+type FormDataInternal = z.infer<typeof profileSchema>; // This will have arrays
+// Type for what form receives/submits (where arrays might be strings initially)
+type FormInputData = Omit<FormDataInternal, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'> & {
+  selectedDiets?: string;
+  ingredientsToAvoid?: string;
+  knownAllergens?: string;
+  healthConditions?: string;
+  healthGoalsList?: string;
+};
+
 
 // Helper component for Textarea sections
 const TextareaSection: React.FC<{
-  control: any;
-  name: keyof Pick<FormData, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>;
+  control: any; // Control<FormInputData>
+  name: keyof Pick<FormInputData, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>;
   label: string;
   icon: React.ReactNode;
   placeholder: string;
@@ -65,15 +79,13 @@ const TextareaSection: React.FC<{
     <p className="text-xs text-muted-foreground">Enter items separated by commas (e.g., item1, item2, item3).</p>
     <Controller
       control={control}
-      name={name as any} // Type assertion for Controller
+      name={name}
       render={({ field }) => (
         <Textarea
           id={name}
           {...field}
           placeholder={placeholder}
           className="min-h-[80px] resize-y"
-          value={field.value} // Ensure this is a string
-          onChange={(e) => field.onChange(e.target.value)}
         />
       )}
     />
@@ -86,19 +98,20 @@ export function DietaryProfileForm() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(profileSchema),
+  const form = useForm<FormInputData>({ // Use FormInputData for useForm
+    resolver: zodResolver(profileSchema), // Zod schema handles transformation
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       dateOfBirth: "",
       location: { region: "", country: "", city: "" },
-      selectedDiets: [],
-      ingredientsToAvoid: [],
+      selectedDiets: "",
+      ingredientsToAvoid: "",
       customIngredientsToAvoid: "",
-      knownAllergens: [],
+      knownAllergens: "",
       customAllergens: "",
-      healthConditions: [],
-      healthGoalsList: [],
+      healthConditions: "",
+      healthGoalsList: "",
       customRestrictions: "",
     },
   });
@@ -106,7 +119,8 @@ export function DietaryProfileForm() {
   useEffect(() => {
     if (profile) {
       form.reset({
-        name: profile.name || "",
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
         dateOfBirth: profile.dateOfBirth || "",
         location: {
           region: profile.location?.region || "",
@@ -125,32 +139,32 @@ export function DietaryProfileForm() {
     }
   }, [profile, form]);
 
-  const onSubmit = async (data: any) => { // data is initially string-based for Textareas
+  const onSubmit = async (data: FormInputData) => {
+    // Zod schema already transformed comma-separated strings to arrays.
+    // So, 'processedData' will match UserProfile structure.
     const processedData: Partial<UserProfile> = {
-      name: data.name,
-      dateOfBirth: data.dateOfBirth,
-      location: data.location,
-      selectedDiets: stringToArray(data.selectedDiets),
-      ingredientsToAvoid: stringToArray(data.ingredientsToAvoid),
-      customIngredientsToAvoid: data.customIngredientsToAvoid,
-      knownAllergens: stringToArray(data.knownAllergens),
-      customAllergens: data.customAllergens,
-      healthConditions: stringToArray(data.healthConditions),
-      healthGoalsList: stringToArray(data.healthGoalsList),
-      customRestrictions: data.customRestrictions,
-      profileCompletionStatus: 'data_complete', // Assume completing form means data is complete
+      ...data,
+      profileCompletionStatus: 'data_complete',
+      // Zod handles the string to array transformation based on schema definition
     };
+    
+    if(data.dateOfBirth && isValid(parseISO(data.dateOfBirth))) {
+        processedData.age = differenceInYears(new Date(), parseISO(data.dateOfBirth));
+    } else {
+        processedData.age = undefined;
+    }
+
 
     try {
       await updateProfile(processedData);
       toast({ title: "Profile Updated", description: "Your dietary profile has been saved successfully." });
-      router.push('/profile'); // Navigate to view profile page
+      router.push('/profile'); 
     } catch (error: any) {
       toast({ title: "Update Failed", description: error.message || "Could not save profile.", variant: "destructive" });
     }
   };
   
-  if (profileLoading && !form.formState.isDirty && !profile) { // Check if profile is null before rendering loader for initial load
+  if (profileLoading && !form.formState.isDirty && !profile) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -161,23 +175,30 @@ export function DietaryProfileForm() {
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-lg">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline text-primary">Edit Your Dietary Profile</CardTitle>
-        <CardDescription>Refine your preferences to get the most accurate food insights from Safora.</CardDescription>
+        <CardTitle className="text-3xl font-headline text-primary flex items-center gap-3"><Edit3 /> Edit Your Dietary Profile</CardTitle>
+        <CardDescription>Refine your preferences to get the most accurate food insights from Safora. Use commas to separate multiple items in text areas.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
           
-          <section className="space-y-4 p-4 border rounded-lg shadow-sm">
-            <h3 className="text-xl font-semibold mb-3 text-foreground flex items-center gap-2"><User />Personal Information</h3>
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input id="name" {...form.register('name')} placeholder="e.g., Alex Smith" />
+          <section className="space-y-4 p-4 border rounded-lg shadow-sm bg-muted/20">
+            <h3 className="text-xl font-semibold mb-3 text-primary flex items-center gap-2"><User />Personal Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName">First Name</Label>
+                <Input id="firstName" {...form.register('firstName')} placeholder="e.g., Alex" />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input id="lastName" {...form.register('lastName')} placeholder="e.g., Smith" />
+              </div>
             </div>
             <div>
               <Label htmlFor="dateOfBirth">Date of Birth</Label>
               <Input id="dateOfBirth" type="text" {...form.register('dateOfBirth')} placeholder="YYYY-MM-DD" />
+              {form.formState.errors.dateOfBirth && <p className="text-sm text-destructive mt-1">{form.formState.errors.dateOfBirth.message}</p>}
             </div>
-             <Label>Location</Label>
+            <Label className="text-md font-medium">Location</Label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                     <Label htmlFor="location.region" className="text-xs text-muted-foreground">Region</Label>
@@ -205,15 +226,14 @@ export function DietaryProfileForm() {
           <TextareaSection
             control={form.control}
             name="ingredientsToAvoid"
-            label="Specific Ingredients to Avoid"
+            label="Specific Ingredients to Avoid (Non-Allergy)"
             icon={<Ban size={20}/>}
             placeholder="e.g., Pork, Alcohol, Artificial Sweeteners"
           />
            <div>
-              <Label htmlFor="customIngredientsToAvoid">Other Ingredients to Avoid (Custom)</Label>
-              <Input id="customIngredientsToAvoid" {...form.register('customIngredientsToAvoid')} placeholder="List any other specific ingredients" />
+              <Label htmlFor="customIngredientsToAvoid">Other Specific Ingredients to Avoid (Custom)</Label>
+              <Input id="customIngredientsToAvoid" {...form.register('customIngredientsToAvoid')} placeholder="List any other specific non-allergy ingredients" />
             </div>
-
 
           <TextareaSection
             control={form.control}
@@ -245,9 +265,9 @@ export function DietaryProfileForm() {
 
           <section className="space-y-2">
             <Label htmlFor="customRestrictions" className="text-lg font-semibold flex items-center gap-2 text-foreground">
-              <ShieldQuestion size={20}/> Other General Notes/Restrictions (Legacy Field)
+              <ShieldQuestion size={20}/> Other General Notes or Restrictions
             </Label>
-             <p className="text-xs text-muted-foreground">This field is for any general notes not covered above. New details should be entered in the specific sections.</p>
+             <p className="text-xs text-muted-foreground">This field is for any general notes not covered above. New details should preferably be entered in the specific sections.</p>
             <Controller
               control={form.control}
               name="customRestrictions"
@@ -262,8 +282,7 @@ export function DietaryProfileForm() {
             />
           </section>
 
-
-          <CardFooter className="p-0 pt-8">
+          <CardFooter className="p-0 pt-8 flex-col sm:flex-row items-center gap-4">
             <Button type="submit" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-3 px-8" disabled={profileLoading || form.formState.isSubmitting}>
               {profileLoading || form.formState.isSubmitting ? (
                 <>
@@ -274,7 +293,7 @@ export function DietaryProfileForm() {
                 'Save Changes'
               )}
             </Button>
-             <Button type="button" variant="outline" onClick={() => router.push('/profile')} className="ml-4">
+             <Button type="button" variant="outline" onClick={() => router.push('/profile')} className="w-full sm:w-auto">
                 Cancel
             </Button>
           </CardFooter>

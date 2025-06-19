@@ -75,8 +75,9 @@ export default function HomePage() {
      profile.profileCompletionStatus === 'visual_complete' || 
      profile.profileCompletionStatus === 'data_collection_started' ||
      profile.profileCompletionStatus === 'data_partial' ||
-     !profile.profileCompletionStatus);
+     !profile.profileCompletionStatus); // Also show if status is undefined
 
+  const displayName = profile?.firstName || profile?.name || user?.displayName || user?.email?.split('@')[0] || 'User';
 
   return (
     <div className="space-y-12">
@@ -84,7 +85,7 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-4">
-              Welcome, {profile?.name || user?.displayName || user?.email?.split('@')[0] || 'User'}!
+              Welcome, {displayName}!
             </h1>
             <p className="text-lg text-foreground/80 mb-8">
               Ready to make informed food choices? Safora helps you understand what's in your food and if it fits your lifestyle.
@@ -222,3 +223,4 @@ export default function HomePage() {
     </div>
   );
 }
+

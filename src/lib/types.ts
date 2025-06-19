@@ -38,10 +38,11 @@ export interface UserProfileLocation {
 
 export interface UserProfile {
   // Old structure fields (can be progressively deprecated or used for migration)
-  dietaryPreferences: Partial<DietaryPreferences>;
-  allergies: Partial<Allergies>;
-  healthGoals: Partial<HealthGoals>;
+  dietaryPreferences?: Partial<DietaryPreferences>; // Made optional
+  allergies?: Partial<Allergies>; // Made optional
+  healthGoals?: Partial<HealthGoals>; // Made optional
   customRestrictions?: string;
+  name?: string; // Old single name field, can be used as fallback
 
   // New detailed fields from multi-step data collection
   firstName?: string;
@@ -84,3 +85,4 @@ export interface ScanResult extends ProductInfo {
   alternatives?: string[];
   scannedAt: string; // ISO Date string
 }
+

@@ -2,7 +2,9 @@
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, UserProfileLocation } from '@/lib/types';
+import { differenceInYears, parseISO, isValid } from "date-fns";
+
 
 interface ProfileContextType {
   profile: UserProfile | null;
@@ -14,17 +16,11 @@ interface ProfileContextType {
 export const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 const initialProfile: UserProfile = {
-  // Old structure defaults (can be phased out)
-  dietaryPreferences: {},
-  allergies: {},
-  healthGoals: {},
-  customRestrictions: "",
-
-  // New detailed fields
+  // New detailed fields (primary source of data)
   firstName: "",
   lastName: "",
   dateOfBirth: "",
-  age: undefined, // Will be calculated
+  age: undefined,
   location: { region: "", country: "", city: "" },
   selectedDiets: [],
   ingredientsToAvoid: [],
@@ -34,6 +30,13 @@ const initialProfile: UserProfile = {
   healthConditions: [],
   healthGoalsList: [],
   profileCompletionStatus: 'initial',
+
+  // Old structure fields (can be used as fallbacks or for migration if needed)
+  name: "", // old single name field
+  dietaryPreferences: {},
+  allergies: {},
+  healthGoals: {},
+  customRestrictions: "",
 };
 
 export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -45,7 +48,23 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (storedProfile) {
       try {
         const parsedProfile = JSON.parse(storedProfile);
-        setProfile({ ...initialProfile, ...parsedProfile });
+        // Ensure all fields from initialProfile are present
+        const completeProfile = { ...initialProfile, ...parsedProfile };
+        
+        // Recalculate age if DOB is present
+        if (completeProfile.dateOfBirth) {
+          try {
+            const birthDate = parseISO(completeProfile.dateOfBirth);
+            if (isValid(birthDate)) {
+              completeProfile.age = differenceInYears(new Date(), birthDate);
+            } else {
+              completeProfile.age = undefined;
+            }
+          } catch (e) {
+            completeProfile.age = undefined;
+          }
+        }
+        setProfile(completeProfile);
       } catch (error) {
         console.error("Failed to parse stored profile:", error);
         setProfile(initialProfile);
@@ -62,6 +81,23 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     setProfile(prevProfile => {
       const updated = { ...(prevProfile || initialProfile), ...newProfileData };
+      // Recalculate age if DOB changed
+      if (newProfileData.dateOfBirth !== undefined) {
+        if(newProfileData.dateOfBirth) {
+          try {
+            const birthDate = parseISO(newProfileData.dateOfBirth);
+            if (isValid(birthDate)) {
+              updated.age = differenceInYears(new Date(), birthDate);
+            } else {
+              updated.age = undefined;
+            }
+          } catch (e) {
+            updated.age = undefined;
+          }
+        } else {
+           updated.age = undefined;
+        }
+      }
       localStorage.setItem('saforaUserProfile', JSON.stringify(updated));
       return updated;
     });
@@ -75,9 +111,12 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     if (profile.firstName || profile.lastName) {
       restrictionsStr += `Name: ${profile.firstName || ""} ${profile.lastName || ""}\n`.trim() + "\n";
+    } else if (profile.name) { // Fallback to old name field
+      restrictionsStr += `Name: ${profile.name}\n`;
     }
-    if (profile.dateOfBirth) restrictionsStr += `Date of Birth: ${profile.dateOfBirth}\n`;
+
     if (profile.age !== undefined) restrictionsStr += `Age: ${profile.age} years old\n`;
+    if (profile.dateOfBirth) restrictionsStr += `Date of Birth: ${profile.dateOfBirth}\n`;
 
     const locParts = [];
     if (profile.location?.city) locParts.push(profile.location.city);
@@ -85,7 +124,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (profile.location?.region) locParts.push(profile.location.region);
     if (locParts.length > 0) restrictionsStr += `Location: ${locParts.join(', ')}\n`;
 
-    restrictionsStr += "\n";
+    restrictionsStr += "\n"; // Add a separator before listing choices
 
     const formatArraySection = (title: string, items?: string[], customItemsString?: string) => {
       let sectionContent = "";
@@ -116,12 +155,18 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     restrictionsStr += formatArraySection("Health Goals", profile.healthGoalsList);
 
     // Include legacy customRestrictions if it has value and new fields are mostly empty
-    if (profile.customRestrictions && profile.customRestrictions.trim() !== "" &&
+    // to ensure data isn't lost for users who might have only filled that.
+    const newFieldsAreEmpty = 
         (profile.selectedDiets?.length || 0) === 0 &&
         (profile.ingredientsToAvoid?.length || 0) === 0 && !profile.customIngredientsToAvoid &&
-        (profile.knownAllergens?.length || 0) === 0 && !profile.customAllergens
-       ) {
+        (profile.knownAllergens?.length || 0) === 0 && !profile.customAllergens &&
+        (profile.healthConditions?.length || 0) === 0 &&
+        (profile.healthGoalsList?.length || 0) === 0;
+
+    if (profile.customRestrictions && profile.customRestrictions.trim() !== "" && newFieldsAreEmpty) {
       restrictionsStr += `Other General Notes/Restrictions (Legacy):\n- ${profile.customRestrictions}\n`;
+    } else if (profile.customRestrictions && profile.customRestrictions.trim() !== "" && !newFieldsAreEmpty) {
+      restrictionsStr += `Other General Notes/Restrictions:\n- ${profile.customRestrictions}\n`; // If new fields are also filled, just label it generically
     }
 
 
@@ -137,3 +182,4 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     </ProfileContext.Provider>
   );
 };
+
