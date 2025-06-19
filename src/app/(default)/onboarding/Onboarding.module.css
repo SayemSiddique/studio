@@ -30,7 +30,7 @@
     align-items: center;
 }
 
-.onboardingContainer {
+.onboardingContainer { /* This applies to the visual onboarding stage */
     width: 100%;
     height: 100vh;
     max-width: 100vw;
@@ -50,7 +50,7 @@
     }
 }
 @media (min-width: 768px) {
-    .onboardingContainer {
+    .onboardingContainer { /* Further constraint for visual slides on larger screens */
         max-width: 420px;
         height: 90vh;
         max-height: 700px;
@@ -97,12 +97,20 @@
     visibility: hidden;
 }
 
-.logoContainer {
+.logoContainer { /* For visual onboarding part */
     position: absolute;
     top: 1.5rem; /* Tailwind top-6 */
     left: 1.5rem; /* Tailwind left-6 */
     z-index: 10;
 }
+/* For new data collection part, if logo needs different positioning within newData_innerContainer */
+.newData_logoContainer {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 20; /* Above newData_screens */
+}
+
 
 .visualProgressBarContainer { /* Renamed for clarity */
     position: absolute;
@@ -145,7 +153,7 @@
     align-items: center;
     justify-content: center;
     position: relative; /* For absolutely positioned children if any */
-    max-height: 30vh; /* Increased from 28vh */
+    max-height: 30vh; /* Max height for illustration */
     min-height: 200px; /* Maintained */
 }
 
@@ -175,6 +183,7 @@
     height: 120%;
     background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, rgba(46, 204, 113, 0) 70%);
     border-radius: 50%;
+    /* animation property removed, will be handled by Tailwind class */
 }
 
 .dietaryIcons {
@@ -184,6 +193,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* animation property removed, will be handled by Tailwind class */
 }
 
 .dietaryIcons svg {
@@ -205,6 +215,7 @@
     gap: 0.5rem; /* Tailwind gap-2 */
     font-size: 0.875rem; /* Tailwind text-sm */
     font-weight: 500; /* Tailwind font-medium */
+    /* animation property removed, will be handled by Tailwind class */
 }
 
 .food1 { top: 10%; left: 15%; }
@@ -260,14 +271,9 @@
 /* Styles for New Data Collection Onboarding (Screens 5 onwards) */
 /* These styles are based on the HTML provided by the user */
 
+/* Overall container for the data collection phase IF it's different from visual phase */
 .newData_onboardingContainer { /* This will be the root div when currentDataCollectionStep > 0 */
-    font-family: 'Poppins', sans-serif;
-    height: 100vh;
-    overflow: hidden; /* Prevents body scroll on swipe */
-    background: linear-gradient(135deg, var(--safora-light-blue), var(--safora-light-green));
-    display: flex; /* Added for centering the inner container */
-    justify-content: center; /* Added for centering */
-    align-items: center; /* Added for centering */
+    /* Same as .onboardingRoot for now, can be differentiated if visual stage is different */
 }
 
 .newData_innerContainer { /* Wrapper for content within newData_onboardingContainer */
@@ -275,28 +281,28 @@
     height: 100vh;
     max-width: 100vw; /* Default to full viewport width */
     margin: 0 auto;
-    position: relative;
+    position: relative; /* For screen transitions */
     overflow: hidden; /* For screen transitions */
     background-color: white; /* Screens have white background */
 }
 
+/* Apply phone-like constraints for new data screens on larger devices */
 @media (min-width: 480px) {
     .newData_innerContainer {
-        max-width: 480px; /* Max width for phone-like view */
-        height: 95vh; /* Adjust height for non-fullscreen on larger devices */
-        max-height: 800px; /* Max height */
-        border-radius: 24px; /* Rounded corners for the "device" */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Shadow for depth */
+        max-width: 480px; 
+        height: 95vh;
+        max-height: 800px;
+        border-radius: 24px; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
     }
 }
-@media (min-width: 768px) { /* Further constrain on larger screens if desired */
+@media (min-width: 768px) { /* Further constrain on larger screens */
     .newData_innerContainer {
         max-width: 420px;
         height: 90vh;
         max-height: 700px;
     }
 }
-/* Removed .onboarding-container responsive styles from new HTML as newData_innerContainer handles it */
 
 .newData_screen {
     position: absolute;
@@ -344,10 +350,10 @@
 
 .newData_progressBar {
     height: 6px;
-    background-color: #e0e0e0;
+    background-color: #e0e0e0; /* gray-300 */
     border-radius: 3px;
     margin-bottom: 1.5rem;
-    position: relative;
+    position: relative; /* For progress fill */
 }
 
 .newData_progressFill {
@@ -369,7 +375,7 @@
     font-size: 20px;
     margin-bottom: 1rem;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-    animation: newData_float 3s ease-in-out infinite; /* Using new keyframe name */
+    /* animation: newData_float 3s ease-in-out infinite; */ /* Apply with Tailwind */
     align-self: center;
 }
 
@@ -388,7 +394,8 @@
     }
 }
 
-@keyframes newData_float { /* Renamed to avoid conflict with existing 'float' in tailwind.config */
+/* Keyframes from your HTML, renamed to avoid conflict with Tailwind's float */
+@keyframes newData_float { 
     0% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
@@ -409,7 +416,6 @@
         margin-bottom: 1.5rem;
     }
 }
-/* Removed @media 768px for h1 as Tailwind classes handle it, or can be added if needed */
 
 
 .newData_btnPrimary {
@@ -483,12 +489,13 @@
     background-color: #f3f4f6; /* gray-100 */
     border-radius: 50px;
     padding: 0.5rem 1.25rem;
-    margin: 0.5rem 0.5rem 0.5rem 0;
+    margin: 0.25rem; /* Reduced margin for tighter packing */
     cursor: pointer;
     transition: all 0.2s ease;
     border: 2px solid transparent;
     font-size: 0.875rem; /* text-sm */
     color: #374151; /* gray-700 */
+    line-height: 1.25; /* For better text wrapping in chips */
 }
 
 .newData_chip.selected {
@@ -522,7 +529,7 @@
     box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2);
 }
 
-.newData_safMessage { /* Renamed */
+.newData_safMessage { 
     background-color: var(--safora-light-blue);
     border-left: 4px solid var(--safora-blue);
     padding: 1rem;
@@ -530,7 +537,7 @@
     margin: 1rem 0;
     font-size: 0.9rem;
     color: #4b5563; /* gray-600 */
-    text-align: left; /* Ensure text is aligned left */
+    text-align: left; 
 }
 
 .newData_screenContent {
@@ -539,7 +546,6 @@
     flex-direction: column;
     width: 100%; /* Ensure it uses the full width of .newData_screen */
     align-items: center; /* Center content like avatar, title */
-    /* text-align: center; Removed, let child elements control their text-align */
     padding: 1rem 0; /* Vertical padding */
 }
 
@@ -554,7 +560,6 @@
 }
 
 /* Styles for dropdowns and calendar from new HTML */
-/* Note: Calendar is very basic in HTML, will need a proper component later */
 .newData_monthSelector {
     display: flex;
     justify-content: space-between;
@@ -620,27 +625,26 @@
 
 .newData_dropdownOptions {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 4px); /* Add small gap */
     left: 0;
     right: 0;
     background: white;
-    border: 2px solid #e9ecef;
-    border-top: none; /* Avoid double border with selected */
-    border-radius: 0 0 12px 12px; /* Match bottom corners */
+    border: 1px solid #e0e0e0; /* Softer border */
+    border-radius: 12px; 
     max-height: 0;
     overflow: hidden;
     z-index: 1000;
-    transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out; /* Smooth transition */
     opacity: 0;
     visibility: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Softer shadow */
 }
 .newData_dropdownOptions.show {
     max-height: 250px; /* Or other desired max height */
     opacity: 1;
     visibility: visible;
     overflow-y: auto;
-    border-color: var(--safora-green); /* Show border when open */
+   /* border-color: var(--safora-green); /* Show border when open */
 }
 .newData_dropdownOption {
     padding: 0.75rem 1rem;
@@ -663,12 +667,12 @@
 
 .newData_tooltip {
     position: relative;
-    display: inline-flex; /* Changed to inline-flex for better alignment with icon */
+    display: inline-flex; 
     align-items: center;
     margin-left: 0.5rem;
     cursor: pointer;
 }
-.newData_tooltipText { /* Renamed */
+.newData_tooltipText { 
     visibility: hidden;
     width: 200px;
     background-color: #333;
@@ -678,13 +682,13 @@
     padding: 0.5rem;
     position: absolute;
     z-index: 1;
-    bottom: 125%; /* Position above the icon */
+    bottom: 125%; 
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.3s;
     font-size: 0.8rem;
-    white-space: normal; /* Allow text to wrap */
+    white-space: normal; 
 }
 .newData_tooltip:hover .newData_tooltipText {
     visibility: visible;
@@ -711,10 +715,6 @@
     flex-shrink: 0;
 }
 
-/* Ensure screen content takes up available space */
-.newData_screen > .newData_screenContent {
-    flex: 1;
-}
 
 /* Hide scrollbar for webkit browsers */
 .visualScreen::-webkit-scrollbar, .newData_screen::-webkit-scrollbar {
@@ -724,6 +724,31 @@
 .visualScreen, .newData_screen {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+}
+
+/* Ensure screen content takes up available space */
+.newData_screen > .newData_screenContent {
+    flex: 1;
+}
+
+/* Styling for disabled dropdown option */
+.newData_dropdownOption.disabled {
+    color: #aaa;
+    cursor: not-allowed;
+    background-color: #f9f9f9;
+}
+.newData_dropdownOption.disabled:hover {
+    color: #aaa;
+    background-color: #f9f9f9;
+}
+
+/* Chip container for better wrapping */
+.newData_chipContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Or left, as preferred */
+    gap: 0.5rem; /* Space between chips */
+    margin-bottom: 1rem;
 }
 
 /* Ensure Poppins is globally available if not already set in layout.tsx */

@@ -1,3 +1,4 @@
+
 // src/lib/onboardingOptions.ts
 
 // Data from user's HTML <script> tag
@@ -17,13 +18,14 @@ export const countryData: Record<string, string[]> = {
     "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Changwon", "Goyang", "Yongin", "Seongnam", "Bucheon", "Cheongju", "Ansan", "Jeonju", "Anyang", "Cheonan", "Pohang", "Uijeongbu", "Siheung", "Paju", "Gimhae", "Hwaseong", "Jeju City", "Pyeongtaek", "Gunsan", "Iksan", "Yangsan", "Suncheon", "Chuncheon", "Wonju", "Gangneung", "Asan", "Mokpo", "Yeosu", "Tongyeong", "Gyeongju", "Sokcho", "Andong"]
 };
 
-export const regions = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America"]; // Example regions
+export const regions: string[] = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America", "Other"]; // Added Other
 
 export const dietaryPaths: string[] = [
   "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto", 
   "Low-Carb", "Mediterranean", "DASH", "Whole30", "Gluten-Free", 
   "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Halal", "Kosher", 
-  "Jain", "Buddhist Diet", "Low-FODMAP", "Low-Residue", "Diabetic Diet", "Renal Diet"
+  "Jain", "Buddhist Diet", "Low-FODMAP", "Low-Residue", "Diabetic Diet", 
+  "Renal Diet", "No Specific Diet"
 ];
 
 export const ingredientsToAvoidOptions: { name: string; emoji?: string }[] = [
@@ -51,7 +53,7 @@ export const healthConditionsOptions: string[] = [
   "High Cholesterol", "Heart Disease", "Celiac Disease", "Crohn's Disease",
   "Ulcerative Colitis", "IBS (Irritable Bowel Syndrome)", "GERD (Acid Reflux)",
   "Chronic Kidney Disease", "Gout", "Osteoporosis", "Anemia", "Thyroid Disorders",
-  "Lactose Intolerance"
+  "Lactose Intolerance", "None"
 ];
 
 export const healthGoalsOptions: string[] = [
