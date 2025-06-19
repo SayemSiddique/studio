@@ -1,0 +1,472 @@
+# Safora: AI Food Insights - Technical Documentation
+
+## 1. General Overview
+
+*   **Project Name:** Safora: AI Food Insights
+*   **Purpose:** To provide users with AI-powered analysis of food products, helping them make informed dietary choices based on their personal preferences, allergies, and health goals.
+*   **App Overview:** Safora is a Next.js web application designed to function like a mobile app. Users can:
+    *   Go through an onboarding process to set up their detailed dietary profile (preferences like halal, vegan, gluten-free; allergies; health conditions; goals).
+    *   Simulate scanning food product barcodes (or enter manually) or OCR for ingredients.
+    *   Receive AI-driven analysis of the product's compatibility with their profile.
+    *   View detailed product information, including ingredients and AI-generated summaries.
+    *   Manage their dietary profile.
+    *   View scan history and favorite products.
+    *   Browse a directory of known products.
+
+## 2. User Journey & Flow
+
+The user journey is designed to be intuitive, guiding the user from initial app launch to personalized food analysis.
+
+1.  **Splash Screen (`/`)**:
+    *   App launches with a branded splash screen displaying the Safora logo and tagline.
+    *   Includes a loading animation.
+    *   Automatically transitions to Onboarding after a short delay.
+
+2.  **Onboarding (`/onboarding`)**:
+    *   **Stage 1: Visual Introduction (Slides 1-4)**
+        *   Carousel-like experience introducing app features (Welcome, Scan & Discover, Personalized Protection, Empower Health).
+        *   Progress bar at the bottom tracks visual slide progress.
+        *   User can "Skip Visual Intro" or click "Next" on each slide.
+        *   The final visual slide's button is "Let's Begin Data Setup".
+    *   **Stage 2: Data Collection (Screens 1-10 within `/onboarding`)**
+        *   Triggered after visual slides.
+        *   A new progress bar at the bottom tracks data collection steps.
+        *   Back button allows navigation to the previous data collection step.
+        *   **Screen 1 (Data Welcome)**: Introduction by "Saf" the AI assistant.
+        *   **Screen 2 (Basic Info)**: Collects First Name, Last Name, and Date of Birth (with calendar picker). Age is calculated and displayed.
+        *   **Screen 3 (Location)**: Collects Region, Country (dependent on region), and City (text input). Includes a (mock) "Auto-detect my location" button.
+        *   **Screen 4 (Dietary Paths)**: User selects from a comprehensive list via a multi-select dropdown (e.g., Vegan, Halal, Keto).
+        *   **Screen 5 (Ingredients to Avoid - Non-Allergy)**: User selects common items via chips (with emojis) and can add custom ingredients in a text input.
+        *   **Screen 6 (Allergies)**: User selects common allergens via chips (with emojis), selects other less common allergens via a multi-select dropdown, and can add custom allergies in a text input.
+        *   **Screen 7 (Health Conditions)**: User selects from a list via a multi-select dropdown. Option to "I'll fill this later" (skips to auth).
+        *   **Screen 8 (Health Goals)**: User selects from a list via a multi-select dropdown.
+        *   **Screen 9 (Profile Summary)**: Displays all collected data for review. "Save My Profile" button proceeds to auth.
+        *   **Screen 10 (Account Prompt)**: Prompts user to "Sign Up with Email", "Sign Up with Google" (both lead to `/auth`), or "Continue as Guest" (leads to `/home` with profile saved locally).
+
+3.  **Authentication (`/auth`)**:
+    *   Provides forms for Login and Signup.
+    *   Supports email/password authentication.
+    *   Includes options for social login (Google, Facebook - mocked) and phone number login (mocked).
+    *   "Forgot Password" functionality.
+    *   Upon successful login/signup, redirects to `/home` (or `/dietary-profile` if signup and profile is incomplete).
+
+4.  **Home Page (`/home`) - Authenticated Route**:
+    *   Welcomes the user (personalized with name if available).
+    *   Displays a prompt to complete their dietary profile if `profileCompletionStatus` indicates it's not fully complete, linking to `/dietary-profile`.
+    *   Quick action cards: Scan Product, Scan History, Manage Profile.
+    *   Displays recently scanned items.
+
+5.  **Dietary Profile Setup/Edit (`/dietary-profile`) - Authenticated Route**:
+    *   Form to create or update the user's detailed dietary profile.
+    *   Fields include: First Name, Last Name, Date of Birth, Location (Region, Country, City).
+    *   Textarea inputs (comma-separated) for: Dietary Paths, Ingredients to Avoid (Non-Allergy), Known Allergens, Health Conditions, Health Goals.
+    *   Separate text inputs for Custom Ingredients to Avoid and Custom Allergens.
+    *   Saves data to `ProfileContext` (localStorage).
+
+6.  **Scan Page (`/scan`) - Authenticated Route**:
+    *   Offers options to simulate barcode scanning (redirects to a pre-defined product) or OCR (mocked).
+    *   Allows manual barcode number entry.
+    *   Camera view for scanning (uses `navigator.mediaDevices.getUserMedia`). Provides feedback on camera permission status.
+
+7.  **Product Result Page (`/scan-results/[barcode]`) - Authenticated Route**:
+    *   Displays detailed information for the "scanned" product (fetched from a mock `productDatabase`).
+    *   Shows product image, name, brand, barcode.
+    *   **AI Analysis**:
+        *   Displays compatibility status (Safe, Contains Allergen, Not Recommended) based on AI analysis against the user's profile.
+        *   Shows the reason for the status.
+        *   Provides an AI-generated nutritional summary.
+        *   Suggests alternatives if the product is not recommended or contains allergens.
+    *   Users can favorite/unfavorite the product.
+    *   Ingredients are listed.
+    *   Accordions for Ingredients, AI Summary, and Alternatives.
+
+8.  **Profile View Page (`/profile`) - Authenticated Route**:
+    *   Displays the user's current dietary profile information (all fields collected during onboarding).
+    *   Avatar, name, email.
+    *   Button to edit profile (links to `/dietary-profile`).
+
+9.  **Scan History Page (`/history`) - Authenticated Route**:
+    *   Lists all previously scanned products (from mock data and localStorage).
+    *   Allows filtering by product name/brand and compatibility status.
+    *   Allows sorting by date or name.
+    *   Each item links to its product result page.
+
+10. **Favorites Page (`/favorites`) - Authenticated Route**:
+    *   Displays products the user has marked as favorite.
+    *   Products are loaded from `localStorage`.
+
+11. **Product Directory Page (`/products`) - Authenticated Route**:
+    *   Lists all known products from the mock `productDatabase`.
+    *   Allows filtering by product name/brand and category.
+    *   Allows sorting by name or category.
+    *   Each item links to its product result page.
+
+**(Screen-to-screen navigation map is implied by the above flow.)**
+
+## 3. UI/UX Components
+
+*   **General Theme:**
+    *   **Primary Color**: Forest Green (`#388E3C`, `hsl(123 41% 39%)`)
+    *   **Background Color**: Light Sage (`#F1F8E9`, `hsl(84 48% 96%)`)
+    *   **Accent Color**: Mustard (`#FBC02D`, `hsl(45 97% 58%)`)
+    *   **Fonts**:
+        *   **Body & Headline**: Poppins (changed from PT Sans during development)
+        *   **Onboarding (New Data Collection)**: Poppins (as per HTML provided)
+    *   **UI Library**: ShadCN UI components are used extensively, built on Radix UI and Tailwind CSS.
+    *   **Styling**: Tailwind CSS for utility classes, global styles in `globals.css`, and module-specific styles in `.module.css` files (e.g., `Onboarding.module.css`).
+    *   **Icons**: `lucide-react`.
+
+*   **Page/Screen Breakdown:**
+
+    *   **a. Splash Screen (`/`)**:
+        *   Full-screen gradient background.
+        *   App Logo (`MainLogo` image component).
+        *   App Name ("SAFORA") and tagline.
+        *   Animated icons (Allergen, Nutrition, Warnings).
+        *   Animated progress bar.
+        *   Fade-out transition.
+
+    *   **b. Onboarding (`/onboarding`)**:
+        *   **Visual Slides (Stage 1)**:
+            *   Full-screen, custom gradient backgrounds per slide.
+            *   `Logo` component.
+            *   Animated illustrations (`HeartHandshake`, `ShieldCheck`, `Sparkles` from `lucide-react`, custom GIF for scan).
+            *   Text titles and descriptions.
+            *   `Button` (ShadCN) for "Next" / "Let's Begin Data Setup".
+            *   Progress bar (`styles.visualProgressBar`).
+            *   "Skip" button.
+            *   Swipe and keyboard navigation.
+        *   **Data Collection Screens (Stage 2)**:
+            *   White background screens within a constrained container.
+            *   `Logo` component.
+            *   Back button (`ChevronLeft` icon).
+            *   Progress bar (`styles.newData_progressBar`).
+            *   Animated "Saf" avatar (`styles.newData_safAvatar`).
+            *   Titles (`h1`), descriptive text.
+            *   `Input` (ShadCN) for text fields (First/Last Name, City, Custom Allergens/Ingredients).
+            *   `Popover` + `Calendar` (ShadCN) for Date of Birth.
+            *   Custom-styled dropdowns for Region/Country (using `divs` and `styles.newData_dropdown...`).
+            *   `Button` (ShadCN, styled as `styles.newData_btnPrimary` / `newData_btnSecondary`).
+            *   Chips (`styles.newData_chip`) for common ingredients/allergens.
+            *   `MultiSelectDropdown` (custom component using ShadCN `DropdownMenu` with `DropdownMenuCheckboxItem`) for Dietary Paths, Other Allergens, Health Conditions, Health Goals.
+            *   "Saf Message" (`styles.newData_safMessage`) with tooltip.
+            *   Summary items (`styles.newData_summaryItem`, `styles.newData_summaryIcon`) on review screen.
+            *   SVG icons for Email/Google signup buttons.
+            *   Swipe and keyboard navigation.
+
+    *   **c. Login/Signup (`/auth`)**:
+        *   `Card` (ShadCN) layout.
+        *   `Logo` component.
+        *   `Input` fields for email/password with icons (`Mail`, `KeyRound`).
+        *   Show/Hide password toggle (`Eye`, `EyeOff`).
+        *   `Button` (ShadCN) for submit, toggle login/signup, social logins (Google, Facebook, Phone icons).
+        *   `Label` (ShadCN).
+        *   Error messages for validation.
+        *   `useToast` for feedback.
+
+    *   **d. Create Dietary Profile (`/dietary-profile`)**:
+        *   `Card` layout.
+        *   `Input` fields for First/Last Name, DOB, Location (Region, Country, City).
+        *   `Textarea` (ShadCN) for comma-separated lists (Dietary Paths, Ingredients to Avoid, Allergens, Health Conditions, Health Goals).
+        *   `Input` fields for Custom Ingredients/Allergens.
+        *   `Label` (ShadCN).
+        *   `Button` (ShadCN) for "Save Changes" and "Cancel".
+        *   Loading state on button during submission.
+        *   `useToast` for feedback.
+
+    *   **e. Scan Page (`/scan`)**:
+        *   `Card` layout.
+        *   Icons (`ScanLine`, `Barcode`, `Camera`, `X`, `ImageUp`, `Zap`, `Crop`, `ScanText`, `AlertTriangle`, `VideoOff`).
+        *   `Button` (ShadCN) for scan modes, manual submit.
+        *   `Input` for manual barcode entry.
+        *   `Label` (ShadCN).
+        *   `<video>` tag for camera stream.
+        *   `Alert` (ShadCN) for camera permission issues.
+        *   `useToast` for feedback.
+
+    *   **f. Product Result Page (`/scan-results/[barcode]`)**:
+        *   `Card` for product info (image on left, details on right).
+        *   `Image` (next/image) for product.
+        *   `Badge` (ShadCN) for barcode.
+        *   `Alert` (ShadCN) for compatibility status with dynamic styling.
+        *   `Progress` (ShadCN) bar for AI analysis loading.
+        *   `Accordion` (ShadCN) for Ingredients, AI Summary, Alternatives.
+        *   `Button` for "Scan Another Product" and Favorite toggle (`Heart` icon).
+        *   `Loader2` for loading state.
+        *   `useToast` for feedback.
+
+    *   **g. Profile Page (`/profile`)**:
+        *   `Avatar` (ShadCN) for user.
+        *   Text display for all profile fields (name, email, DOB, age, location, diets, avoidances, allergens, conditions, goals).
+        *   `Card` components to section information.
+        *   `Button` to "Edit Profile".
+        *   Icons (`UserCircle2`, `Edit3`, `ShieldCheck`, `HeartPulse`, `Utensils`, `Ban`, `ListChecks`, etc.).
+
+    *   **h. History, Favorites, Products Pages (`/history`, `/favorites`, `/products`)**:
+        *   `ProductCard` component (reusable).
+        *   `Input` for search.
+        *   `Select` (ShadCN) for filtering and sorting.
+        *   `Button` for "Scan New/More Products", "Clear Filters".
+        *   Icons (`ListChecks`, `Search`, `FilterX`, `ShoppingBasket`, `Heart`, `LayoutGrid`).
+        *   Empty state message with icon if no items match.
+
+*   **Interaction Logic:**
+    *   **Input Validation**: Primarily through `zod` and `react-hook-form` in `AuthForm` and `DietaryProfileForm`. Onboarding relies more on UI guidance.
+    *   **Error Messages**: Displayed below input fields or via `Toast` notifications.
+    *   **Animations/Transitions**:
+        *   Splash screen: Fade out, progress bar animation.
+        *   Onboarding (Visual): Slide transitions (`transform: translateX`), content fade-in (`animate-fadeIn`), icon animations (`animate-pulseSlow`, `animate-rotate`, `animate-float`).
+        *   Onboarding (Data Collection): Slide transitions, "Saf" avatar float (`animate-float`).
+        *   ShadCN components often have built-in animations (e.g., accordion, dialog, popover).
+        *   Loading states indicated by `Loader2` icon and `Progress` bar.
+
+## 4. Backend Architecture
+
+*   **Firebase Services Used (Based on Mocked Functionality & Typical Next.js/Firebase Setup):**
+    *   **Firebase Authentication**: Mocked in `AuthContext` (email/password, Google, Facebook, Phone). In a real app, Firebase SDK would be used directly.
+    *   **Firestore**: Mocked for profile storage in `ProfileContext` (using `localStorage`). In a real app, Firestore would store user profiles, scan history, favorites, etc.
+    *   **Cloud Storage**: Not explicitly used in the prototype code, but would be necessary for user-uploaded images if that feature were added (e.g., OCR from gallery).
+    *   **Firebase ML / Vertex AI**: No direct SDK integration for Firebase ML Kit. AI capabilities are implemented via Genkit flows, which could call Vertex AI models.
+    *   **App Hosting**: The app is designed to be deployable on Firebase App Hosting.
+
+*   **Data Schema for Firestore (Hypothetical for a Real Backend):**
+    *   **`users` collection:**
+        *   Document ID: `uid` (from Firebase Auth)
+        *   Fields:
+            *   `email: string`
+            *   `createdAt: timestamp`
+            *   `profile: UserProfile object` (containing all fields like `firstName`, `lastName`, `dateOfBirth`, `location`, `selectedDiets`, `ingredientsToAvoid`, `customIngredientsToAvoid`, `knownAllergens`, `customAllergens`, `healthConditions`, `healthGoalsList`, `profileCompletionStatus`)
+    *   **`scanHistory` collection:**
+        *   Subcollection under each user: `users/{uid}/scanHistory`
+        *   Document ID: auto-generated or `barcode_timestamp`
+        *   Fields: `ScanResult object` (barcode, name, brand, imageUrl, ingredients, compatibility, reason, summary, alternatives, scannedAt)
+    *   **`favorites` collection:**
+        *   Subcollection under each user: `users/{uid}/favorites`
+        *   Document ID: `barcode`
+        *   Fields: `ProductInfo object` (or `ScanResult` if compatibility at time of favoriting is important)
+    *   **`products` collection (Global - if maintaining a central product DB):**
+        *   Document ID: `barcode`
+        *   Fields: `ProductInfo object` (name, brand, imageUrl, ingredients, category, etc.)
+
+*   **API Integrations or Plugins Used:**
+    *   **Barcode Scanning/OCR**: Currently simulated. Real implementation might use:
+        *   Browser's MediaStream API (`navigator.mediaDevices.getUserMedia`) for camera access (already in place).
+        *   JavaScript libraries for barcode decoding from video stream (e.g., Scandit WebSDK (paid), QuaggaJS (open-source, less maintained), zxing-js/library).
+        *   For OCR: Tesseract.js (client-side) or a cloud OCR API (Google Cloud Vision API via Genkit).
+    *   **OpenFoodFacts API**: Mentioned in requirements, but not integrated in the prototype. Would be called to fetch product data by barcode.
+    *   **Genkit**: Used for AI flows.
+        *   `analyzeFoodCompatibility`: Takes ingredients and user profile, returns compatibility.
+        *   `summarizeIngredientInformation`: Takes ingredients, returns summary.
+        *   `suggestAlternatives`: Takes product and user profile, returns alternatives.
+        These flows internally use a configured LLM (e.g., Gemini via `@genkit-ai/googleai`).
+
+*   **Cloud Functions Logic (Hypothetical):**
+    *   `onUserCreate`: Triggered when a new user signs up via Firebase Authentication. Could create an initial user document in Firestore.
+    *   `onScanLogged`: If scan history needs server-side processing (e.g., aggregation, analytics).
+    *   HTTP-triggered functions to interact with external APIs securely (e.g., OpenFoodFacts, if API keys are involved).
+
+## 5. AI/ML Integration
+
+*   **Genkit Framework**: The app uses Genkit to define and run AI-powered flows. The `ai` object is initialized in `src/ai/genkit.ts` using `@genkit-ai/googleai` and configured to use a Gemini model.
+*   **Core AI Flows (`src/ai/flows/`)**:
+    *   **`analyzeFoodCompatibility.ts`**:
+        *   Takes a product's ingredients string and a detailed user dietary profile string (generated by `ProfileContext.getProfileForAI`).
+        *   Prompts an LLM to analyze compatibility, returning a status (`Safe`, `Contains Allergen`, `Not Recommended`) and a textual reason.
+    *   **`summarizeIngredientInformation.ts`**:
+        *   Takes product name and ingredients.
+        *   Prompts an LLM to generate a nutritional summary and potential health impacts.
+    *   **`suggestAlternatives.ts`**:
+        *   Takes product name, user's dietary preferences, and allergies.
+        *   Prompts an LLM to suggest 3 alternative products.
+*   **Model Usage**: The flows call pre-trained Large Language Models (LLMs) like Google's Gemini via the Genkit Google AI plugin. No custom model training is part of this prototype.
+*   **User-Specific Filtering**: The `analyzeFoodCompatibility` flow is central to this. The `ProfileContext.getProfileForAI()` method compiles the user's detailed dietary settings (diets, avoidances, allergens, conditions, goals) into a comprehensive string. This string is then passed to the AI prompt, instructing the LLM to consider these specific restrictions when analyzing the food product's ingredients.
+
+## 6. Packages & Frameworks
+
+*   **Frameworks & Core Libraries**:
+    *   **Next.js**: v15.3.3 (React framework with App Router)
+    *   **React**: v18.3.1
+    *   **TypeScript**: v5
+*   **UI & Styling**:
+    *   **ShadCN UI**: Collection of accessible and customizable UI components (`components/ui/`).
+    *   **Radix UI**: Primitives underlying ShadCN components (e.g., `@radix-ui/react-dialog`, `@radix-ui/react-popover`).
+    *   **Tailwind CSS**: v3.4.1 (Utility-first CSS framework).
+    *   `tailwindcss-animate`: For Tailwind animations.
+    *   `lucide-react`: For icons.
+    *   `class-variance-authority`, `clsx`, `tailwind-merge`: Utilities for styling.
+    *   `embla-carousel-react`: Used for the visual onboarding carousel (though much of the new onboarding is custom step-based).
+    *   `Poppins` (Google Font): For body and headlines.
+*   **AI/ML**:
+    *   **Genkit**: (`genkit`, `@genkit-ai/googleai`, `@genkit-ai/next`): Toolkit for building AI-powered features.
+    *   `zod`: For schema definition and validation, especially in Genkit flows.
+*   **Forms**:
+    *   `react-hook-form`: For form state management and validation.
+    *   `@hookform/resolvers`: To use Zod with `react-hook-form`.
+*   **Date Handling**:
+    *   `date-fns`: For date formatting and calculations (e.g., age).
+    *   `react-day-picker`: Used by ShadCN's `Calendar` component.
+*   **State Management & Context**:
+    *   React Context API (`AuthContext`, `ProfileContext`).
+*   **Build Tools & Environment**:
+    *   `npm` (as per `package.json` scripts).
+    *   Turbopack (for Next.js development server).
+    *   `dotenv`: For environment variables.
+*   **Firebase (Client-Side)**:
+    *   `firebase`: v11.8.1 (SDK for interacting with Firebase services - though mocked in this prototype's auth/profile context).
+
+## 7. Project Code Structure
+
+*   **`.env`**: Environment variables (empty by default).
+*   **`apphosting.yaml`**: Firebase App Hosting configuration.
+*   **`components.json`**: ShadCN UI configuration.
+*   **`next.config.ts`**: Next.js configuration (includes image remote patterns).
+*   **`package.json`**: Project dependencies and scripts.
+*   **`public/`**: Static assets (e.g., images like `main_logo.png`, `2ndOnboardingSlide.png`). (Implicit, based on image imports).
+*   **`src/`**: Main application code.
+    *   **`ai/`**: Genkit related code.
+        *   `dev.ts`: Genkit development server entry point.
+        *   `flows/`: Contains individual AI flow definitions (e.g., `analyze-food-compatibility.ts`).
+        *   `genkit.ts`: Genkit global `ai` object initialization.
+    *   **`app/`**: Next.js App Router.
+        *   **`(app)/`**: Authenticated routes group.
+            *   `dietary-profile/page.tsx`
+            *   `favorites/page.tsx`
+            *   `history/page.tsx`
+            *   `home/page.tsx`
+            *   `layout.tsx` (Authenticated layout with Navbar/Footer, auth check)
+            *   `products/page.tsx`
+            *   `profile/page.tsx`
+            *   `scan/page.tsx`
+            *   `scan-results/[barcode]/page.tsx`
+        *   **`(auth)/`**: Authentication routes group.
+            *   `auth/page.tsx`
+            *   `layout.tsx` (Auth layout, centered form)
+        *   **`(default)/`**: Default routes group (e.g., splash, onboarding).
+            *   `onboarding/page.tsx` & `Onboarding.module.css`
+            *   `page.tsx` (Splash screen)
+            *   `layout.tsx` (Basic layout for default routes)
+        *   `globals.css`: Global styles and Tailwind directives, CSS custom properties.
+        *   `layout.tsx`: Root layout (includes `AuthProvider`, `ProfileProvider`, `Toaster`).
+    *   **`components/`**: Reusable UI components.
+        *   `auth/AuthForm.tsx`
+        *   `core/`: Navbar, Footer, Logo.
+        *   `dietary/DietaryProfileForm.tsx`
+        *   `onboarding/` (Old carousel, now deprecated).
+        *   `product/`: ProductCard, ScanResultDisplay.
+        *   `ui/`: ShadCN UI components (button, card, input, etc.).
+    *   **`contexts/`**: React Context providers.
+        *   `AuthContext.tsx`
+        *   `ProfileContext.tsx`
+    *   **`hooks/`**: Custom React hooks.
+        *   `use-mobile.tsx`
+        *   `use-toast.ts`
+        *   `useAuth.ts`
+        *   `useProfile.ts`
+    *   **`image/`**: Local images imported into components (e.g., `main_logo.png`).
+    *   **`lib/`**: Utility functions, type definitions, constants.
+        *   `favorites.ts`
+        *   `onboardingOptions.ts` (NEW: stores lists for onboarding dropdowns/chips)
+        *   `types.ts`
+        *   `utils.ts` (e.g., `cn` utility).
+*   **`tailwind.config.ts`**: Tailwind CSS configuration.
+*   **`tsconfig.json`**: TypeScript configuration.
+
+*   **Naming Conventions**:
+    *   Components: PascalCase (e.g., `ProductCard.tsx`).
+    *   Pages/Layouts: `page.tsx`, `layout.tsx`.
+    *   CSS Modules: `ComponentName.module.css`.
+    *   Hooks: `useHookName.ts`.
+*   **Organization Logic**: Grouped by feature (e.g., `auth`, `product`) or type (e.g., `core`, `ui`) within `components`. Routes are organized using Next.js App Router conventions. Contexts, hooks, and lib utilities are in their respective top-level `src` folders.
+*   **State Management**:
+    *   Primarily React Context API (`AuthContext` for user authentication state, `ProfileContext` for user dietary profile).
+    *   Local component state (`useState`, `useReducer`) for UI-specific states.
+    *   `react-hook-form` for form state.
+
+## 8. User Data & Privacy
+
+*   **User Data Storage & Management:**
+    *   **Authentication Data**: Managed by `AuthContext`. In the prototype, this is mocked with `localStorage` for the user object. A real Firebase implementation would use Firebase Authentication services.
+    *   **Profile Data (`UserProfile`)**: Managed by `ProfileContext`. In the prototype, this is stored in `localStorage`. A real Firebase implementation would store this in Firestore, linked to the user's UID.
+    *   **Dietary Preferences, Allergies, Goals**: Stored as part of the `UserProfile` object.
+    *   **Scan History & Favorites**: Currently mocked with some static data and `localStorage`. In a real app, this would be stored in Firestore per user.
+*   **Permissions Requested:**
+    *   **Camera**: For the `/scan` page, `navigator.mediaDevices.getUserMedia` is used, which prompts the user for camera permission.
+    *   **Geolocation**: For the onboarding location step, `navigator.geolocation.getCurrentPosition` prompts for location permission.
+    *   **Internet**: Implicitly required for a web application.
+    *   **Storage**: Not explicitly requested, but `localStorage` is used by the browser.
+*   **Security Rules (Hypothetical for Firestore):**
+    *   **User Profiles (`users/{userId}`):**
+        *   Allow read, write: if `request.auth.uid == userId` (Users can only access/modify their own profile).
+    *   **Scan History (`users/{userId}/scanHistory/{scanId}`):**
+        *   Allow read, write, delete: if `request.auth.uid == userId`.
+    *   **Favorites (`users/{userId}/favorites/{productId}`):**
+        *   Allow read, write, delete: if `request.auth.uid == userId`.
+    *   **Products (`products/{productId}` - if global):**
+        *   Allow read: if `request.auth != null` (Authenticated users can read).
+        *   Write: Restricted to admin/service roles.
+
+## 9. Deployment & Production Readiness
+
+*   **Steps to Prepare for Google Play Store (if wrapping in a PWA/WebView solution like Capacitor/TWA):**
+    *   **a. Required Configurations:**
+        *   **Web App Manifest (`manifest.json` or `manifest.webmanifest`):** Define app name, short name, icons, start URL, display mode (e.g., `standalone`), theme color, background color. Next.js can generate this.
+        *   **Service Worker**: For PWA capabilities (offline support, push notifications).
+        *   **App Icons**: Various sizes for different platforms/resolutions.
+        *   **Splash Screen Config**: Defined in the manifest and potentially handled by the PWA wrapper.
+    *   **b. Debug vs Release Build Settings:**
+        *   Next.js production build: `npm run build`.
+        *   Environment variables for production (API keys, Firebase config for production project).
+        *   Code minification, tree-shaking (handled by Next.js build).
+    *   **c. SHA Key Setup for Firebase Services:**
+        *   If using Firebase Android SDK directly (for native features within a wrapper), register SHA-1 and SHA-256 fingerprints of your release signing key in the Firebase console for your Android app. This is crucial for Google Sign-In, Phone Auth, etc.
+    *   **d. Google Play Store Assets and Listing Prep:**
+        *   High-resolution app icon.
+        *   Feature graphic.
+        *   Screenshots (phone, tablet).
+        *   Promo video (optional).
+        *   App title, short description, full description.
+        *   Privacy policy URL.
+        *   Categorization, content rating.
+*   **Testing Considerations:**
+    *   **Manual Test Flows**: Thoroughly test all user journeys (onboarding, auth, scanning, profile management, history, favorites, product directory).
+    *   **Emulator/Device Testing**: Test on various Android/iOS devices and screen sizes (if using a PWA wrapper). For a web app, test across different browsers and viewports.
+    *   **Firebase Test Lab**: Can be used for automated testing on a wide range of virtual and physical devices if the app is packaged as an Android APK.
+    *   **Responsiveness Testing**: Ensure UI adapts well to different screen sizes.
+    *   **Accessibility Testing**: Check for ARIA attributes, keyboard navigation, color contrast.
+
+## 10. Recommendations for Completion
+
+*   **Incomplete or Placeholder Areas:**
+    *   **Real Barcode/OCR Scanning**: The current scanning is simulated. Integrate actual libraries (e.g., Scandit, QuaggaJS, Tesseract.js, or cloud Vision API via Genkit).
+    *   **OpenFoodFacts Integration**: Implement API calls to fetch real product data.
+    *   **Real Firebase Backend**: Replace `localStorage` and mocked contexts with actual Firebase Auth and Firestore integration.
+    *   **Location Auto-Detection**: Currently only gets coordinates. Integrate a reverse geocoding API (e.g., Google Geocoding API, Nominatim) to convert coordinates to region/country/city for the onboarding.
+    *   **Custom Input for "Add Custom" Chips**: In onboarding (Screen 5 - Ingredients to Avoid), the "Add Custom" chip is visual. It should likely open a modal or an inline input field to add truly custom items.
+    *   **Error Handling & Edge Cases**: Enhance error handling for API calls, AI flow failures, and user input.
+    *   **Loading States**: While some are present, ensure all asynchronous operations have clear loading indicators.
+*   **Suggestions for Codebase Structure, Performance, UX:**
+    *   **State Management**: For a larger application, consider more robust global state management if Context API becomes cumbersome (though for this prototype, it's likely fine).
+    *   **Component Reusability**:
+        *   The custom dropdowns in onboarding (Location) could be extracted into a reusable component if similar functionality is needed elsewhere.
+        *   The `MultiSelectDropdown` in onboarding could be moved to `components/ui` if used in other forms.
+    *   **Performance Optimization**:
+        *   Code splitting (handled well by Next.js).
+        *   Image optimization (using `next/image` is good, ensure proper `sizes` and `priority` props).
+        *   Memoization (`React.memo`, `useCallback`, `useMemo`) for expensive computations or to prevent unnecessary re-renders.
+        *   Debouncing/throttling for search inputs if they trigger API calls.
+    *   **UX Enhancements**:
+        *   **Onboarding Date Picker**: The current ShadCN `Calendar` in a `Popover` is good. Ensure it's intuitive.
+        *   **Form Validation**: Add more inline validation in onboarding steps for a better UX, rather than waiting for a "Next" click if critical info is missing.
+        *   **Accessibility (A11y)**: Continuously review and improve accessibility (ARIA attributes, keyboard navigation, focus management, color contrast).
+        *   **Empty States**: Ensure all lists (history, favorites, products) have well-designed empty states.
+*   **Firebase Service Quota or Billing Considerations:**
+    *   **Firestore**: Reads/writes/deletes are billed. Efficient queries and data structures are important. Minimize unnecessary document reads.
+    *   **Firebase Authentication**: Generous free tier, but costs can apply for high MAU or advanced features like SMS for phone auth.
+    *   **Cloud Functions / Genkit Flows (Vertex AI)**:
+        *   Function invocations, compute time, and network egress are billed.
+        *   LLM API calls (e.g., to Gemini via Vertex AI) have their own pricing based on input/output tokens. Monitor usage.
+    *   **Cloud Storage**: Storage and data transfer costs if used.
+    *   **App Hosting**: Costs based on instances, CPU, memory, bandwidth. Start with the free tier and monitor usage.
+    *   Set up budget alerts in Google Cloud Platform / Firebase.
+
+This report should provide a solid foundation for understanding the Safora app prototype as it currently stands.
