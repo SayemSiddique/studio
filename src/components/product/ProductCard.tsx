@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, Search, CalendarDays } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import React, { useState } from 'react'; // Added useState
 
 interface ProductCardProps {
   product: ScanResult;
@@ -32,17 +33,26 @@ export function ProductCard({ product }: ProductCardProps) {
   const statusVisuals = getStatusVisuals(product.compatibility);
   const timeAgo = product.scannedAt ? formatDistanceToNow(new Date(product.scannedAt), { addSuffix: true }) : 'Unknown time';
 
+  const fallbackImageName = product.name || "product";
+  const fallbackSrc = `https://placehold.co/300x200.png?text=${encodeURIComponent(fallbackImageName.substring(0, 20))}`; // Limit text length for placeholder
+
+  const [imgSrc, setImgSrc] = useState(product.imageUrl || fallbackSrc);
+
+  const handleImageError = () => {
+    setImgSrc(fallbackSrc);
+  };
 
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full bg-card">
       <CardHeader className="p-0 relative">
         <Image
-          src={product.imageUrl || `https://placehold.co/300x200.png?text=${encodeURIComponent(product.name)}`}
+          src={imgSrc}
           alt={product.name}
           width={300}
           height={200}
           className="object-cover w-full h-48"
           data-ai-hint={product.dataAiHint || product.name.toLowerCase().split(" ").slice(0,2).join(" ")}
+          onError={handleImageError}
         />
       </CardHeader>
       <CardContent className="p-4 flex-grow flex flex-col">
