@@ -107,7 +107,7 @@ const OnboardingSlides = [
           <div className={cn(styles.groceryItem, "bg-green-500")}></div>
           <div className={cn(styles.groceryItem, "bg-red-400")}></div>
         </div>
-        <div className={cn(styles.floatingFood, styles.food1, "animate-float")}>🥗</div>
+        <div className={cn(styles.floatingFood, styles.food1, "animate-float")} style={{animationDelay: '0s'}}>🥗</div>
         <div className={cn(styles.floatingFood, styles.food2, "animate-float")} style={{animationDelay: '0.5s'}}>🍎</div>
         <div className={cn(styles.floatingFood, styles.food3, "animate-float")} style={{animationDelay: '1s'}}>🥑</div>
         <div className={cn(styles.floatingFood, styles.food4, "animate-float")} style={{animationDelay: '1.5s'}}>🍇</div>
@@ -235,7 +235,7 @@ export default function OnboardingPage() {
              {slide.showLogo && (
                 <div className={cn(
                     "absolute z-20",
-                     slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6"
+                     slide.id === 'slide-2' ? "top-6 left-6" : "top-6 left-6" 
                 )}>
                     <Logo />
                 </div>
