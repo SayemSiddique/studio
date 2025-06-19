@@ -29,7 +29,7 @@
         .skip-button { position: absolute; top: 24px; right: 24px; font-size: 14px; color: var(--onboarding-text-secondary); background: none; border: none; cursor: pointer; }
         .slide-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding-top: 40px; padding-bottom: 80px; }
         .illustration-container { width: 100%; max-width: 280px; margin: 16px auto; display: flex; align-items: center; justify-content: center; }
-        .illustration-container img { max-width: 160px; max-height: 160px; object-fit: contain; border-radius: 12px;}
+        .illustration-container img { max-width: 160px; max-height: 133px; object-fit: contain; border-radius: 12px;} /* Adjusted height */
         .slide-title { font-family: var(--font-headline); font-size: 28px; font-weight: 700; color: var(--onboarding-text-primary); margin-bottom: 12px; line-height: 1.3; }
         .slide-description { font-size: 16px; color: var(--onboarding-text-secondary); margin-bottom: 32px; line-height: 1.6; max-width: 90%; margin-left: auto; margin-right: auto; }
         .slide-actions { width: calc(100% - 48px); position: absolute; bottom: 64px; left: 24px; right: 24px; display: flex; justify-content: center; }
@@ -46,15 +46,15 @@
 <body>
     <div class="figma-export-container component-onboarding-slide">
         <header class="logo-container component-logo-header">
-             <img src="https://placehold.co/32x32/388E3C/FFFFFF.png?text=S" alt="Safora Logo" class="logo-img">
+             <img src="https://placehold.co/32x32/388E3C/FFFFFF.png?text=S" alt="Safora Logo" class="logo-img" data-ai-hint="logo app">
             <span class="logo-text">Safora</span>
         </header>
         <button class="skip-button component-skip-button">Skip Visual Intro</button>
 
         <main class="slide-content">
             <div class="illustration-container component-illustration">
-                <!-- Using a placeholder for the GIF. In Figma, you'd replace this with the actual image. -->
-                <img src="https://placehold.co/160x133/cccccc/969696.png?text=Scan+Animation" alt="Product scanning illustration">
+                <!-- Actual image from the app is /src/image/2ndOnboardingSlide.png. For static HTML, using a placeholder. -->
+                <img src="https://placehold.co/160x133/A5D6A7/FFFFFF.png?text=Scan+GIF" alt="Product scanning illustration" data-ai-hint="barcode scan animation">
             </div>
             <h2 class="slide-title">Scan & Discover</h2>
             <p class="slide-description">Instantly analyze food products by scanning barcodes. Understand ingredients and their impact on your health.</p>
@@ -73,3 +73,4 @@
 </body>
 </html>
       
+    
