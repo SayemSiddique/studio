@@ -1,8 +1,166 @@
-<!-- Placeholder: design-exports/figma-html/data-collection/location.html - Corresponds to OnboardingDataCollectionStep 3 -->
+
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Safora - Location</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'Poppins',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background-color:#f0f0f0;margin:0;} .container{width:100%;max-width:420px;height:90vh;max-height:700px;background-color:white;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:20px;text-align:center;} h1{color:hsl(123,41%,39%);margin-bottom:20px;font-size:20px;}</style>
-</head><body><div class="container"><h1>Data Collection: Location</h1><p>UI with Region, Country (dependent), City inputs, Auto-detect button, Saf message. See src/app/(default)/onboarding/page.tsx (renderDataCollectionStep(3)).</p></div></body></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safora - Location</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: hsl(123, 41%, 39%); --primary-foreground-color: hsl(0, 0%, 98%);
+            --safora-green: #2ecc71; --safora-blue: #56ccf2;
+            --safora-light-blue: #e8f4fd; --safora-light-green: #e8f8f0;
+            --onboarding-text-primary: hsl(0, 0%, 20%); --onboarding-text-secondary: hsl(0, 0%, 45%);
+            --input-border-color: #e5e7eb; --input-focus-border-color: var(--safora-blue);
+            --font-body: 'Poppins', sans-serif; --font-headline: 'Poppins', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .figma-export-container { /* newData_innerContainer */
+            width: 100%; max-width: 420px; height: 90vh; max-height: 700px;
+            background-color: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .header-controls { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 20;}
+        .back-button { background: none; border: none; cursor: pointer; padding: 8px; display:flex; align-items:center;}
+        .back-button svg { width: 24px; height: 24px; color: #4b5563; }
+        .logo-container { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--primary-color); }
+        .logo-img { width: 28px; height: 28px; }
+        .logo-text { font-size: 20px; font-weight: 700; font-family: var(--font-headline); }
+        
+        .screen-content { /* newData_screenContent */
+            flex: 1; display: flex; flex-direction: column; width: 100%;
+            align-items: center; padding: 16px 24px; text-align: center; overflow-y: auto;
+            padding-top: 80px; /* Space for header-controls */
+        }
+        .saf-avatar { /* newData_safAvatar */
+            width: 60px; height: 60px; background-color: var(--safora-green); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;
+            margin-bottom: 16px; box-shadow: 0 4px 15px hsla(145, 63%, 50%, 0.3); animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .screen-title { /* newData_h1 */
+            font-family: var(--font-headline); font-size: 24px; line-height: 1.2;
+            margin-bottom: 24px; font-weight: 600; color: var(--onboarding-text-primary);
+        }
+        .form-group { width: 100%; max-width: 350px; margin-bottom: 16px; text-align: left; }
+        .safora-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #374151; }
+        .safora-input { /* newData_inputField */
+            width: 100%; padding: 12px; border: 2px solid var(--input-border-color);
+            border-radius: 12px; font-size: 16px; transition: all 0.3s ease; color: #1f2937;
+        }
+        .safora-input::placeholder { color: #9ca3af; }
+        .safora-input:focus { border-color: var(--input-focus-border-color); outline: none; box-shadow: 0 0 0 3px hsla(196, 86%, 62%, 0.2); }
+
+        /* Dropdown styles */
+        .newData_dropdownField { position: relative; width: 100%; margin-bottom: 1rem; max-width: 350px; }
+        .newData_dropdownSelected { background-color: #fff; border: 2px solid var(--input-border-color); border-radius: 12px; padding: 0.875rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; font-size: 1rem; text-align: left; }
+        .newData_dropdownSelected:hover { border-color: var(--safora-blue); }
+        .newData_dropdownSelected.newData_active { border-color: var(--safora-green); }
+        .newData_dropdownOptions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-radius: 12px; max-height: 0; overflow: hidden; z-index: 1000; transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out; opacity: 0; visibility: hidden; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+        .newData_dropdownOptions.newData_show { max-height: 200px; opacity: 1; visibility: visible; overflow-y: auto; }
+        .newData_dropdownOption { padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s ease; font-size: 0.875rem; border-bottom: 1px solid #f1f3f4; text-align: left; }
+        .newData_dropdownOption:last-child { border-bottom: none; }
+        .newData_dropdownOption:hover { background-color: var(--safora-light-blue); color: var(--safora-blue); }
+        .newData_dropdownOption.newData_selected { background-color: var(--safora-light-green); color: var(--safora-green); font-weight: 600; }
+        .newData_dropdownOption.newData_disabled { color: #aaa; cursor: not-allowed; background-color: #f9f9f9; }
+
+        .saf-message { /* newData_safMessage */
+            background-color: var(--safora-light-blue); border-left: 4px solid var(--safora-blue);
+            padding: 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.875rem;
+            color: #4b5563; text-align: left; width: 100%; max-width: 350px; position: relative;
+        }
+        .saf-message-tooltip-icon { position: absolute; top: 8px; right: 8px; cursor: pointer; color: var(--safora-blue); }
+        /* Tooltip text for saf message (visual only for Figma) */
+        .tooltip-text-saf { display:none; position:absolute; background-color:#333; color:white; padding:5px; border-radius:4px; font-size:12px; bottom:100%; left:50%; transform:translateX(-50%); white-space:nowrap; margin-bottom:5px; }
+        .saf-message-tooltip-icon:hover + .tooltip-text-saf { display:block; }
+
+
+        .bottom-actions-container { padding: 16px; width: 100%; margin-top: auto; }
+        .progress-bar-container { width: 100%; margin-bottom: 16px; }
+        .progress-bar { height: 6px; background-color: #e0e0e0; border-radius: 3px; }
+        .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--safora-green), var(--safora-blue)); }
+        
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+        .safora-button-primary, .safora-button-secondary { /* newData_btnPrimary, newData_btnSecondary */
+            padding: 12px 24px; border-radius: 50px; font-size: 16px; font-weight: 600; text-decoration: none;
+            border: none; cursor: pointer; width: 100%; max-width: 300px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .safora-button-primary { background: linear-gradient(90deg, var(--safora-green), var(--safora-blue)); color: var(--primary-foreground-color); box-shadow: 0 4px 15px hsla(196, 86%, 62%, 0.3); }
+        .safora-button-secondary { background-color: transparent; color: #4b5563; border: 1px solid #d1d5db; }
+        .safora-button-secondary:hover { background-color: #f3f4f6; }
+        .safora-button-secondary svg { width: 18px; height: 18px; }
+        .geolocation-status { font-size: 0.75rem; color: #6b7280; margin-top:4px; height: 1.5em; }
+    </style>
+</head>
+<body>
+    <div class="figma-export-container component-data-collection-screen">
+        <div class="header-controls">
+            <button class="back-button component-back-button" aria-label="Go back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="logo-container component-logo-header">
+                <img src="https://placehold.co/28x28/388E3C/FFFFFF.png?text=S" alt="Safora Logo" class="logo-img">
+                <span class="logo-text">Safora</span>
+            </div>
+        </div>
+
+        <main class="screen-content">
+            <div class="saf-avatar" data-ai-hint="globe earth emoji">🌎</div>
+            <h1 class="screen-title">Where are you based?</h1>
+            
+            <div class="form-group component-location-form">
+                <div class="newData_dropdownField component-region-dropdown">
+                    <label class="safora-label">Region</label>
+                    <div class="newData_dropdownSelected newData_active"><span>North America</span> <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 opacity-50"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></div>
+                    <div class="newData_dropdownOptions newData_show"> <!-- Example: show options -->
+                        <div class="newData_dropdownOption newData_selected">North America</div>
+                        <div class="newData_dropdownOption">Europe</div>
+                        <div class="newData_dropdownOption">Asia</div>
+                        <div class="newData_dropdownOption">South America</div>
+                        <div class="newData_dropdownOption">Africa</div>
+                        <div class="newData_dropdownOption">Oceania</div>
+                    </div>
+                </div>
+                <div class="newData_dropdownField component-country-dropdown">
+                    <label class="safora-label">Country</label>
+                    <div class="newData_dropdownSelected"><span>United States</span> <svg viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 opacity-50"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></div>
+                    <!-- Options would be populated based on region -->
+                </div>
+                <div class="form-group">
+                    <label for="city" class="safora-label">City</label>
+                    <input type="text" id="city" class="safora-input" placeholder="e.g., New York" value="New York">
+                </div>
+            </div>
+
+            <button class="safora-button-secondary component-auto-detect-button" style="margin-bottom: 8px;">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Auto-detect my location
+            </button>
+            <p class="geolocation-status component-geolocation-status">Status: Detection not started.</p>
+
+            <div class="saf-message component-saf-message">
+                I'll use this to match local food products.
+                <div class="saf-message-tooltip-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    <span class="tooltip-text-saf">Product availability and regulations can differ by region.</span>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="bottom-actions-container">
+            <div class="progress-bar-container component-progress-bar">
+                <div class="progress-bar"><div class="progress-fill" style="width: 30%;"></div></div>
+            </div>
+            <div class="action-buttons component-action-buttons">
+                <button class="safora-button-primary">Continue</button>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
       
+    

@@ -1,8 +1,161 @@
-<!-- Placeholder: design-exports/figma-html/data-collection/allergies.html - Corresponds to OnboardingDataCollectionStep 6 -->
+
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Safora - Allergies</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'Poppins',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background-color:#f0f0f0;margin:0;} .container{width:100%;max-width:420px;height:90vh;max-height:700px;background-color:white;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:20px;text-align:center;} h1{color:hsl(123,41%,39%);margin-bottom:20px;font-size:20px;}</style>
-</head><body><div class="container"><h1>Data Collection: Allergies</h1><p>UI with chips for common allergens, MultiSelectDropdown for other allergens, input for custom. See src/app/(default)/onboarding/page.tsx (renderDataCollectionStep(6)).</p></div></body></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safora - Allergies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: hsl(123, 41%, 39%); --primary-foreground-color: hsl(0, 0%, 98%);
+            --safora-green: #2ecc71; --safora-blue: #56ccf2;
+            --safora-light-blue: #e8f4fd; --safora-light-green: #e8f8f0;
+            --onboarding-text-primary: hsl(0, 0%, 20%); --onboarding-text-secondary: hsl(0, 0%, 45%);
+            --input-border-color: #e5e7eb; --input-focus-border-color: var(--safora-blue);
+            --font-body: 'Poppins', sans-serif; --font-headline: 'Poppins', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .figma-export-container { /* newData_innerContainer */
+            width: 100%; max-width: 420px; height: 90vh; max-height: 700px;
+            background-color: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .header-controls { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; z-index: 20;}
+        .back-button { background: none; border: none; cursor: pointer; padding: 8px; display:flex; align-items:center;}
+        .back-button svg { width: 24px; height: 24px; color: #4b5563; }
+        .logo-container { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--primary-color); }
+        .logo-img { width: 28px; height: 28px; }
+        .logo-text { font-size: 20px; font-weight: 700; font-family: var(--font-headline); }
+        
+        .screen-content { /* newData_screenContent */
+            flex: 1; display: flex; flex-direction: column; width: 100%;
+            align-items: center; padding: 16px 24px; text-align: center; overflow-y: auto;
+            padding-top: 80px; /* Space for header-controls */
+        }
+        .saf-avatar { /* newData_safAvatar */
+            width: 60px; height: 60px; background-color: var(--safora-green); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;
+            margin-bottom: 16px; box-shadow: 0 4px 15px hsla(145, 63%, 50%, 0.3); animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .screen-title { /* newData_h1 */
+            font-family: var(--font-headline); font-size: 24px; line-height: 1.2;
+            margin-bottom: 16px; font-weight: 600; color: var(--onboarding-text-primary);
+        }
+        .screen-description { font-size: 14px; color: var(--onboarding-text-secondary); margin-bottom: 16px; }
+
+        /* Chip styles */
+        .chips-container { /* newData_chipContainer */
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+            margin-bottom: 16px; width: 100%; max-width: 380px;
+        }
+        .chip { /* newData_chip */
+            display: inline-flex; align-items: center; background-color: #f3f4f6;
+            border-radius: 50px; padding: 8px 16px; cursor: pointer;
+            border: 2px solid transparent; font-size: 14px; color: #374151;
+        }
+        .chip.selected { /* newData_selected */
+            background-color: var(--safora-light-green); border-color: var(--safora-green);
+            color: var(--safora-green); font-weight: 500;
+        }
+        .chip .emoji { margin-right: 6px; }
+
+        /* MultiSelectDropdown Styles */
+        .multiselect-dropdown-container { width: 100%; max-width: 350px; margin-bottom: 16px; text-align: left; }
+        .safora-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #374151; }
+        .multiselect-trigger-button {
+            width: 100%; padding: 12px; border: 2px solid var(--input-border-color);
+            border-radius: 12px; font-size: 16px; background-color: white;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            color: #1f2937;
+        }
+        .multiselect-trigger-button:hover { border-color: var(--safora-blue); }
+        .multiselect-trigger-button.placeholder { color: #9ca3af; }
+        .multiselect-trigger-button svg { width: 20px; height: 20px; opacity: 0.5; }
+        
+        .safora-input { /* newData_inputField */
+            width: 100%; max-width: 350px; padding: 12px; border: 2px solid var(--input-border-color);
+            border-radius: 12px; font-size: 16px; transition: all 0.3s ease; color: #1f2937; margin-top: 8px;
+        }
+        .safora-input::placeholder { color: #9ca3af; }
+        .safora-input:focus { border-color: var(--input-focus-border-color); outline: none; box-shadow: 0 0 0 3px hsla(196, 86%, 62%, 0.2); }
+        
+        .saf-message { /* newData_safMessage */
+            background-color: var(--safora-light-blue); border-left: 4px solid var(--safora-blue);
+            padding: 1rem; border-radius: 0 8px 8px 0; margin-top: 24px; font-size: 0.875rem;
+            color: #4b5563; text-align: left; width: 100%; max-width: 350px;
+        }
+
+        .bottom-actions-container { padding: 16px; width: 100%; margin-top: auto; }
+        .progress-bar-container { width: 100%; margin-bottom: 16px; }
+        .progress-bar { height: 6px; background-color: #e0e0e0; border-radius: 3px; }
+        .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--safora-green), var(--safora-blue)); }
+        
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+        .safora-button-primary, .safora-button-link { /* newData_btnPrimary, newData_btnSecondary as link */
+            padding: 12px 24px; border-radius: 50px; font-size: 16px; font-weight: 600; text-decoration: none;
+            border: none; cursor: pointer; width: 100%; max-width: 300px;
+        }
+        .safora-button-primary { background: linear-gradient(90deg, var(--safora-green), var(--safora-blue)); color: var(--primary-foreground-color); box-shadow: 0 4px 15px hsla(196, 86%, 62%, 0.3); }
+        .safora-button-link { background: none; color: var(--onboarding-text-secondary); text-decoration: underline; margin-top:8px;}
+    </style>
+</head>
+<body>
+    <div class="figma-export-container component-data-collection-screen">
+        <div class="header-controls">
+            <button class="back-button component-back-button" aria-label="Go back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="logo-container component-logo-header">
+                <img src="https://placehold.co/28x28/388E3C/FFFFFF.png?text=S" alt="Safora Logo" class="logo-img">
+                <span class="logo-text">Safora</span>
+            </div>
+        </div>
+
+        <main class="screen-content">
+            <div class="saf-avatar" data-ai-hint="warning sign emoji">⚠️</div>
+            <h1 class="screen-title">Let's make sure you stay safe. Any known allergies?</h1>
+            
+            <p class="screen-description">Select common allergies:</p>
+            <div class="chips-container component-common-allergens-chips">
+                <div class="chip selected"><span class="emoji">🥜</span>Peanuts</div>
+                <div class="chip"><span class="emoji">🥛</span>Milk</div>
+                <div class="chip"><span class="emoji">🥚</span>Eggs</div>
+                <div class="chip"><span class="emoji">🌾</span>Wheat</div>
+                <div class="chip selected"><span class="emoji">🦐</span>Shellfish</div>
+                <!-- Add more common allergens -->
+            </div>
+            
+            <div class="multiselect-dropdown-container component-multiselect-other-allergens">
+                <label class="safora-label">Other Less Common Allergies:</label>
+                <button class="multiselect-trigger-button">
+                    <span>1 selected (e.g., Kiwi)</span> <!-- Example selected state -->
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+            </div>
+
+            <input type="text" class="safora-input component-custom-allergens-input" placeholder="List any other very specific allergies (comma-separated)" value="Latex">
+            
+            <div class="saf-message component-saf-message">
+                I'll make sure these ingredients are flagged in every scan.
+            </div>
+             <button class="safora-button-link component-skip-button">I'll fill this later</button>
+        </main>
+        
+        <footer class="bottom-actions-container">
+            <div class="progress-bar-container component-progress-bar">
+                <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
+            </div>
+            <div class="action-buttons component-action-buttons">
+                <button class="safora-button-primary">Continue</button>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
       
+    
