@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserCircle2, Edit3, ShieldCheck, HeartPulse, Utensils, Loader2, AlertTriangle, Settings, ListFilter, CalendarDays, MapPin, Ban, Info } from 'lucide-react';
+import { UserCircle2, Edit3, ShieldCheck, HeartPulse, Utensils, Loader2, AlertTriangle, Settings, ListFilter, CalendarDays, MapPin, Ban, Info, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { format, parseISO, isValid } from 'date-fns';
