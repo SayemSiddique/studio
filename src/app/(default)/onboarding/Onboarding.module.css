@@ -104,14 +104,6 @@
     z-index: 10;
 }
 
-.newData_logoContainer { /* For new data collection part, if logo needs different positioning within newData_innerContainer */
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 20; /* Above newData_screens */
-}
-
-
 .visualProgressBarContainer {
     position: absolute;
     bottom: 1.5rem; /* Tailwind bottom-6 */
@@ -269,7 +261,7 @@
 .slide4Bg { background: linear-gradient(135deg, var(--slide-4-bg-start), var(--slide-4-bg-end)); }
 
 
-/* Styles for New Data Collection Onboarding (Screens 5 onwards) */
+/* Styles for New Data Collection Onboarding (Screens 5 onwards in old plan, now step > 0) */
 
 .newData_onboardingContainer { /* This will be the root div when currentDataCollectionStep > 0 */
     /* Applied to .onboardingContainer in page.tsx when currentDataCollectionStep > 0 */
@@ -283,6 +275,8 @@
     position: relative; /* For screen transitions */
     overflow: hidden; /* For screen transitions */
     background-color: white; /* Screens have white background */
+    display: flex; /* Added for flex column layout */
+    flex-direction: column; /* Added */
 }
 
 @media (min-width: 480px) {
@@ -296,14 +290,23 @@
 }
 @media (min-width: 768px) { /* Further constrain on larger screens */
     .newData_innerContainer {
-        max-width: 420px;
+        max-width: 420px; /* Matched visual slides for consistency */
         height: 90vh;
         max-height: 700px;
     }
 }
 
-.newData_screen {
+.newData_logoContainer { /* For new data collection part, if logo needs different positioning within newData_innerContainer */
     position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 20; /* Above newData_screens */
+}
+
+
+.newData_screen {
+    position: absolute; /* Changed from relative in HTML for transition */
+    top: 0; left: 0; /* Added for absolute positioning */
     width: 100%;
     height: 100%;
     transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
@@ -311,29 +314,22 @@
     display: flex;
     flex-direction: column;
     background-color: white;
-    border-radius: 0; /* Will be on newData_innerContainer for larger screens */
+    border-radius: inherit; /* Inherit from parent if parent has radius */
     overflow-y: auto;
-    visibility: hidden;
-    opacity: 0;
+    visibility: hidden; /* Hidden by default for inactive screens */
+    opacity: 0; /* Hidden by default */
     transform: translateX(100%); /* Default off-screen to the right */
 }
 
-@media (min-width: 640px) {
-    .newData_screen {
-        padding: 1.5rem;
-    }
-}
-@media (min-width: 768px) {
-    .newData_screen {
-        padding: 2rem;
-    }
-}
+@media (min-width: 640px) { .newData_screen { padding: 1.5rem; } }
+@media (min-width: 768px) { .newData_screen { padding: 2rem; } }
+
 
 .newData_screen.newData_active {
     transform: translateX(0);
     visibility: visible;
     opacity: 1;
-    z-index: 1;
+    z-index: 10; /* Ensure active screen is on top */
 }
 .newData_screen.newData_inactiveLeft {
     transform: translateX(-100%);
@@ -346,16 +342,16 @@
     opacity: 0;
 }
 
-.newData_progressBarContainer { /* New container for progress bar at bottom */
-    padding: 0 1rem 1rem 1rem; /* Add some padding around it */
-    margin-top: auto; /* Pushes to bottom if screen content is short */
+.newData_progressBarContainer {
+    padding: 0 1rem 1rem 1rem; /* Padding around it */
+    margin-top: auto; /* Pushes to bottom */
+    width: 100%; /* Take full width within its flex item context */
 }
 
 .newData_progressBar {
     height: 6px;
     background-color: #e0e0e0; /* gray-300 */
     border-radius: 3px;
-    /* margin-bottom: 1.5rem; Removed, using container for spacing */
     position: relative;
 }
 
@@ -378,46 +374,26 @@
     font-size: 20px;
     margin-bottom: 1rem;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-    animation: newData_float 3s ease-in-out infinite; /* Apply with Tailwind */
+    /* animation: newData_float 3s ease-in-out infinite; Applied via Tailwind */
     align-self: center;
 }
 
-@media (min-width: 640px) {
-    .newData_safAvatar {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
-    }
-}
-@media (min-width: 768px) {
-    .newData_safAvatar {
-        width: 70px;
-        height: 70px;
-        font-size: 28px;
-    }
-}
+@media (min-width: 640px) { .newData_safAvatar { width: 60px; height: 60px; font-size: 24px; } }
+@media (min-width: 768px) { .newData_safAvatar { width: 70px; height: 70px; font-size: 28px; } }
 
-@keyframes newData_float { /* Renamed to avoid conflict with Tailwind's float */
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
+/* Keyframes for float animation are in tailwind.config.ts */
+/* @keyframes newData_float { ... } */
 
-.newData_h1 { /* For h1 tags within new data collection screens */
-    font-size: 1.5rem; /* Tailwind text-2xl is 1.5rem */
+.newData_h1 {
+    font-size: 1.5rem; /* Tailwind text-2xl */
     line-height: 1.2;
     text-align: center;
     margin-bottom: 1rem;
     font-weight: 600; /* Tailwind font-semibold */
     color: #1f2937; /* gray-800 */
 }
-
-@media (min-width: 640px) {
-    .newData_h1 {
-        font-size: 1.875rem; /* text-3xl */
-        margin-bottom: 1.5rem;
-    }
-}
+@media (min-width: 640px) { .newData_h1 { font-size: 1.875rem; margin-bottom: 1.5rem; } } /* text-3xl */
+/* Removed larger h1 from HTML, as it's better controlled by Tailwind utilities if needed */
 
 
 .newData_btnPrimary {
@@ -435,23 +411,12 @@
     max-width: 300px;
     margin-left: auto;
     margin-right: auto;
-    display: flex; /* For icon alignment if used */
-    align-items: center; /* For icon alignment */
-    justify-content: center; /* For icon alignment */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
-@media (min-width: 640px) {
-    .newData_btnPrimary {
-        padding: 1rem 2rem;
-        font-size: 1rem; /* text-base */
-        max-width: 350px;
-    }
-}
-
-.newData_btnPrimary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(86, 204, 242, 0.4);
-}
+@media (min-width: 640px) { .newData_btnPrimary { padding: 1rem 2rem; font-size: 1rem; max-width: 350px; } }
+.newData_btnPrimary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(86, 204, 242, 0.4); }
 
 .newData_btnSecondary {
     background-color: transparent;
@@ -471,282 +436,142 @@
     align-items: center;
     justify-content: center;
 }
+@media (min-width: 640px) { .newData_btnSecondary { padding: 1rem 2rem; font-size: 1rem; max-width: 350px; } }
+.newData_btnSecondary:hover { background-color: #f3f4f6; border-color: #9ca3af; }
 
-@media (min-width: 640px) {
-    .newData_btnSecondary {
-        padding: 1rem 2rem;
-        font-size: 1rem; /* text-base */
-        max-width: 350px;
-    }
-}
-
-.newData_btnSecondary:hover {
-    background-color: #f3f4f6; /* gray-100 */
-    border-color: #9ca3af; /* gray-400 */
-}
 
 .newData_chipContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Or left, as preferred */
-    gap: 0.5rem; /* Space between chips */
+    justify-content: center;
+    gap: 0.5rem;
     margin-bottom: 1rem;
+    width: 100%;
+    max-width: 420px; /* Limit width of chip container for better centering */
+    margin-left: auto;
+    margin-right: auto;
 }
-
 .newData_chip {
     display: inline-flex;
     align-items: center;
     background-color: #f3f4f6; /* gray-100 */
     border-radius: 50px;
     padding: 0.5rem 1.25rem;
-    /* margin: 0.25rem; Removed, handled by gap in container */
     cursor: pointer;
     transition: all 0.2s ease;
     border: 2px solid transparent;
-    font-size: 0.875rem; /* text-sm */
+    font-size: 0.875rem;
     color: #374151; /* gray-700 */
-    line-height: 1.25; /* For better text wrapping in chips */
+    line-height: 1.25;
 }
-
-.newData_chip.newData_selected { /* Make specific to avoid conflict if .selected is global */
+.newData_chip.newData_selected {
     background-color: var(--safora-light-green);
     border-color: var(--safora-green);
     color: var(--safora-green);
     font-weight: 500;
 }
-
-.newData_chip:hover:not(.newData_selected) {
-    background-color: #e5e7eb; /* gray-200 */
-}
+.newData_chip:hover:not(.newData_selected) { background-color: #e5e7eb; }
 
 
 .newData_inputField {
     width: 100%;
+    max-width: 400px; /* Added to match dropdown width */
+    margin-left: auto; /* Center */
+    margin-right: auto; /* Center */
     padding: 1rem;
     border: 2px solid #e5e7eb; /* gray-200 */
     border-radius: 12px;
-    font-size: 1rem; /* text-base */
+    font-size: 1rem;
     transition: all 0.3s ease;
     margin-bottom: 1rem;
     color: #1f2937; /* gray-800 */
 }
-.newData_inputField::placeholder {
-    color: #9ca3af; /* gray-400 */
-}
-
-.newData_inputField:focus {
-    border-color: var(--safora-blue);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2);
-}
+.newData_inputField::placeholder { color: #9ca3af; }
+.newData_inputField:focus { border-color: var(--safora-blue); outline: none; box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2); }
 
 .newData_safMessage {
     background-color: var(--safora-light-blue);
     border-left: 4px solid var(--safora-blue);
     padding: 1rem;
     border-radius: 0 12px 12px 0;
-    margin: 1rem 0;
+    margin: 1rem auto; /* Centered */
     font-size: 0.9rem;
     color: #4b5563; /* gray-600 */
     text-align: left;
+    width: 100%;
+    max-width: 400px; /* Match input/dropdown width */
 }
 
 .newData_screenContent {
-    flex: 1; /* Takes available space */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    width: 100%; /* Ensure it uses the full width of .newData_screen */
-    align-items: center; /* Center content like avatar, title */
-    padding: 1rem 0; /* Vertical padding for content within screen */
-    text-align: center; /* Center text by default */
+    width: 100%;
+    align-items: center;
+    padding: 1rem 0;
+    text-align: center;
+    overflow-y: auto; /* Allow content to scroll if it overflows */
+    max-height: calc(100% - 80px); /* Example: Adjust based on header/footer heights */
 }
 
 .newData_bottomActions {
-    /* margin-top: auto; Pushed by progress bar container now */
-    padding-top: 1rem; /* Space above buttons if progress bar is also there */
+    padding-top: 1rem; /* Reduced from 2rem */
     width: 100%;
     display: flex;
-    flex-direction: column; /* Stack buttons if multiple */
-    gap: 0.75rem; /* Space between buttons if stacked */
-    align-items: center; /* Center buttons */
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
 }
 
-/* Styles for dropdowns and calendar from new HTML */
-.newData_monthSelector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 350px; /* Limit width */
+.newData_summaryContainerScrollable {
+    max-height: 50vh; /* Or a fixed pixel value like 300px */
+    overflow-y: auto;
+    padding-right: 0.5rem; /* Space for scrollbar */
 }
-.newData_monthArrow {
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.newData_calendarHeader, .newData_calendarPicker {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px; /* Tailwind gap-2 */
-    width: 100%;
-    max-width: 350px; /* Limit width */
-}
+.newData_summaryContainerScrollable::-webkit-scrollbar { width: 6px; }
+.newData_summaryContainerScrollable::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+.newData_summaryContainerScrollable::-webkit-scrollbar-thumb { background: var(--safora-green); border-radius: 3px; }
+
+
+.newData_summaryItem { display: flex; align-items: center; margin-bottom: 0.75rem; text-align: left; width: 100%; }
+.newData_summaryIcon { width: 32px; height: 32px; border-radius: 50%; background-color: var(--safora-light-green); display: flex; align-items: center; justify-content: center; margin-right: 1rem; color: var(--safora-green); flex-shrink: 0; }
+
+
+.newData_monthSelector { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; width: 100%; max-width: 350px; }
+.newData_monthArrow { cursor: pointer; padding: 0.5rem; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; }
+.newData_calendarHeader, .newData_calendarPicker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%; max-width: 350px; }
 .newData_calendarHeader { margin-bottom: 0.5rem; font-size: 0.8rem; color: #777; }
 .newData_calendarHeader span { text-align: center; }
-
-.newData_calendarDay { /* Style for individual day cell in custom calendar, if used */
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
+.newData_calendarDay { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; font-size: 0.9rem; }
 .newData_calendarDay:hover { background-color: #f0f0f0; }
 .newData_calendarDay.newData_selected { background-color: var(--safora-green); color: white; }
 
 
-.newData_dropdownField {
-    position: relative;
-    width: 100%;
-    margin-bottom: 1rem;
-    max-width: 400px; /* Limit width of dropdowns */
-}
-.newData_dropdownSelected {
-    background-color: #f8f9fa;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    padding: 0.875rem 1rem;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-    text-align: left;
-}
-@media (min-width: 640px) {
-    .newData_dropdownSelected { padding: 1rem 1.25rem; font-size: 1rem; }
-}
+.newData_dropdownField { position: relative; width: 100%; margin-bottom: 1rem; max-width: 400px; }
+.newData_dropdownSelected { background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 0.875rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; font-size: 0.875rem; text-align: left; }
+@media (min-width: 640px) { .newData_dropdownSelected { padding: 1rem 1.25rem; font-size: 1rem; } }
 .newData_dropdownSelected:hover { border-color: var(--safora-blue); background-color: #f0f9ff; }
 .newData_dropdownSelected.newData_active { border-color: var(--safora-green); background-color: #f0fdf4; }
 
-.newData_dropdownOptions {
-    position: absolute;
-    top: calc(100% + 4px); /* Add small gap */
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #e0e0e0; /* Softer border */
-    border-radius: 12px;
-    max-height: 0;
-    overflow: hidden;
-    z-index: 1000;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out; /* Smooth transition */
-    opacity: 0;
-    visibility: hidden;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Softer shadow */
-}
-.newData_dropdownOptions.newData_show { /* make specific */
-    max-height: 250px; /* Or other desired max height */
-    opacity: 1;
-    visibility: visible;
-    overflow-y: auto;
-   /* border-color: var(--safora-green); /* Show border when open */
-}
-.newData_dropdownOption {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.875rem;
-    border-bottom: 1px solid #f1f3f4;
-    text-align: left;
-}
-@media (min-width: 640px) {
-    .newData_dropdownOption { padding: 0.875rem 1.25rem; font-size: 1rem; }
-}
+.newData_dropdownOptions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-radius: 12px; max-height: 0; overflow: hidden; z-index: 1000; transition: max-height 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out; opacity: 0; visibility: hidden; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+.newData_dropdownOptions.newData_show { max-height: 250px; opacity: 1; visibility: visible; overflow-y: auto; }
+.newData_dropdownOption { padding: 0.75rem 1rem; cursor: pointer; transition: all 0.2s ease; font-size: 0.875rem; border-bottom: 1px solid #f1f3f4; text-align: left; }
+@media (min-width: 640px) { .newData_dropdownOption { padding: 0.875rem 1.25rem; font-size: 1rem; } }
 .newData_dropdownOption:last-child { border-bottom: none; }
 .newData_dropdownOption:hover { background-color: #f0f9ff; color: var(--safora-blue); }
 .newData_dropdownOption.newData_selected { background-color: #f0fdf4; color: var(--safora-green); font-weight: 600; }
-
+.newData_dropdownOption.newData_disabled { color: #aaa; cursor: not-allowed; background-color: #f9f9f9; }
+.newData_dropdownOption.newData_disabled:hover { color: #aaa; background-color: #f9f9f9; }
 .newData_dropdownOptions::-webkit-scrollbar { width: 6px; }
 .newData_dropdownOptions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
 .newData_dropdownOptions::-webkit-scrollbar-thumb { background: var(--safora-green); border-radius: 3px; }
 
-.newData_tooltip {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-left: 0.5rem;
-    cursor: pointer;
-}
-.newData_tooltipText {
-    visibility: hidden;
-    width: 200px;
-    background-color: #333;
-    color: white;
-    text-align: center;
-    border-radius: 6px;
-    padding: 0.5rem;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    font-size: 0.8rem;
-    white-space: normal;
-}
-.newData_tooltip:hover .newData_tooltipText {
-    visibility: visible;
-    opacity: 1;
-}
-
-.newData_summaryItem {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    text-align: left;
-    width: 100%;
-}
-.newData_summaryIcon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--safora-light-green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    color: var(--safora-green);
-    flex-shrink: 0;
-}
+.newData_tooltip { position: relative; display: inline-flex; align-items: center; margin-left: 0.5rem; cursor: pointer; }
+.newData_tooltipText { visibility: hidden; width: 200px; background-color: #333; color: white; text-align: center; border-radius: 6px; padding: 0.5rem; position: absolute; z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.8rem; white-space: normal; }
+.newData_tooltip:hover .newData_tooltipText { visibility: visible; opacity: 1; }
 
 
 /* Hide scrollbar for webkit browsers */
-.visualScreen::-webkit-scrollbar, .newData_screen::-webkit-scrollbar {
-    display: none;
-}
+.visualScreen::-webkit-scrollbar, .newData_screen::-webkit-scrollbar { display: none; }
 /* Hide scrollbar for IE, Edge and Firefox */
-.visualScreen, .newData_screen {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-
-/* Styling for disabled dropdown option */
-.newData_dropdownOption.newData_disabled {
-    color: #aaa;
-    cursor: not-allowed;
-    background-color: #f9f9f9;
-}
-.newData_dropdownOption.newData_disabled:hover {
-    color: #aaa;
-    background-color: #f9f9f9;
-}
+.visualScreen, .newData_screen { -ms-overflow-style: none; scrollbar-width: none; }

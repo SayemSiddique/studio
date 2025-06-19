@@ -8,16 +8,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import styles from './Onboarding.module.css';
 import { useProfile } from '@/hooks/useProfile';
 import type { UserProfile } from '@/lib/types';
 import {
-  HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle, Mail, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, Briefcase, ShieldQuestion, Milestone, Edit3, Map, LocateFixed, Loader2
+  HeartHandshake, ScanSearch, ShieldCheck, Sparkles, Apple, Leaf, Carrot, Wheat, Info, ChevronDown, ChevronLeft, ChevronRight, Check, Circle, Mail, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, Briefcase, ShieldQuestion, Milestone, Edit3, Map, LocateFixed, Loader2, ChevronsUpDown
 } from 'lucide-react';
 import Image from 'next/image';
 import SecondOnboardingSlideImage from '@/image/2ndOnboardingSlide.png';
-import { countryData, regions, dietaryPaths, ingredientsToAvoidOptions, commonAllergens, healthConditionsOptions, healthGoalsOptions, otherAllergensList } from '@/lib/onboardingOptions';
+import { countryData, regions, dietaryPaths, ingredientsToAvoidOptions, commonAllergens, otherAllergensList, healthConditionsOptions, healthGoalsOptions } from '@/lib/onboardingOptions';
 import { format, differenceInYears, parseISO, isValid } from "date-fns";
 
 // Constants for visual slides
@@ -111,13 +119,62 @@ const GoogleIconSvg = () => (
   </svg>
 );
 
+interface MultiSelectDropdownProps {
+  options: string[];
+  selectedValues: string[];
+  onSelectionChange: (newSelection: string[]) => void;
+  placeholder: string;
+  label?: string;
+}
+
+const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, selectedValues, onSelectionChange, placeholder, label }) => {
+  const handleSelect = (option: string) => {
+    const newSelection = selectedValues.includes(option)
+      ? selectedValues.filter(item => item !== option)
+      : [...selectedValues, option];
+    onSelectionChange(newSelection);
+  };
+
+  const triggerLabel = selectedValues.length > 0
+    ? `${selectedValues.length} selected`
+    : placeholder;
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      {label && <label className="block text-sm font-medium text-gray-700 mb-1 text-left">{label}</label>}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className={cn(styles.newData_dropdownSelected, "w-full justify-between")}>
+            <span>{triggerLabel}</span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-60 overflow-y-auto">
+          <DropdownMenuLabel>Select Options</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {options.map((option) => (
+            <DropdownMenuCheckboxItem
+              key={option}
+              checked={selectedValues.includes(option)}
+              onCheckedChange={() => handleSelect(option)}
+              onSelect={(e) => e.preventDefault()} // Prevent closing on select
+            >
+              {option}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { profile, updateProfile, loading: profileLoading } = useProfile();
 
   const [currentVisualSlide, setCurrentVisualSlide] = useState(0);
-  const [currentDataCollectionStep, setCurrentDataCollectionStep] = useState(0);
+  const [currentDataCollectionStep, setCurrentDataCollectionStep] = useState(0); // 0 means visual slides are active
 
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     firstName: "",
@@ -135,46 +192,36 @@ export default function OnboardingPage() {
     profileCompletionStatus: 'initial',
   });
 
+  // Location specific states
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
-  const [availableCities, setAvailableCities] = useState<string[]>([]); // For future API based city loading
   const [openDropdown, setOpenDropdown] = useState<'region' | 'country' | 'city' | null>(null);
   const [dobCalendarOpen, setDobCalendarOpen] = useState(false);
   const [geolocationStatus, setGeolocationStatus] = useState<string | null>(null);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (profile) {
       setFormData(prev => ({
-        ...prev,
-        ...profile, // Spread existing profile to retain any already set data
-        firstName: profile.firstName || "",
-        lastName: profile.lastName || "",
-        dateOfBirth: profile.dateOfBirth || "",
-        age: profile.age,
+        ...prev, ...profile,
         location: profile.location || { region: "", country: "", city: "" },
         selectedDiets: profile.selectedDiets || [],
         ingredientsToAvoid: profile.ingredientsToAvoid || [],
-        customIngredientsToAvoid: profile.customIngredientsToAvoid || "",
         knownAllergens: profile.knownAllergens || [],
-        customAllergens: profile.customAllergens || "",
         healthConditions: profile.healthConditions || [],
         healthGoalsList: profile.healthGoalsList || [],
-        profileCompletionStatus: profile.profileCompletionStatus || 'initial',
       }));
       if (profile.location?.region) setSelectedRegion(profile.location.region);
       if (profile.location?.country) {
-        setSelectedCountry(profile.location.country);
-        if (profile.location.country && countryData[profile.location.country]) {
-          setAvailableCities(countryData[profile.location.country].sort() || []);
-        } else {
-          setAvailableCities([]); // Reset if country not in data or no cities
-        }
+         setSelectedCountry(profile.location.country);
+         setAvailableCountries(Object.keys(countryData).sort()); // Initialize with all countries
+         if (countryData[profile.location.country]) {
+            // In a real app, cities would likely come from an API or larger dataset
+         }
       }
       if (profile.location?.city) setSelectedCity(profile.location.city);
     }
@@ -187,36 +234,28 @@ export default function OnboardingPage() {
         if (isValid(birthDate)) {
           const age = differenceInYears(new Date(), birthDate);
           setFormData(prev => ({ ...prev, age: age }));
-        } else {
-          setFormData(prev => ({ ...prev, age: undefined }));
-        }
-      } catch (e) {
-        console.error("Invalid date for age calculation", e);
-        setFormData(prev => ({ ...prev, age: undefined }));
-      }
-    } else {
-        setFormData(prev => ({ ...prev, age: undefined }));
-    }
+        } else { setFormData(prev => ({ ...prev, age: undefined })); }
+      } catch (e) { setFormData(prev => ({ ...prev, age: undefined })); }
+    } else { setFormData(prev => ({ ...prev, age: undefined })); }
   }, [formData.dateOfBirth]);
 
-  const handleInputChange = (field: keyof Pick<UserProfile, 'firstName' | 'lastName' | 'customIngredientsToAvoid' | 'customAllergens'>, value: string) => {
+  const handleInputChange = useCallback((field: keyof Pick<UserProfile, 'firstName' | 'lastName' | 'customIngredientsToAvoid' | 'customAllergens'>, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
+  
+  const handleCityInputChange = useCallback((value: string) => {
+    setSelectedCity(value);
+    setFormData(prev => ({ ...prev, location: { ...prev.location, city: value } }));
+  }, []);
 
   const handleLocationChange = useCallback(() => {
     setFormData(prev => ({
       ...prev,
-      location: {
-        region: selectedRegion,
-        country: selectedCountry,
-        city: selectedCity,
-      }
+      location: { region: selectedRegion, country: selectedCountry, city: selectedCity }
     }));
   }, [selectedRegion, selectedCountry, selectedCity]);
 
-  useEffect(() => {
-    handleLocationChange();
-  }, [handleLocationChange]);
+  useEffect(() => { handleLocationChange(); }, [handleLocationChange]);
 
   const handleNextVisualSlide = useCallback(async () => {
     if (currentVisualSlide < TOTAL_VISUAL_SLIDES - 1) {
@@ -228,17 +267,10 @@ export default function OnboardingPage() {
   }, [currentVisualSlide, updateProfile, formData]);
 
   const handlePrevVisualSlide = useCallback(() => {
-    if (currentVisualSlide > 0) {
-      setCurrentVisualSlide(prev => prev - 1);
-    }
+    if (currentVisualSlide > 0) setCurrentVisualSlide(prev => prev - 1);
   }, [currentVisualSlide]);
 
   const handleNextDataStep = useCallback(async () => {
-    if (currentDataCollectionStep === 0) { // Transition from visual to data collection
-        await updateProfile({ ...formData, profileCompletionStatus: 'visual_complete' });
-        setCurrentDataCollectionStep(1);
-        return;
-    }
     await updateProfile({ ...formData, profileCompletionStatus: 'data_collection_started' });
     if (currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS) {
       setCurrentDataCollectionStep(prev => prev + 1);
@@ -248,16 +280,13 @@ export default function OnboardingPage() {
   const handlePrevDataStep = useCallback(() => {
     if (currentDataCollectionStep > 1) {
       setCurrentDataCollectionStep(prev => prev - 1);
-    } else if (currentDataCollectionStep === 1) {
+    } else if (currentDataCollectionStep === 1) { // Go back to visual slides
       setCurrentDataCollectionStep(0);
     }
   }, [currentDataCollectionStep]);
 
   const skipToAuth = async () => {
-    await updateProfile({
-      ...formData,
-      profileCompletionStatus: 'data_partial'
-    });
+    await updateProfile({ ...formData, profileCompletionStatus: 'data_partial' });
     router.push('/auth');
   };
 
@@ -270,48 +299,29 @@ export default function OnboardingPage() {
     await updateProfile({ ...formData, profileCompletionStatus: 'data_complete_guest'});
     router.push('/home');
   };
+  
+  const handleMultiSelectionChange = useCallback((fieldName: keyof Pick<UserProfile, 'selectedDiets' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>, newSelection: string[]) => {
+    setFormData(prev => ({ ...prev, [fieldName]: newSelection }));
+  }, []);
 
   useEffect(() => {
-    let touchstartX = 0;
-    let touchendX = 0;
-    let touchstartY = 0;
-    let touchendY = 0;
-
+    let touchstartX = 0, touchendX = 0, touchstartY = 0, touchendY = 0;
     function handleSwipeGesture() {
-      const deltaX = touchendX - touchstartX;
-      const deltaY = touchendY - touchstartY;
-
+      const deltaX = touchendX - touchstartX; const deltaY = touchendY - touchstartY;
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) {
-        if (currentDataCollectionStep === 0) {
-          if (deltaX < 0) handleNextVisualSlide(); else handlePrevVisualSlide();
-        } else {
-          if (deltaX < 0) handleNextDataStep(); else handlePrevDataStep();
-        }
+        if (currentDataCollectionStep === 0) { if (deltaX < 0) handleNextVisualSlide(); else handlePrevVisualSlide(); }
+        else { if (deltaX < 0) handleNextDataStep(); else handlePrevDataStep(); }
       }
     }
-
     const handleTouchStart = (e: TouchEvent) => { touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY; };
     const handleTouchEnd = (e: TouchEvent) => { touchendX = e.changedTouches[0].screenX; touchendY = e.changedTouches[0].screenY; handleSwipeGesture(); };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (currentDataCollectionStep === 0) {
-        if (e.key === 'ArrowRight') handleNextVisualSlide();
-        if (e.key === 'ArrowLeft') handlePrevVisualSlide();
-      } else {
-         if (e.key === 'ArrowRight') handleNextDataStep();
-         if (e.key === 'ArrowLeft') handlePrevDataStep();
-      }
+      if (currentDataCollectionStep === 0) { if (e.key === 'ArrowRight') handleNextVisualSlide(); if (e.key === 'ArrowLeft') handlePrevVisualSlide(); }
+      else { if (e.key === 'ArrowRight') handleNextDataStep(); if (e.key === 'ArrowLeft') handlePrevDataStep(); }
     };
-
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchend', handleTouchEnd);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    document.addEventListener('touchstart', handleTouchStart); document.addEventListener('touchend', handleTouchEnd); document.addEventListener('keydown', handleKeyDown);
+    return () => { document.removeEventListener('touchstart', handleTouchStart); document.removeEventListener('touchend', handleTouchEnd); document.removeEventListener('keydown', handleKeyDown); };
   }, [handleNextVisualSlide, handlePrevVisualSlide, handleNextDataStep, handlePrevDataStep, currentDataCollectionStep]);
 
   const visualProgressPercentage = ((currentVisualSlide + 1) / TOTAL_VISUAL_SLIDES) * 100;
@@ -323,91 +333,47 @@ export default function OnboardingPage() {
 
   const handleRegionSelect = (region: string) => {
     setSelectedRegion(region);
-    const countriesForRegion = Object.keys(countryData).filter(countryKey => {
-      const countryRegions = Object.entries(regions).find(([, countriesInRegion]) => countriesInRegion.includes(countryKey));
-      if (region === "All Regions") return true;
-      // This logic needs to be careful if a country can belong to multiple "regions" in your list.
-      // Assuming your `regions` array contains names that match keys in a hypothetical mapping or a direct check if countryData implies regions.
-      // For simplicity, if your `countryData` isn't structured by region, this part might need more complex mapping.
-      // Given the HTML implies direct country list, "All Regions" is the main filter.
-      // For now, I'll assume `regions` array in onboardingOptions contains region names and `countryData` has all countries.
-      // This filtering logic might need to be more robust based on how `regions` and `countryData` are meant to interact.
-      return true; // Simplified: allow all countries if not "All Regions", specific filtering can be added.
-                   // Or, if you have a mapping: return regionOf(countryKey) === region;
-    });
-    
-    if (region === "All Regions") {
-        setAvailableCountries(Object.keys(countryData).sort());
-    } else {
-        // This part is tricky without a clear region-to-country mapping in countryData.
-        // For now, if a specific region is chosen, we might show a subset or just all countries if mapping is complex.
-        // Let's assume for now, any specific region selection still shows all countries and user filters by knowledge.
-        // A better approach would be to structure countryData by region.
-        const filteredCountries = Object.keys(countryData).filter(c => {
-            // Example: if you had a region property in countryData items
-            // return countryData[c].region === region; 
-            // For now, this will behave like "All Regions" if a specific region is selected that isn't "All Regions"
-            // This is a placeholder for more complex region-country mapping if needed.
-            if (region === "North America") return ["United States", "Canada", "Mexico"].includes(c);
-            if (region === "Europe") return ["United Kingdom", "Germany", "France", "Italy", "Spain"].includes(c); // Example subset
-            // Add more specific region mappings here if desired
-            return true; // Default to all if no specific mapping
-        }).sort();
-        setAvailableCountries(filteredCountries.length > 0 ? filteredCountries : Object.keys(countryData).sort());
-    }
-
-    setSelectedCountry(''); setAvailableCities([]); setSelectedCity('');
+    setAvailableCountries(region === "All Regions" ? Object.keys(countryData).sort() : Object.keys(countryData).filter(cKey => {
+        // This is a simplified mapping based on common knowledge for example.
+        // A more robust solution would involve a proper region-country data structure.
+        if (region === "North America") return ["United States", "Canada", "Mexico"].includes(cKey);
+        if (region === "Europe") return ["United Kingdom", "Germany", "France", "Italy", "Spain"].includes(cKey); // Example subset
+        // For other regions, or if "All Regions", show all or a broad list for now.
+        return true; // Fallback, potentially needs better data structure
+    }).sort());
+    setSelectedCountry(''); setSelectedCity('');
     setOpenDropdown(null);
   };
 
   const handleCountrySelect = (country: string) => {
     setSelectedCountry(country);
-    setAvailableCities(countryData[country]?.sort() || []);
+    // City population logic would go here if using an API or large local dataset.
+    // For now, city is a text input.
     setSelectedCity('');
     setOpenDropdown(null);
   };
 
-  const handleCitySelect = (city: string) => {
-    setSelectedCity(city);
-    setOpenDropdown(null);
-  };
-
   const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      setGeolocationStatus("Geolocation is not supported by your browser.");
-      return;
-    }
-    setIsDetectingLocation(true);
-    setGeolocationStatus("Detecting location...");
+    if (!navigator.geolocation) { setGeolocationStatus("Geolocation is not supported."); return; }
+    setIsDetectingLocation(true); setGeolocationStatus("Detecting location...");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setGeolocationStatus(`Location detected: Lat: ${position.coords.latitude.toFixed(4)}, Long: ${position.coords.longitude.toFixed(4)}. Please select region/country/city manually for now.`);
-        // In a real app, you'd use reverse geocoding here.
-        // For now, we just show coordinates. User still needs to select manually.
+        setGeolocationStatus(`Location detected: Lat: ${position.coords.latitude.toFixed(2)}, Long: ${position.coords.longitude.toFixed(2)}. Please select region/country manually for now.`);
         setIsDetectingLocation(false);
       },
-      (error) => {
-        setGeolocationStatus(`Error detecting location: ${error.message}`);
-        setIsDetectingLocation(false);
-      }
+      (error) => { setGeolocationStatus(`Error: ${error.message}`); setIsDetectingLocation(false); }
     );
   };
 
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) { setOpenDropdown(null); }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleChipToggle = (
-    itemValue: string,
-    fieldName: keyof Pick<UserProfile, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>
-  ) => {
+  
+  const handleChipToggle = useCallback((itemValue: string, fieldName: keyof Pick<UserProfile, 'ingredientsToAvoid' | 'knownAllergens'>) => {
     setFormData(prev => {
       const currentArray = prev[fieldName] as string[] || [];
       const newArray = currentArray.includes(itemValue)
@@ -415,271 +381,153 @@ export default function OnboardingPage() {
         : [...currentArray, itemValue];
       return { ...prev, [fieldName]: newArray };
     });
-  };
+  }, []);
 
   const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setFormData(prev => ({ ...prev, dateOfBirth: format(date, "yyyy-MM-dd") }));
-    } else {
-      setFormData(prev => ({ ...prev, dateOfBirth: "" }));
-    }
+    if (date) { setFormData(prev => ({ ...prev, dateOfBirth: format(date, "yyyy-MM-dd") })); }
+    else { setFormData(prev => ({ ...prev, dateOfBirth: "" })); }
     setDobCalendarOpen(false);
   };
 
-
-  const renderDataCollectionStep1 = () => (
-    <div className={cn(styles.newData_screen, currentDataCollectionStep === 1 ? styles.newData_active : styles.newData_inactiveRight)} id="data-screen-1">
-      <div className={styles.newData_screenContent}>
-        <div className={cn(styles.newData_safAvatar, "animate-float")}>😊</div>
-        <h1 className={cn(styles.newData_h1, "text-3xl font-bold mb-4")}>Hi there! I'm Saf</h1>
-        <p className="text-gray-600 mb-8 text-center">Let's build your food profile so I can protect you from hidden risks.</p>
-      </div>
-      <div className={styles.newData_progressBarContainer}>
-        <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-      </div>
-      <div className={styles.newData_bottomActions}><Button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Let's Begin</Button></div>
-    </div>
-  );
-
-  const renderDataCollectionStep2 = () => (
-    <div className={cn(styles.newData_screen, currentDataCollectionStep === 2 ? styles.newData_active : (currentDataCollectionStep < 2 ? styles.newData_inactiveRight : styles.newData_inactiveLeft) )} id="data-screen-2">
-      <div className={styles.newData_screenContent}>
-        <div className={cn(styles.newData_safAvatar, "animate-float")}>👋</div>
-        <h1 className={cn(styles.newData_h1, "text-2xl font-bold mb-4")}>First, what should I call you?</h1>
-        <Input
-          type="text"
-          className={styles.newData_inputField}
-          placeholder="First Name"
-          value={formData.firstName || ''}
-          onChange={(e) => handleInputChange('firstName', e.target.value)}
-        />
-        <Input
-          type="text"
-          className={styles.newData_inputField}
-          placeholder="Last Name"
-          value={formData.lastName || ''}
-          onChange={(e) => handleInputChange('lastName', e.target.value)}
-        />
-        <h2 className={cn(styles.newData_h1, "text-xl font-semibold mt-4 mb-2")}>When were you born?</h2>
-        <Popover open={dobCalendarOpen} onOpenChange={setDobCalendarOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                styles.newData_inputField,
-                "w-full justify-start text-left font-normal",
-                !formData.dateOfBirth && "text-muted-foreground"
-              )}
-            >
-              <CalendarDays className="mr-2 h-4 w-4" />
-              {formData.dateOfBirth ? format(parseISO(formData.dateOfBirth), "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white" align="start">
-            <Calendar
-              mode="single"
-              selected={formData.dateOfBirth ? parseISO(formData.dateOfBirth) : undefined}
-              onSelect={handleDateSelect}
-              initialFocus
-              captionLayout="dropdown-buttons"
-              fromYear={1900}
-              toYear={new Date().getFullYear()}
-            />
-          </PopoverContent>
-        </Popover>
-        {formData.age !== undefined && <p className="text-gray-600 text-sm mt-1">You are {formData.age} years old.</p>}
-        <p className="text-gray-500 text-sm mt-4 text-center">This helps me personalize your health insights.</p>
-      </div>
-       <div className={styles.newData_progressBarContainer}>
-        <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-      </div>
-      <div className={styles.newData_bottomActions}><Button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</Button></div>
-    </div>
-  );
-
- const renderDataCollectionStep3 = () => (
-    <div className={cn(styles.newData_screen, currentDataCollectionStep === 3 ? styles.newData_active : (currentDataCollectionStep < 3 ? styles.newData_inactiveRight : styles.newData_inactiveLeft))} id="data-screen-3" ref={dropdownRef}>
-      <div className={styles.newData_screenContent}>
-        <div className={cn(styles.newData_safAvatar, "animate-float")}>🌎</div>
-        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-4")}>Where are you based?</h1>
-        
-        <div className={styles.newData_dropdownField}>
-          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'region' && styles.newData_active)} onClick={() => toggleDropdown('region')}>
-            <span>{selectedRegion || "Select your region"}</span> <ChevronDown />
-          </div>
-          <div className={cn(styles.newData_dropdownOptions, openDropdown === 'region' && styles.newData_show)}>
-            {regions.map(region => (
-              <div key={region} className={cn(styles.newData_dropdownOption, selectedRegion === region && styles.newData_selected)} onClick={() => handleRegionSelect(region)}>{region}</div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.newData_dropdownField}>
-          <div className={cn(styles.newData_dropdownSelected, openDropdown === 'country' && styles.newData_active, !selectedRegion && "opacity-50 cursor-not-allowed")} onClick={() => selectedRegion && toggleDropdown('country')}>
-            <span>{selectedCountry || "Select your country"}</span> <ChevronDown />
-          </div>
-          <div className={cn(styles.newData_dropdownOptions, openDropdown === 'country' && styles.newData_show)}>
-            {availableCountries.length > 0 ? availableCountries.map(country => (
-              <div key={country} className={cn(styles.newData_dropdownOption, selectedCountry === country && styles.newData_selected)} onClick={() => handleCountrySelect(country)}>{country}</div>
-            )) : <div className={cn(styles.newData_dropdownOption, styles.newData_disabled)}>Please select a region first</div>}
-          </div>
-        </div>
-
-        <div className={styles.newData_dropdownField}>
-           <Input
-            type="text"
-            className={styles.newData_inputField}
-            placeholder="Enter your city"
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-            disabled={!selectedCountry}
-          />
-        </div>
-        
-        <Button className={cn(styles.newData_btnSecondary, "mb-4 flex items-center justify-center")} onClick={handleDetectLocation} disabled={isDetectingLocation}>
-            {isDetectingLocation ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LocateFixed size={20} className="mr-2"/>}
-            {isDetectingLocation ? 'Detecting...' : 'Auto-detect my location'}
-        </Button>
-        {geolocationStatus && <p className="text-xs text-muted-foreground mb-2 text-center">{geolocationStatus}</p>}
-        
-        <div className={styles.newData_safMessage}>
-            I'll use this to match local food products and ingredients.
-            <div className={styles.newData_tooltip}> <Info size={16}/> <span className={styles.newData_tooltipText}>Different regions have different food regulations and ingredients.</span> </div>
-        </div>
-      </div>
-      <div className={styles.newData_progressBarContainer}>
-        <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-      </div>
-      <div className={styles.newData_bottomActions}><Button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Continue</Button></div>
-    </div>
-  );
-
-
-  // Placeholder for Screens 4-10 (to be implemented in next phase)
-  const renderPlaceholderScreen = (step: number, title: string, emoji: string) => (
-     <div className={cn(styles.newData_screen, currentDataCollectionStep === step ? styles.newData_active : (currentDataCollectionStep < step ? styles.newData_inactiveRight : styles.newData_inactiveLeft) )} id={`data-screen-${step}`}>
-        <div className={styles.newData_screenContent}>
-            <div className={cn(styles.newData_safAvatar, "animate-float")}>{emoji}</div>
-            <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>{title}</h1>
-            <p className="text-muted-foreground mb-4">Content for this step will be implemented next.</p>
-            { (step === 7 || step ===4 || step ===5 || step ===6 || step ===8) &&
-              <Button className={cn(styles.newData_btnSecondary, "mt-6")} onClick={skipToAuth}>I'll fill this later</Button>
-            }
-        </div>
-        <div className={styles.newData_progressBarContainer}>
-           <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-        </div>
-        <div className={styles.newData_bottomActions}><Button className={styles.newData_btnPrimary} onClick={step === TOTAL_DATA_COLLECTION_STEPS ? handleSaveProfileAndRedirect : (step === 9 ? handleNextDataStep : handleNextDataStep ) }>{step === 9 ? "Save My Profile" : "Continue"}</Button></div>
-    </div>
-  );
-  
-  const renderDataCollectionStep9 = () => (
-    <div className={cn(styles.newData_screen, currentDataCollectionStep === 9 ? styles.newData_active : (currentDataCollectionStep < 9 ? styles.newData_inactiveRight : styles.newData_inactiveLeft))} id="data-screen-9">
-      <div className={styles.newData_screenContent}>
-        <div className={cn(styles.newData_safAvatar, "animate-float")}>📋</div>
-        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>Your Dietary Profile Summary</h1>
-        <div className="bg-gray-50 p-4 rounded-xl mb-6 w-full max-w-md text-left overflow-y-auto max-h-[50vh]">
-          { (formData.firstName || formData.lastName) &&
-            <div className={styles.newData_summaryItem}>
-              <div className={styles.newData_summaryIcon}><User size={18}/></div>
-              <div>
-                <div className="font-medium text-gray-700">Name</div>
-                <div className="text-sm text-gray-500">{formData.firstName} {formData.lastName}</div>
-              </div>
+  const renderDataCollectionStep = (step: number) => {
+    const screenClasses = cn(styles.newData_screen, currentDataCollectionStep === step ? styles.newData_active : (currentDataCollectionStep < step ? styles.newData_inactiveRight : styles.newData_inactiveLeft));
+    const commonBottomActions = (
+        <>
+            <div className={styles.newData_progressBarContainer}>
+                <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
             </div>
-          }
-          { formData.dateOfBirth &&
-            <div className={styles.newData_summaryItem}>
-              <div className={styles.newData_summaryIcon}><CalendarDays size={18}/></div>
-              <div>
-                <div className="font-medium text-gray-700">Born</div>
-                <div className="text-sm text-gray-500">{formData.dateOfBirth} {formData.age !== undefined ? `(Age: ${formData.age})` : ''}</div>
-              </div>
+            <div className={styles.newData_bottomActions}>
+                <Button className={styles.newData_btnPrimary} onClick={step === TOTAL_DATA_COLLECTION_STEPS ? handleSaveProfileAndRedirect : handleNextDataStep}>
+                    {step === 9 ? "Save My Profile" : (step === TOTAL_DATA_COLLECTION_STEPS ? "Create Account" : "Continue")}
+                </Button>
             </div>
-          }
-           { (formData.location?.city || formData.location?.country || formData.location?.region) &&
-            <div className={styles.newData_summaryItem}>
-              <div className={styles.newData_summaryIcon}><MapPin size={18}/></div>
-              <div>
-                <div className="font-medium text-gray-700">Location</div>
-                <div className="text-sm text-gray-500">
-                    {formData.location?.city}{formData.location?.city && formData.location?.country ? ', ' : ''}
-                    {formData.location?.country}{formData.location?.country && formData.location?.region ? ', ' : ''}
-                    {formData.location?.region}
-                </div>
-              </div>
-            </div>
-          }
-          {/* Add more summary items here as data is collected */}
-        </div>
-        <div className={styles.newData_safMessage}>Done! This helps me scan your food with your needs in mind.</div>
-      </div>
-      <div className={styles.newData_progressBarContainer}>
-        <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-      </div>
-      <div className={styles.newData_bottomActions}><Button className={styles.newData_btnPrimary} onClick={handleNextDataStep}>Save My Profile</Button></div>
-    </div>
-  );
-  
-  const renderDataCollectionStep10 = () => (
-    <div className={cn(styles.newData_screen, currentDataCollectionStep === 10 ? styles.newData_active : styles.newData_inactiveLeft )} id="data-screen-10">
-      <div className={styles.newData_screenContent}>
-        <div className={cn(styles.newData_safAvatar, "animate-float")}>🎉</div>
-        <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-4")}>You're all set!</h1>
-        <p className="text-gray-600 mb-8 text-center">Create a free Safora account to save your profile and start scanning safely.</p>
-        
-        <Button className={cn(styles.newData_btnPrimary, "mb-4 flex items-center justify-center")} onClick={() => router.push('/auth')}>
-          <Mail size={20} className="mr-2"/> Sign Up with Email
-        </Button>
-        
-        <Button
-          className={cn(styles.newData_btnPrimary, "mb-6 flex items-center justify-center")}
-          style={{background: 'linear-gradient(90deg, #4285F4, #3c78dc)'}} // Example for Google blue
-          onClick={() => router.push('/auth?provider=google')} // Hypothetical query param
-        >
-          <GoogleIconSvg /> Sign Up with Google
-        </Button>
-        
-        <Button className={cn(styles.newData_btnSecondary, "w-full")} onClick={handleContinueAsGuest}>
-          Continue as Guest
-        </Button>
-        <p className="text-gray-500 text-xs text-center mt-2">Limited features available</p>
-      </div>
-       <div className={styles.newData_progressBarContainer}>
-        <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
-      </div>
-      <div className={styles.newData_bottomActions}>
-        {/* No explicit button here as options are above, or user proceeds to auth */}
-      </div>
-    </div>
-  );
-
-
-  if (profileLoading && !profile) {
-    return (
-      <div className={styles.onboardingRoot}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Sparkles className="w-16 h-16 text-primary animate-ping" />
-        </div>
-      </div>
+        </>
     );
-  }
+    
+    const screenContentWrapper = (emoji: string, title: string, children: React.ReactNode, includeFillLaterButton?: boolean, fillLaterStep?: number) => (
+        <div className={screenClasses} id={`data-screen-${step}`}>
+            <div className={styles.newData_screenContent}>
+                <div className={cn(styles.newData_safAvatar, "animate-float")}>{emoji}</div>
+                <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-6")}>{title}</h1>
+                {children}
+                {includeFillLaterButton && (
+                    <Button variant="link" className={cn(styles.newData_btnSecondary, "mt-6 bg-transparent border-none hover:underline")} onClick={skipToAuth}>
+                        I'll fill this later
+                    </Button>
+                )}
+            </div>
+            {commonBottomActions}
+        </div>
+    );
 
-  const renderActiveDataCollectionScreen = () => {
-    switch (currentDataCollectionStep) {
-      case 1: return renderDataCollectionStep1();
-      case 2: return renderDataCollectionStep2();
-      case 3: return renderDataCollectionStep3();
-      case 4: return renderPlaceholderScreen(4, "Do you follow any of these dietary paths?", "🥗");
-      case 5: return renderPlaceholderScreen(5, "Any ingredients you avoid for personal, religious, or ethical reasons?", "🚫");
-      case 6: return renderPlaceholderScreen(6, "Let's make sure you stay safe. Any known allergies?", "⚠️");
-      case 7: return renderPlaceholderScreen(7, "Any health conditions I should be aware of?", "❤️");
-      case 8: return renderPlaceholderScreen(8, "What are your current health goals?", "🎯");
-      case 9: return renderDataCollectionStep9();
-      case 10: return renderDataCollectionStep10();
+    switch (step) {
+      case 1: return screenContentWrapper("😊", "Hi there! I'm Saf", <p className="text-gray-600 mb-8 text-center">Let's build your food profile so I can protect you from hidden risks.</p>);
+      case 2: return screenContentWrapper("👋", "First, what should I call you?",
+        <>
+          <Input type="text" className={styles.newData_inputField} placeholder="First Name" value={formData.firstName || ''} onChange={(e) => handleInputChange('firstName', e.target.value)} />
+          <Input type="text" className={styles.newData_inputField} placeholder="Last Name" value={formData.lastName || ''} onChange={(e) => handleInputChange('lastName', e.target.value)} />
+          <h2 className={cn(styles.newData_h1, "text-xl font-semibold mt-4 mb-2")}>When were you born?</h2>
+          <Popover open={dobCalendarOpen} onOpenChange={setDobCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button variant={"outline"} className={cn(styles.newData_inputField, "w-full justify-start text-left font-normal", !formData.dateOfBirth && "text-muted-foreground")}>
+                <CalendarDays className="mr-2 h-4 w-4" />
+                {formData.dateOfBirth ? format(parseISO(formData.dateOfBirth), "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-white" align="start"><Calendar mode="single" selected={formData.dateOfBirth ? parseISO(formData.dateOfBirth) : undefined} onSelect={handleDateSelect} initialFocus captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} /></PopoverContent>
+          </Popover>
+          {formData.age !== undefined && <p className="text-gray-600 text-sm mt-1">You are {formData.age} years old.</p>}
+          <p className="text-gray-500 text-sm mt-4 text-center">This helps me personalize your health insights.</p>
+        </>
+      );
+      case 3: return screenContentWrapper("🌎", "Where are you based?",
+        <div className="w-full max-w-md mx-auto" ref={dropdownRef}>
+            <div className={styles.newData_dropdownField}>
+                <div className={cn(styles.newData_dropdownSelected, openDropdown === 'region' && styles.newData_active)} onClick={() => toggleDropdown('region')}><span>{selectedRegion || "Select your region"}</span> <ChevronDown /></div>
+                <div className={cn(styles.newData_dropdownOptions, openDropdown === 'region' && styles.newData_show)}>{regions.map(region => (<div key={region} className={cn(styles.newData_dropdownOption, selectedRegion === region && styles.newData_selected)} onClick={() => handleRegionSelect(region)}>{region}</div>))}</div>
+            </div>
+            <div className={styles.newData_dropdownField}>
+                <div className={cn(styles.newData_dropdownSelected, openDropdown === 'country' && styles.newData_active, !selectedRegion && "opacity-50 cursor-not-allowed")} onClick={() => selectedRegion && toggleDropdown('country')}><span>{selectedCountry || "Select your country"}</span> <ChevronDown /></div>
+                <div className={cn(styles.newData_dropdownOptions, openDropdown === 'country' && styles.newData_show)}>{availableCountries.length > 0 ? availableCountries.map(country => (<div key={country} className={cn(styles.newData_dropdownOption, selectedCountry === country && styles.newData_selected)} onClick={() => handleCountrySelect(country)}>{country}</div>)) : <div className={cn(styles.newData_dropdownOption, styles.newData_disabled)}>Please select a region first</div>}</div>
+            </div>
+            <Input type="text" className={styles.newData_inputField} placeholder="Enter your city" value={selectedCity} onChange={(e) => handleCityInputChange(e.target.value)} disabled={!selectedCountry} />
+            <Button className={cn(styles.newData_btnSecondary, "mb-4 flex items-center justify-center w-full")} onClick={handleDetectLocation} disabled={isDetectingLocation}>{isDetectingLocation ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LocateFixed size={20} className="mr-2"/>}{isDetectingLocation ? 'Detecting...' : 'Auto-detect my location'}</Button>
+            {geolocationStatus && <p className="text-xs text-muted-foreground mb-2 text-center">{geolocationStatus}</p>}
+            <div className={styles.newData_safMessage}>I'll use this to match local food products. <div className={styles.newData_tooltip}> <Info size={16}/> <span className={styles.newData_tooltipText}>Regulations differ by region.</span> </div></div>
+        </div>
+      );
+      case 4: return screenContentWrapper("🥗", "Do you follow any of these dietary paths?",
+        <>
+          <MultiSelectDropdown options={dietaryPaths} selectedValues={formData.selectedDiets || []} onSelectionChange={(newSelection) => handleMultiSelectionChange('selectedDiets', newSelection)} placeholder="Select dietary paths" />
+          <Button variant="link" className={cn(styles.newData_btnSecondary, "mt-4 bg-transparent border-none hover:underline")} onClick={() => handleMultiSelectionChange('selectedDiets', [])}>I'm not sure / Clear selection</Button>
+        </>
+      );
+      case 5: return screenContentWrapper("🚫", "Any ingredients you avoid for personal, religious, or ethical reasons?",
+        <>
+          <div className={cn(styles.newData_chipContainer, "justify-center mb-4")}>
+            {ingredientsToAvoidOptions.map(opt => (<div key={opt.name} className={cn(styles.newData_chip, (formData.ingredientsToAvoid || []).includes(opt.name) && styles.newData_selected)} onClick={() => handleChipToggle(opt.name, 'ingredientsToAvoid')}>{opt.emoji && <span className="mr-2">{opt.emoji}</span>}{opt.name}</div>))}
+          </div>
+          <Input type="text" className={styles.newData_inputField} placeholder="Add other ingredients to avoid (comma-separated)" value={formData.customIngredientsToAvoid || ''} onChange={(e) => handleInputChange('customIngredientsToAvoid', e.target.value)} />
+          <p className="text-gray-500 text-sm mt-4">Don't worry, you can change this later.</p>
+        </>
+      );
+      case 6: return screenContentWrapper("⚠️", "Let's make sure you stay safe. Any known allergies?",
+        <>
+            <p className="text-sm text-muted-foreground mb-2 text-center">Select common allergies:</p>
+            <div className={cn(styles.newData_chipContainer, "justify-center mb-4")}>
+                {commonAllergens.map(opt => (<div key={opt.name} className={cn(styles.newData_chip, (formData.knownAllergens || []).includes(opt.name) && styles.newData_selected)} onClick={() => handleChipToggle(opt.name, 'knownAllergens')}>{opt.emoji && <span className="mr-2">{opt.emoji}</span>}{opt.name}</div>))}
+            </div>
+            <MultiSelectDropdown options={otherAllergensList} selectedValues={(formData.knownAllergens || []).filter(a => otherAllergensList.includes(a))} onSelectionChange={(newSelection) => {
+                const commonSelected = (formData.knownAllergens || []).filter(a => !otherAllergensList.includes(a));
+                handleMultiSelectionChange('knownAllergens', [...commonSelected, ...newSelection]);
+            }} placeholder="Select other allergies" label="Other Less Common Allergies:" />
+            <Input type="text" className={styles.newData_inputField} placeholder="List any other very specific allergies (comma-separated)" value={formData.customAllergens || ''} onChange={(e) => handleInputChange('customAllergens', e.target.value)} />
+            <div className={styles.newData_safMessage}>I'll make sure these ingredients are flagged in every scan.</div>
+        </>, true, 6
+      );
+      case 7: return screenContentWrapper("❤️", "Any health conditions I should be aware of?",
+        <MultiSelectDropdown options={healthConditionsOptions} selectedValues={formData.healthConditions || []} onSelectionChange={(newSelection) => handleMultiSelectionChange('healthConditions', newSelection)} placeholder="Select health conditions" />, true, 7
+      );
+      case 8: return screenContentWrapper("🎯", "What are your current health goals?",
+        <MultiSelectDropdown options={healthGoalsOptions} selectedValues={formData.healthGoalsList || []} onSelectionChange={(newSelection) => handleMultiSelectionChange('healthGoalsList', newSelection)} placeholder="Select health goals" />
+      );
+      case 9: return screenContentWrapper("📋", "Your Dietary Profile Summary",
+        <div className={cn("bg-gray-50 p-4 rounded-xl mb-6 w-full max-w-md text-left overflow-y-auto", styles.newData_summaryContainerScrollable )}>
+            {(formData.firstName || formData.lastName) && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><User size={18}/></div><div><div className="font-medium text-gray-700">Name</div><div className="text-sm text-gray-500">{formData.firstName} {formData.lastName}</div></div></div>}
+            {formData.dateOfBirth && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><CalendarDays size={18}/></div><div><div className="font-medium text-gray-700">Born</div><div className="text-sm text-gray-500">{formData.dateOfBirth} {formData.age !== undefined ? `(Age: ${formData.age})` : ''}</div></div></div>}
+            {(formData.location?.city || formData.location?.country || formData.location?.region) && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><MapPin size={18}/></div><div><div className="font-medium text-gray-700">Location</div><div className="text-sm text-gray-500">{[formData.location.city, formData.location.country, formData.location.region].filter(Boolean).join(', ')}</div></div></div>}
+            {(formData.selectedDiets?.length || 0) > 0 && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><Utensils size={18}/></div><div><div className="font-medium text-gray-700">Dietary Paths</div><div className="text-sm text-gray-500">{(formData.selectedDiets || []).join(', ')}</div></div></div>}
+            {((formData.ingredientsToAvoid?.length || 0) > 0 || formData.customIngredientsToAvoid) && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><Ban size={18}/></div><div><div className="font-medium text-gray-700">Ingredients to Avoid</div><div className="text-sm text-gray-500">{[...(formData.ingredientsToAvoid || []), formData.customIngredientsToAvoid].filter(Boolean).join(', ')}</div></div></div>}
+            {((formData.knownAllergens?.length || 0) > 0 || formData.customAllergens) && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><AlertTriangleIcon size={18}/></div><div><div className="font-medium text-gray-700">Allergies</div><div className="text-sm text-gray-500">{[...(formData.knownAllergens || []), formData.customAllergens].filter(Boolean).join(', ')}</div></div></div>}
+            {(formData.healthConditions?.length || 0) > 0 && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><ListChecks size={18}/></div><div><div className="font-medium text-gray-700">Health Conditions</div><div className="text-sm text-gray-500">{(formData.healthConditions || []).join(', ')}</div></div></div>}
+            {(formData.healthGoalsList?.length || 0) > 0 && <div className={styles.newData_summaryItem}><div className={styles.newData_summaryIcon}><BarChart3 size={18}/></div><div><div className="font-medium text-gray-700">Health Goals</div><div className="text-sm text-gray-500">{(formData.healthGoalsList || []).join(', ')}</div></div></div>}
+            <div className={styles.newData_safMessage}>Done! This helps me scan your food with your needs in mind.</div>
+        </div>
+      );
+      case 10: return (
+        <div className={screenClasses} id="data-screen-10">
+            <div className={styles.newData_screenContent}>
+                <div className={cn(styles.newData_safAvatar, "animate-float")}>🎉</div>
+                <h1 className={cn(styles.newData_h1, "text-2xl sm:text-3xl font-bold mb-4")}>You're all set!</h1>
+                <p className="text-gray-600 mb-8 text-center">Create a free Safora account to save your profile and start scanning safely.</p>
+                <Button className={cn(styles.newData_btnPrimary, "mb-4 flex items-center justify-center w-full")} onClick={() => router.push('/auth')}><Mail size={20} className="mr-2"/> Sign Up with Email</Button>
+                <Button className={cn(styles.newData_btnPrimary, "mb-6 flex items-center justify-center w-full")} style={{background: 'linear-gradient(90deg, #4285F4, #3c78dc)'}} onClick={() => router.push('/auth?provider=google')}><GoogleIconSvg /> Sign Up with Google</Button>
+                <Button className={cn(styles.newData_btnSecondary, "w-full")} onClick={handleContinueAsGuest}>Continue as Guest</Button>
+                <p className="text-gray-500 text-xs text-center mt-2">Limited features available</p>
+            </div>
+            {/* Progress bar is part of commonBottomActions, but step 10 doesn't use commonBottomActions directly due to different button structure */}
+            <div className={styles.newData_progressBarContainer}>
+                <div className={styles.newData_progressBar}><div className={styles.newData_progressFill} style={{ width: `${dataCollectionProgressPercentage}%` }}></div></div>
+            </div>
+        </div>
+      );
       default: return null;
     }
   };
+  
+  if (profileLoading && !profile) {
+    return (<div className={styles.onboardingRoot}><div className="flex items-center justify-center min-h-screen"><Sparkles className="w-16 h-16 text-primary animate-ping" /></div></div>);
+  }
 
   return (
     <div className={styles.onboardingRoot}>
@@ -687,29 +535,16 @@ export default function OnboardingPage() {
          <div className={cn(styles.logoContainer, currentDataCollectionStep > 0 && styles.newData_logoContainer)}>
           <Logo />
         </div>
-         {currentDataCollectionStep > 0 && currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS && (
-            <button
-                onClick={handlePrevDataStep}
-                className="absolute top-4 left-4 p-2 bg-gray-200/50 hover:bg-gray-300/70 rounded-full z-20"
-                aria-label="Go back"
-            >
+        {currentDataCollectionStep > 0 && currentDataCollectionStep < TOTAL_DATA_COLLECTION_STEPS && (
+            <button onClick={handlePrevDataStep} className="absolute top-4 left-4 p-2 bg-gray-200/50 hover:bg-gray-300/70 rounded-full z-20" aria-label="Go back">
                 <ChevronLeft size={24} className="text-gray-700"/>
             </button>
         )}
 
-
         {currentDataCollectionStep === 0 ? (
           <>
             {VisualOnboardingSlides.map((slide, index) => (
-              <div
-                key={slide.id}
-                className={cn(
-                  styles.visualScreen,
-                  slide.backgroundClass,
-                  currentVisualSlide === index ? styles.visualScreenActive :
-                  currentVisualSlide > index ? styles.visualScreenInactiveLeft : styles.visualScreenInactiveRight
-                )}
-              >
+              <div key={slide.id} className={cn( styles.visualScreen, slide.backgroundClass, currentVisualSlide === index ? styles.visualScreenActive : currentVisualSlide > index ? styles.visualScreenInactiveLeft : styles.visualScreenInactiveRight )}>
                 <div className={styles.slideContent}>
                   {slide.illustration}
                   <h2 className={styles.slideTitle}>{slide.title}</h2>
@@ -717,29 +552,19 @@ export default function OnboardingPage() {
                 </div>
                 {currentVisualSlide === index && (
                   <div className={styles.slideActions}>
-                    <Button
-                      size="lg"
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg shadow-md w-full max-w-xs"
-                      onClick={handleNextVisualSlide}
-                    >
+                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg shadow-md w-full max-w-xs" onClick={handleNextVisualSlide}>
                       {currentVisualSlide === TOTAL_VISUAL_SLIDES - 1 ? "Let's Begin Data Setup" : "Next"}
                     </Button>
                   </div>
                 )}
               </div>
             ))}
-            <div className={styles.visualProgressBarContainer}>
-              <div className={styles.visualProgressBar}>
-                <div className={styles.visualProgressFill} style={{ width: `${visualProgressPercentage}%` }}></div>
-              </div>
-            </div>
-             {currentVisualSlide < TOTAL_VISUAL_SLIDES - 1 && (
-              <Button variant="ghost" onClick={skipToAuth} className={styles.skipButton}>Skip Visual Intro</Button>
-            )}
+            <div className={styles.visualProgressBarContainer}><div className={styles.visualProgressBar}><div className={styles.visualProgressFill} style={{ width: `${visualProgressPercentage}%` }}></div></div></div>
+            {currentVisualSlide < TOTAL_VISUAL_SLIDES - 1 && (<Button variant="ghost" onClick={skipToAuth} className={styles.skipButton}>Skip Visual Intro</Button>)}
           </>
         ) : (
            <div className={cn(styles.newData_innerContainer)}>
-            {renderActiveDataCollectionScreen()}
+            {renderDataCollectionStep(currentDataCollectionStep)}
           </div>
         )}
       </div>

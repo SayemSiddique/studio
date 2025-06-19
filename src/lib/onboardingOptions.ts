@@ -19,51 +19,50 @@ export const countryData: Record<string, string[]> = {
 };
 
 export const regions: string[] = [
-    "All Regions", // Added to allow selection of any country
+    "All Regions",
     "Africa",
     "Asia",
+    "Caribbean",
+    "Central America",
     "Europe",
+    "Middle East",
     "North America",
     "Oceania",
     "South America",
-    "Middle East",
-    "Caribbean",
-    "Central America"
 ];
 
 
 export const dietaryPaths: string[] = [
-  "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto",
+  "No Specific Diet", "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto",
   "Low-Carb", "Mediterranean", "DASH Diet", "Whole30", "Gluten-Free",
   "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Halal", "Kosher",
   "Jain Diet", "Buddhist Diet", "Low-FODMAP", "Low-Residue", "Diabetic Diet",
-  "Renal (Kidney) Diet", "Anti-Inflammatory Diet", "Raw Food Diet", "No Specific Diet"
+  "Renal (Kidney) Diet", "Anti-Inflammatory Diet", "Raw Food Diet"
 ];
 
 export const ingredientsToAvoidOptions: { name: string; emoji?: string }[] = [
   { name: "Pork", emoji: "🐖" }, { name: "Beef", emoji: "🐄" },
-  { name: "Poultry", emoji: "🐔" }, { name: "Fish (specific types if needed)", emoji: "🐟" },
+  { name: "Poultry", emoji: "🐔" }, { name: "Fish (general)", emoji: "🐟" },
   { name: "Shellfish (general)", emoji: "🦞" }, { name: "Alcohol", emoji: "🍷" },
-  { name: "Gelatin" }, { name: "Rennet (animal-derived)" },
-  { name: "Lard/Tallow" }, { name: "Carmine/Cochineal (E120)", emoji: "🐞" },
-  { name: "Artificial Sweeteners (e.g., Aspartame, Sucralose)", emoji: "🧪" },
-  { name: "Artificial Colors (e.g., Red 40, Yellow 5)", emoji: "🎨" },
+  { name: "Gelatin", emoji: "🍮" }, { name: "Rennet (animal-derived)" },
+  { name: "Lard/Tallow", emoji: "🥓" }, { name: "Carmine/Cochineal (E120)", emoji: "🐞" },
+  { name: "Artificial Sweeteners", emoji: "🧪" }, // e.g., Aspartame, Sucralose
+  { name: "Artificial Colors", emoji: "🎨" },    // e.g., Red 40, Yellow 5
   { name: "MSG (Monosodium Glutamate)", emoji: "🧂" },
   { name: "High Fructose Corn Syrup" }, { name: "Trans Fats (Partially Hydrogenated Oils)" },
-  { name: "Nitrates/Nitrites (in processed meats)" }, { name: "Sulfites (often in wine, dried fruit)" },
+  { name: "Nitrates/Nitrites (processed meats)" }, { name: "Sulfites (wine, dried fruit)" },
   { name: "Caffeine (if avoiding)", emoji: "☕" }
 ];
 
 export const commonAllergens: { name: string; emoji?: string }[] = [
-  { name: "Peanuts", emoji: "🥜" }, { name: "Tree Nuts (e.g., Almonds, Walnuts)", emoji: "🌰" },
+  { name: "Peanuts", emoji: "🥜" }, { name: "Tree Nuts", emoji: "🌰" }, // (e.g., Almonds, Walnuts)
   { name: "Milk", emoji: "🥛" }, { name: "Eggs", emoji: "🥚" },
-  { name: "Wheat", emoji: "🌾" }, { name: "Gluten (distinct from wheat if needed)" },
-  { name: "Soy", emoji: "🫘" }, { name: "Fish", emoji: "🐟" },
-  { name: "Shellfish (e.g., Shrimp, Crab, Lobster)", emoji: "🦐" },
+  { name: "Wheat", emoji: "🌾" }, { name: "Gluten" }, // (distinct from wheat if needed)
+  { name: "Soy", emoji: "🫘" }, { name: "Fish (specific types)", emoji: "🐟" },
+  { name: "Shellfish", emoji: "🦐" }, // (e.g., Shrimp, Crab, Lobster)
   { name: "Sesame", emoji: "🌱" }, { name: "Mustard" }, { name: "Celery" },
-  { name: "Lupin" }, { name: "Molluscs (e.g., Clams, Oysters)" },
-  { name: "Sulphur Dioxide/Sulphites (if >10ppm)" }, { name: "Corn", emoji: "🌽" }
-  // Add more specific allergens if required
+  { name: "Lupin" }, { name: "Molluscs", emoji: "🐌" }, // (e.g., Clams, Oysters)
+  { name: "Sulphites" }, { name: "Corn", emoji: "🌽" }
 ];
 
 // A more extensive list for a dropdown "Other Allergies"
@@ -72,12 +71,12 @@ export const otherAllergensList: string[] = [
     "Coconut", "Kiwi", "Latex (cross-reactivity with some fruits)", "Legumes (other than soy/peanut, e.g., lentils, chickpeas)",
     "Mango", "Meat (specific types other than common ones)", "Mushroom", "Oats (often due to gluten cross-contamination)", 
     "Poppy Seed", "Potato", "Rice", "Seeds (other than sesame, e.g., sunflower, pumpkin)", "Spices (various)", "Strawberry", "Tomato",
-    "Yeast"
+    "Yeast", "Nightshades (general)", "Garlic", "Onion", "Capsicum (Peppers)", "Berries (general)", "Chocolate/Cocoa", "Apple"
 ];
 
 
 export const healthConditionsOptions: string[] = [
-  "Diabetes (Type 1)", "Diabetes (Type 2)", "Pre-diabetes", "Hypertension (High Blood Pressure)",
+  "None", "Diabetes (Type 1)", "Diabetes (Type 2)", "Pre-diabetes", "Hypertension (High Blood Pressure)",
   "High Cholesterol (Hyperlipidemia)", "Heart Disease (CVD)", "Arrhythmia", "Atrial Fibrillation",
   "Celiac Disease", "Crohn's Disease", "Ulcerative Colitis (IBD)",
   "IBS (Irritable Bowel Syndrome)", "GERD (Acid Reflux)/Heartburn",
@@ -91,7 +90,7 @@ export const healthConditionsOptions: string[] = [
   "Histamine Intolerance", "Lactose Intolerance", "Fructose Malabsorption",
   "Eating Disorders (past or present - use with caution)",
   "Pregnancy/Breastfeeding (requires specific dietary considerations)",
-  "Post-Surgery Recovery", "None"
+  "Post-Surgery Recovery"
 ];
 
 export const healthGoalsOptions: string[] = [
