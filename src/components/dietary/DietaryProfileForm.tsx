@@ -7,34 +7,43 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProfile } from '@/hooks/useProfile';
 import type { UserProfile, UserProfileLocation } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { Loader2, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, BarChart3, ShieldQuestion, Edit3 } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Loader2, User, CalendarDays, MapPin, Utensils, Ban, AlertTriangleIcon, ListChecks, Edit3, ChevronsUpDown, Check, Info, Circle, ChevronDown } from 'lucide-react';
 import { parseISO, format, isValid, differenceInYears } from 'date-fns';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { cn } from '@/lib/utils';
+import styles from '@/app/(default)/onboarding/Onboarding.module.css'; // Import styles
+import {
+  countryData,
+  regions,
+  dietaryPaths,
+  ingredientsToAvoidOptions,
+  commonAllergens,
+  otherAllergensList,
+  healthConditionsOptions,
+  healthGoalsOptions
+} from '@/lib/onboardingOptions';
 
-// Helper to transform comma-separated string to array of strings
-const stringToArray = (value?: string | string[]): string[] => {
-  if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(item => item.length > 0);
-  if (!value || typeof value !== 'string') return [];
-  return value.split(',').map(item => item.trim()).filter(item => item.length > 0);
-};
-
-// Helper to transform array of strings to comma-separated string
-const arrayToString = (value?: string[]): string => {
-  if (!value || !Array.isArray(value)) return "";
-  return value.join(', ');
-};
-
+// Zod schema expecting arrays directly
 const profileSchema = z.object({
   firstName: z.string().optional().default(""),
   lastName: z.string().optional().default(""),
   dateOfBirth: z.string().optional().refine(val => !val || isValid(parseISO(val)), {
-    message: "Invalid date format. Please use YYYY-MM-DD.",
+    message: "Invalid date format. Please use YYYY-MM-DD or select from calendar.",
   }).default(""),
   location: z.object({
     region: z.string().optional().default(""),
@@ -42,79 +51,116 @@ const profileSchema = z.object({
     city: z.string().optional().default(""),
   }).optional().default({ region: "", country: "", city: "" }),
   
-  selectedDiets: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
-  ingredientsToAvoid: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
+  selectedDiets: z.array(z.string()).optional().default([]),
+  ingredientsToAvoid: z.array(z.string()).optional().default([]),
   customIngredientsToAvoid: z.string().optional().default(""),
-  knownAllergens: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
+  knownAllergens: z.array(z.string()).optional().default([]),
   customAllergens: z.string().optional().default(""),
-  healthConditions: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
-  healthGoalsList: z.preprocess(val => typeof val === 'string' ? val : arrayToString(val as string[]), z.string().transform(stringToArray)).optional().default([]),
+  healthConditions: z.array(z.string()).optional().default([]),
+  healthGoalsList: z.array(z.string()).optional().default([]),
   
   customRestrictions: z.string().optional().default(""),
 });
 
-type FormDataInternal = z.infer<typeof profileSchema>; // This will have arrays
-// Type for what form receives/submits (where arrays might be strings initially)
-type FormInputData = Omit<FormDataInternal, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'> & {
-  selectedDiets?: string;
-  ingredientsToAvoid?: string;
-  knownAllergens?: string;
-  healthConditions?: string;
-  healthGoalsList?: string;
-};
+type FormDataValidated = z.infer<typeof profileSchema>;
 
-
-// Helper component for Textarea sections
-const TextareaSection: React.FC<{
-  control: any; // Control<FormInputData>
-  name: keyof Pick<FormInputData, 'selectedDiets' | 'ingredientsToAvoid' | 'knownAllergens' | 'healthConditions' | 'healthGoalsList'>;
+// Helper: Chip Component
+interface ChipProps {
   label: string;
-  icon: React.ReactNode;
-  placeholder: string;
-}> = ({ control, name, label, icon, placeholder }) => (
-  <section className="space-y-2">
-    <Label htmlFor={name} className="text-lg font-semibold flex items-center gap-2 text-foreground">
-      {icon} {label}
-    </Label>
-    <p className="text-xs text-muted-foreground">Enter items separated by commas (e.g., item1, item2, item3).</p>
-    <Controller
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <Textarea
-          id={name}
-          {...field}
-          placeholder={placeholder}
-          className="min-h-[80px] resize-y"
-        />
-      )}
-    />
-  </section>
+  emoji?: string;
+  isSelected: boolean;
+  onToggle: () => void;
+}
+const Chip: React.FC<ChipProps> = ({ label, emoji, isSelected, onToggle }) => (
+  <div
+    className={cn(styles.newData_chip, isSelected && styles.newData_selected)}
+    onClick={onToggle}
+  >
+    {emoji && <span className="mr-2">{emoji}</span>}
+    {label}
+  </div>
 );
 
+// Helper: ControlledMultiSelectDropdown Component
+interface ControlledMultiSelectDropdownProps {
+  options: string[];
+  selectedValues: string[];
+  onSelectionChange: (newSelection: string[]) => void;
+  placeholder: string;
+  label?: string;
+  fieldIcon?: React.ReactNode;
+}
+const ControlledMultiSelectDropdown: React.FC<ControlledMultiSelectDropdownProps> = ({
+  options, selectedValues, onSelectionChange, placeholder, label, fieldIcon
+}) => {
+  const handleSelect = (option: string) => {
+    const newSelection = selectedValues.includes(option)
+      ? selectedValues.filter(item => item !== option)
+      : [...selectedValues, option];
+    onSelectionChange(newSelection);
+  };
+
+  const triggerLabel = selectedValues.length > 0
+    ? `${selectedValues.length} selected`
+    : placeholder;
+
+  return (
+    <div className="space-y-2 w-full">
+      {label && (
+        <Label className="text-lg font-semibold flex items-center gap-2 text-foreground">
+          {fieldIcon} {label}
+        </Label>
+      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className={cn(styles.newData_dropdownSelected, "w-full justify-between h-11")}>
+            <span className="truncate">{triggerLabel}</span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-60 overflow-y-auto">
+          <DropdownMenuLabel>Select Options</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {options.map((option) => (
+            <DropdownMenuCheckboxItem
+              key={option}
+              checked={selectedValues.includes(option)}
+              onCheckedChange={() => handleSelect(option)}
+              onSelect={(e) => e.preventDefault()} // Prevent closing on select
+            >
+              {option}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
 
 export function DietaryProfileForm() {
   const { profile, updateProfile, loading: profileLoading } = useProfile();
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<FormInputData>({ // Use FormInputData for useForm
-    resolver: zodResolver(profileSchema), // Zod schema handles transformation
+  const form = useForm<FormDataValidated>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      dateOfBirth: "",
+      firstName: "", lastName: "", dateOfBirth: "",
       location: { region: "", country: "", city: "" },
-      selectedDiets: "",
-      ingredientsToAvoid: "",
-      customIngredientsToAvoid: "",
-      knownAllergens: "",
-      customAllergens: "",
-      healthConditions: "",
-      healthGoalsList: "",
-      customRestrictions: "",
+      selectedDiets: [], ingredientsToAvoid: [], customIngredientsToAvoid: "",
+      knownAllergens: [], customAllergens: "", healthConditions: [],
+      healthGoalsList: [], customRestrictions: "",
     },
   });
+
+  // State for location dropdowns
+  const [selectedRegion, setSelectedRegion] = useState<string>('');
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+  const [openLocationDropdown, setOpenLocationDropdown] = useState<'region' | 'country' | null>(null);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+  const [dobCalendarOpen, setDobCalendarOpen] = useState(false);
+
 
   useEffect(() => {
     if (profile) {
@@ -122,41 +168,88 @@ export function DietaryProfileForm() {
         firstName: profile.firstName || "",
         lastName: profile.lastName || "",
         dateOfBirth: profile.dateOfBirth || "",
-        location: {
-          region: profile.location?.region || "",
-          country: profile.location?.country || "",
-          city: profile.location?.city || "",
-        },
-        selectedDiets: arrayToString(profile.selectedDiets),
-        ingredientsToAvoid: arrayToString(profile.ingredientsToAvoid),
+        location: profile.location || { region: "", country: "", city: "" },
+        selectedDiets: profile.selectedDiets || [],
+        ingredientsToAvoid: profile.ingredientsToAvoid || [],
         customIngredientsToAvoid: profile.customIngredientsToAvoid || "",
-        knownAllergens: arrayToString(profile.knownAllergens),
+        knownAllergens: profile.knownAllergens || [],
         customAllergens: profile.customAllergens || "",
-        healthConditions: arrayToString(profile.healthConditions),
-        healthGoalsList: arrayToString(profile.healthGoalsList),
+        healthConditions: profile.healthConditions || [],
+        healthGoalsList: profile.healthGoalsList || [],
         customRestrictions: profile.customRestrictions || "",
       });
+      // Initialize location dropdown states from profile
+      if (profile.location?.region) {
+        setSelectedRegion(profile.location.region);
+        const countriesForRegion = countryData[profile.location.region as keyof typeof countryData] || Object.keys(countryData).filter(cKey => {
+          // Simplified region to country mapping for initialization - ideally, countryData needs better structure or API
+          if (profile.location?.region === "North America") return ["United States", "Canada", "Mexico"].includes(cKey);
+          if (profile.location?.region === "Europe") return ["United Kingdom", "Germany", "France"].includes(cKey); // Example
+          return true;
+        }).sort();
+        setAvailableCountries(countriesForRegion);
+      } else {
+        setAvailableCountries(Object.keys(countryData).sort());
+      }
+      if (profile.location?.country) setSelectedCountry(profile.location.country);
     }
   }, [profile, form]);
 
-  const onSubmit = async (data: FormInputData) => {
-    // Zod schema already transformed comma-separated strings to arrays.
-    // So, 'processedData' will match UserProfile structure.
-    const processedData: Partial<UserProfile> = {
-      ...data,
-      profileCompletionStatus: 'data_complete',
-      // Zod handles the string to array transformation based on schema definition
-    };
+  const toggleLocationDropdown = (dropdownName: 'region' | 'country' | null) => {
+    setOpenLocationDropdown(prev => (prev === dropdownName ? null : dropdownName));
+  };
+
+  const handleRegionSelect = (region: string) => {
+    setSelectedRegion(region);
+    form.setValue('location.region', region, { shouldValidate: true });
     
+    const countriesForRegion = countryData[region as keyof typeof countryData] || Object.keys(countryData).filter(cKey => {
+        if (region === "North America") return ["United States", "Canada", "Mexico"].includes(cKey);
+        if (region === "Europe") return ["United Kingdom", "Germany", "France", "Italy", "Spain"].includes(cKey);
+         // Fallback for "All Regions" or other less defined regions to show all countries
+        if (region === "All Regions" || !regions.includes(region) || regions.indexOf(region) > 6 ) return true;
+        return true; 
+    }).sort();
+    setAvailableCountries(countriesForRegion);
+    
+    setSelectedCountry('');
+    form.setValue('location.country', '', { shouldValidate: true });
+    form.setValue('location.city', '', { shouldValidate: true });
+    setOpenLocationDropdown(null);
+  };
+
+  const handleCountrySelect = (country: string) => {
+    setSelectedCountry(country);
+    form.setValue('location.country', country, { shouldValidate: true });
+    form.setValue('location.city', '', { shouldValidate: true });
+    setOpenLocationDropdown(null);
+  };
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
+        setOpenLocationDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+  const onSubmit = async (data: FormDataValidated) => {
+    let age;
     if(data.dateOfBirth && isValid(parseISO(data.dateOfBirth))) {
-        processedData.age = differenceInYears(new Date(), parseISO(data.dateOfBirth));
-    } else {
-        processedData.age = undefined;
+        age = differenceInYears(new Date(), parseISO(data.dateOfBirth));
     }
 
+    const profileToSave: Partial<UserProfile> = {
+      ...data,
+      age: age,
+      profileCompletionStatus: 'data_complete',
+    };
 
     try {
-      await updateProfile(processedData);
+      await updateProfile(profileToSave);
       toast({ title: "Profile Updated", description: "Your dietary profile has been saved successfully." });
       router.push('/profile'); 
     } catch (error: any) {
@@ -176,7 +269,7 @@ export function DietaryProfileForm() {
     <Card className="w-full max-w-3xl mx-auto shadow-lg">
       <CardHeader>
         <CardTitle className="text-3xl font-headline text-primary flex items-center gap-3"><Edit3 /> Edit Your Dietary Profile</CardTitle>
-        <CardDescription>Refine your preferences to get the most accurate food insights from Safora. Use commas to separate multiple items in text areas.</CardDescription>
+        <CardDescription>Refine your preferences to get the most accurate food insights from Safora.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
@@ -195,89 +288,197 @@ export function DietaryProfileForm() {
             </div>
             <div>
               <Label htmlFor="dateOfBirth">Date of Birth</Label>
-              <Input id="dateOfBirth" type="text" {...form.register('dateOfBirth')} placeholder="YYYY-MM-DD" />
+              <Controller
+                name="dateOfBirth"
+                control={form.control}
+                render={({ field }) => (
+                  <Popover open={dobCalendarOpen} onOpenChange={setDobCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant={"outline"} className={cn(styles.newData_inputField, "w-full justify-start text-left font-normal h-11", !field.value && "text-muted-foreground")}>
+                        <CalendarDays className="mr-2 h-4 w-4" />
+                        {field.value && isValid(parseISO(field.value)) ? format(parseISO(field.value), "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-white" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value && isValid(parseISO(field.value)) ? parseISO(field.value) : undefined}
+                        onSelect={(date) => {
+                          field.onChange(date ? format(date, "yyyy-MM-dd") : "");
+                          setDobCalendarOpen(false);
+                        }}
+                        initialFocus
+                        captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
               {form.formState.errors.dateOfBirth && <p className="text-sm text-destructive mt-1">{form.formState.errors.dateOfBirth.message}</p>}
             </div>
-            <Label className="text-md font-medium">Location</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                    <Label htmlFor="location.region" className="text-xs text-muted-foreground">Region</Label>
-                    <Input id="location.region" {...form.register('location.region')} placeholder="e.g., North America" />
-                </div>
-                <div>
-                    <Label htmlFor="location.country" className="text-xs text-muted-foreground">Country</Label>
-                    <Input id="location.country" {...form.register('location.country')} placeholder="e.g., United States" />
-                </div>
-                <div>
-                     <Label htmlFor="location.city" className="text-xs text-muted-foreground">City</Label>
-                    <Input id="location.city" {...form.register('location.city')} placeholder="e.g., New York" />
+            
+            <div ref={locationDropdownRef}>
+                <Label className="text-md font-medium block mb-2">Location</Label>
+                <div className="space-y-3">
+                    <div className={styles.newData_dropdownField}>
+                        <Label htmlFor="location.region" className="text-xs text-muted-foreground">Region</Label>
+                        <div className={cn(styles.newData_dropdownSelected, openLocationDropdown === 'region' && styles.newData_active)} onClick={() => toggleLocationDropdown('region')}>
+                            <span>{selectedRegion || "Select your region"}</span> <ChevronDown />
+                        </div>
+                        <div className={cn(styles.newData_dropdownOptions, openLocationDropdown === 'region' && styles.newData_show)}>
+                            {regions.map(region => (<div key={region} className={cn(styles.newData_dropdownOption, selectedRegion === region && styles.newData_selected)} onClick={() => handleRegionSelect(region)}>{region}</div>))}
+                        </div>
+                    </div>
+                    <div className={styles.newData_dropdownField}>
+                        <Label htmlFor="location.country" className="text-xs text-muted-foreground">Country</Label>
+                        <div className={cn(styles.newData_dropdownSelected, openLocationDropdown === 'country' && styles.newData_active, !selectedRegion && "opacity-50 cursor-not-allowed")} onClick={() => selectedRegion && toggleLocationDropdown('country')}>
+                            <span>{selectedCountry || "Select your country"}</span> <ChevronDown />
+                        </div>
+                        <div className={cn(styles.newData_dropdownOptions, openLocationDropdown === 'country' && styles.newData_show)}>
+                            {availableCountries.length > 0 ? availableCountries.map(country => (<div key={country} className={cn(styles.newData_dropdownOption, selectedCountry === country && styles.newData_selected)} onClick={() => handleCountrySelect(country)}>{country}</div>)) : <div className={cn(styles.newData_dropdownOption, styles.newData_disabled)}>Please select a region first</div>}
+                        </div>
+                    </div>
+                     <div>
+                        <Label htmlFor="location.city" className="text-xs text-muted-foreground">City</Label>
+                        <Input id="location.city" {...form.register('location.city')} placeholder="e.g., New York" disabled={!selectedCountry}/>
+                    </div>
                 </div>
             </div>
           </section>
-          
-          <TextareaSection
-            control={form.control}
-            name="selectedDiets"
-            label="Dietary Paths"
-            icon={<Utensils size={20} />}
-            placeholder="e.g., Vegetarian, Vegan, Keto, Halal, Kosher"
-          />
 
-          <TextareaSection
+          <Controller
+            name="selectedDiets"
             control={form.control}
-            name="ingredientsToAvoid"
-            label="Specific Ingredients to Avoid (Non-Allergy)"
-            icon={<Ban size={20}/>}
-            placeholder="e.g., Pork, Alcohol, Artificial Sweeteners"
+            render={({ field }) => (
+              <ControlledMultiSelectDropdown
+                options={dietaryPaths}
+                selectedValues={field.value || []}
+                onSelectionChange={field.onChange}
+                placeholder="Select dietary paths"
+                label="Dietary Paths"
+                fieldIcon={<Utensils size={20} />}
+              />
+            )}
           />
-           <div>
-              <Label htmlFor="customIngredientsToAvoid">Other Specific Ingredients to Avoid (Custom)</Label>
+        
+          <section className="space-y-2">
+            <Label className="text-lg font-semibold flex items-center gap-2 text-foreground">
+              <Ban size={20} /> Specific Ingredients to Avoid (Non-Allergy)
+            </Label>
+            <Controller
+              name="ingredientsToAvoid"
+              control={form.control}
+              render={({ field }) => (
+                <div className={cn(styles.newData_chipContainer, "py-2")}>
+                  {ingredientsToAvoidOptions.map(opt => (
+                    <Chip
+                      key={opt.name}
+                      label={opt.name}
+                      emoji={opt.emoji}
+                      isSelected={(field.value || []).includes(opt.name)}
+                      onToggle={() => {
+                        const current = field.value || [];
+                        const newValue = current.includes(opt.name)
+                          ? current.filter(item => item !== opt.name)
+                          : [...current, opt.name];
+                        field.onChange(newValue);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            />
+            <div>
+              <Label htmlFor="customIngredientsToAvoid" className="text-sm">Other Specific Ingredients to Avoid (Custom)</Label>
               <Input id="customIngredientsToAvoid" {...form.register('customIngredientsToAvoid')} placeholder="List any other specific non-allergy ingredients" />
             </div>
+          </section>
 
-          <TextareaSection
-            control={form.control}
-            name="knownAllergens"
-            label="Known Allergens"
-            icon={<AlertTriangleIcon size={20} />}
-            placeholder="e.g., Peanuts, Milk, Soy, Gluten"
-          />
-          <div>
-              <Label htmlFor="customAllergens">Other Allergens (Custom)</Label>
+          <section className="space-y-2">
+            <Label className="text-lg font-semibold flex items-center gap-2 text-foreground">
+              <AlertTriangleIcon size={20} /> Known Allergens
+            </Label>
+            <Controller
+              name="knownAllergens"
+              control={form.control}
+              render={({ field }) => (
+                <>
+                  <p className="text-xs text-muted-foreground">Select common allergens:</p>
+                  <div className={cn(styles.newData_chipContainer, "py-2")}>
+                    {commonAllergens.map(opt => (
+                      <Chip
+                        key={opt.name}
+                        label={opt.name}
+                        emoji={opt.emoji}
+                        isSelected={(field.value || []).includes(opt.name)}
+                        onToggle={() => {
+                          const current = field.value || [];
+                          const newValue = current.includes(opt.name)
+                            ? current.filter(item => item !== opt.name)
+                            : [...current, opt.name];
+                          field.onChange(newValue);
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <ControlledMultiSelectDropdown
+                    options={otherAllergensList}
+                    selectedValues={(field.value || []).filter(val => otherAllergensList.includes(val))}
+                    onSelectionChange={(newSelection) => {
+                       const commonSelected = (field.value || []).filter(val => !otherAllergensList.includes(val));
+                       field.onChange([...commonSelected, ...newSelection]);
+                    }}
+                    placeholder="Select other/less common allergies"
+                    label="Other/Less Common Allergies"
+                  />
+                </>
+              )}
+            />
+            <div>
+              <Label htmlFor="customAllergens" className="text-sm">Other Specific Allergies (Custom)</Label>
               <Input id="customAllergens" {...form.register('customAllergens')} placeholder="List any other specific allergies" />
             </div>
+          </section>
 
-          <TextareaSection
-            control={form.control}
+          <Controller
             name="healthConditions"
-            label="Health Conditions"
-            icon={<ListChecks size={20} />}
-            placeholder="e.g., Diabetes, High Blood Pressure, Celiac Disease"
-          />
-
-          <TextareaSection
             control={form.control}
+            render={({ field }) => (
+              <ControlledMultiSelectDropdown
+                options={healthConditionsOptions}
+                selectedValues={field.value || []}
+                onSelectionChange={field.onChange}
+                placeholder="Select health conditions"
+                label="Health Conditions"
+                fieldIcon={<ListChecks size={20} />}
+              />
+            )}
+          />
+          
+          <Controller
             name="healthGoalsList"
-            label="Health Goals"
-            icon={<BarChart3 size={20} />}
-            placeholder="e.g., Weight Loss, Muscle Gain, Gut Health"
+            control={form.control}
+            render={({ field }) => (
+              <ControlledMultiSelectDropdown
+                options={healthGoalsOptions}
+                selectedValues={field.value || []}
+                onSelectionChange={field.onChange}
+                placeholder="Select health goals"
+                label="Health Goals"
+                fieldIcon={<Circle /* Placeholder, ideally BarChart3 */ size={20} />}
+              />
+            )}
           />
 
           <section className="space-y-2">
             <Label htmlFor="customRestrictions" className="text-lg font-semibold flex items-center gap-2 text-foreground">
-              <ShieldQuestion size={20}/> Other General Notes or Restrictions
+              <Info size={20}/> Other General Notes or Restrictions
             </Label>
-             <p className="text-xs text-muted-foreground">This field is for any general notes not covered above. New details should preferably be entered in the specific sections.</p>
             <Controller
               control={form.control}
               name="customRestrictions"
               render={({ field }) => (
-                <Textarea
-                  id="customRestrictions"
-                  {...field}
-                  placeholder="e.g., avoid artificial sweeteners, prefer organic, low sodium..."
-                  className="min-h-[100px]"
-                />
+                 <Input id="customRestrictions" {...field} placeholder="e.g., avoid artificial sweeteners, prefer organic..." />
               )}
             />
           </section>
@@ -302,3 +503,4 @@ export function DietaryProfileForm() {
     </Card>
   );
 }
+

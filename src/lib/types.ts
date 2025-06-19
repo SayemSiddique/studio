@@ -1,5 +1,6 @@
 
-export interface DietaryPreferences {
+
+export interface DietaryPreferences { // This is largely legacy now
   isVegetarian: boolean;
   isVegan: boolean;
   isGlutenFree: boolean;
@@ -9,7 +10,7 @@ export interface DietaryPreferences {
   otherPreferences: string[];
 }
 
-export interface Allergies {
+export interface Allergies { // This is largely legacy now
   hasPeanuts: boolean;
   hasTreeNuts: boolean;
   hasMilk: boolean;
@@ -21,7 +22,7 @@ export interface Allergies {
   otherAllergies: string[];
 }
 
-export interface HealthGoals {
+export interface HealthGoals { // This is largely legacy now
   wantsWeightLoss: boolean;
   wantsMuscleGain: boolean;
   wantsMaintainWeight: boolean;
@@ -37,31 +38,32 @@ export interface UserProfileLocation {
 }
 
 export interface UserProfile {
-  // Old structure fields (can be progressively deprecated or used for migration)
-  dietaryPreferences?: Partial<DietaryPreferences>; // Made optional
-  allergies?: Partial<Allergies>; // Made optional
-  healthGoals?: Partial<HealthGoals>; // Made optional
-  customRestrictions?: string;
-  name?: string; // Old single name field, can be used as fallback
-
-  // New detailed fields from multi-step data collection
+  // Fields from multi-step data collection (primary source of data)
   firstName?: string;
   lastName?: string;
   dateOfBirth?: string; // Store as YYYY-MM-DD string
   age?: number; // Calculated from DOB
-  location?: Partial<UserProfileLocation>;
+  location?: UserProfileLocation;
 
   selectedDiets?: string[];
   ingredientsToAvoid?: string[];
   customIngredientsToAvoid?: string;
 
-  knownAllergens?: string[];
+  knownAllergens?: string[]; // Will store common (chips) + other (dropdown)
   customAllergens?: string;
 
   healthConditions?: string[];
   healthGoalsList?: string[];
+  
+  customRestrictions?: string; // For any other general notes
 
   profileCompletionStatus?: 'initial' | 'visual_complete' | 'data_collection_started' | 'data_partial' | 'data_complete' | 'data_complete_guest';
+
+  // Legacy fields - can be removed if no longer needed for migration or fallback
+  name?: string; 
+  dietaryPreferences?: Partial<DietaryPreferences>;
+  allergies?: Partial<Allergies>;
+  healthGoals?: Partial<HealthGoals>;
 }
 
 
