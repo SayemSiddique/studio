@@ -30,12 +30,37 @@ export interface HealthGoals {
   otherGoals: string[];
 }
 
+export interface UserProfileLocation {
+  region?: string;
+  country?: string;
+  city?: string;
+}
+
 export interface UserProfile {
+  // Fields from original design
   dietaryPreferences: Partial<DietaryPreferences>;
   allergies: Partial<Allergies>;
-  healthGoals: Partial<HealthGoals>;
+  healthGoals: Partial<HealthGoals>; // Boolean based goals
   customRestrictions?: string;
+
+  // New detailed fields from multi-step onboarding
+  name?: string;
+  dateOfBirth?: string; // Store as YYYY-MM-DD string
+  location?: Partial<UserProfileLocation>;
+
+  selectedDiets?: string[]; // e.g., ["Vegan", "Gluten-Free"]
+  ingredientsToAvoid?: string[]; // e.g., ["Pork", "Alcohol"]
+  customIngredientsToAvoid?: string;
+  
+  knownAllergens?: string[]; // e.g., ["Peanuts", "Shellfish"]
+  customAllergens?: string;
+
+  healthConditions?: string[]; // e.g., ["Diabetes", "Hypertension"]
+  healthGoalsList?: string[]; // Replaces/augments boolean healthGoals, e.g., ["Weight Loss", "Eat Cleaner"]
+
+  profileCompletionStatus?: 'initial' | 'partial_onboarding' | 'complete';
 }
+
 
 export interface ProductInfo {
   barcode: string;
@@ -45,7 +70,7 @@ export interface ProductInfo {
   dataAiHint?: string;
   ingredients: string[] | string; 
   nutritionalInfo?: Record<string, string>;
-  category?: string; // Added category
+  category?: string;
 }
 
 export type CompatibilityStatus = "Safe" | "Contains Allergen" | "Not Recommended" | "Unknown";
@@ -57,4 +82,3 @@ export interface ScanResult extends ProductInfo {
   alternatives?: string[];
   scannedAt: string; // ISO Date string
 }
-

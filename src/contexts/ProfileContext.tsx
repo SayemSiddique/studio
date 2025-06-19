@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -6,8 +7,8 @@ import type { UserProfile } from '@/lib/types';
 interface ProfileContextType {
   profile: UserProfile | null;
   loading: boolean;
-  updateProfile: (newProfile: UserProfile) => Promise<void>;
-  getProfileForAI: () => string; // Method to format profile for AI
+  updateProfile: (newProfile: Partial<UserProfile>) => Promise<void>; // Allow partial updates
+  getProfileForAI: () => string; 
 }
 
 export const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -17,6 +18,17 @@ const initialProfile: UserProfile = {
   allergies: {},
   healthGoals: {},
   customRestrictions: "",
+  name: "",
+  dateOfBirth: "",
+  location: {},
+  selectedDiets: [],
+  ingredientsToAvoid: [],
+  customIngredientsToAvoid: "",
+  knownAllergens: [],
+  customAllergens: "",
+  healthConditions: [],
+  healthGoalsList: [],
+  profileCompletionStatus: 'initial',
 };
 
 export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -28,11 +40,10 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (storedProfile) {
       try {
         const parsedProfile = JSON.parse(storedProfile);
-        // Ensure all keys from initialProfile are present
         setProfile({ ...initialProfile, ...parsedProfile });
       } catch (error) {
         console.error("Failed to parse stored profile:", error);
-        setProfile(initialProfile); // Fallback to initial profile
+        setProfile(initialProfile);
       }
     } else {
       setProfile(initialProfile);
@@ -40,46 +51,46 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     setLoading(false);
   }, []);
 
-  const updateProfile = useCallback(async (newProfile: UserProfile) => {
+  const updateProfile = useCallback(async (newProfileData: Partial<UserProfile>) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const updatedProfile = { ...profile, ...newProfile }; // Merge existing with new
-    setProfile(updatedProfile);
-    localStorage.setItem('saforaUserProfile', JSON.stringify(updatedProfile));
+    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API call
+    
+    setProfile(prevProfile => {
+      const updated = { ...(prevProfile || initialProfile), ...newProfileData };
+      localStorage.setItem('saforaUserProfile', JSON.stringify(updated));
+      return updated;
+    });
     setLoading(false);
-  }, [profile]);
+  }, []);
 
   const getProfileForAI = useCallback((): string => {
     if (!profile) return "No dietary profile set.";
 
     let restrictionsStr = "User Dietary Profile:\n";
+    
+    if (profile.name) restrictionsStr += `Name: ${profile.name}\n`;
+    // DOB and Location might not be relevant for food analysis AI, but can be included if needed.
 
-    const formatSection = (title: string, data: Record<string, any> | undefined, prefixTrue: string = "", prefixFalse: string = "") => {
-      if (!data || Object.keys(data).length === 0) return "";
-      let sectionStr = `${title}:\n`;
-      let items: string[] = [];
-      for (const [key, value] of Object.entries(data)) {
-        if (key.startsWith("is") || key.startsWith("has") || key.startsWith("wants")) {
-           if (value === true) items.push(`${prefixTrue}${key.substring(key.startsWith("is") ? 2 : (key.startsWith("has") ? 3 : 5)).replace(/([A-Z])/g, ' $1').trim()}`);
-           // else if (value === false && prefixFalse) items.push(`${prefixFalse}${key.substring(key.startsWith("is") ? 2 : (key.startsWith("has") ? 3 : 5)).replace(/([A-Z])/g, ' $1').trim()}`);
-        } else if (key.startsWith("other") && Array.isArray(value) && value.length > 0) {
-          items.push(...value);
-        }
+    const formatArraySection = (title: string, items: string[] | undefined, prefix: string = "") => {
+      if (items && items.length > 0) {
+        restrictionsStr += `${title}:\n${items.map(item => `- ${prefix}${item}`).join("\n")}\n`;
       }
-      if (items.length > 0) {
-        sectionStr += items.map(item => `- ${item}`).join("\n") + "\n";
-        return sectionStr;
-      }
-      return "";
     };
     
-    restrictionsStr += formatSection("Preferences", profile.dietaryPreferences, "Prefers ");
-    restrictionsStr += formatSection("Allergies", profile.allergies, "Allergic to ");
-    restrictionsStr += formatSection("Health Goals", profile.healthGoals, "Goal: ");
+    // Combine old boolean preferences with new array if both exist, or prioritize new array.
+    // For now, focusing on new arrays:
+    formatArraySection("Dietary Choices", profile.selectedDiets);
+    formatArraySection("Ingredients to Avoid", profile.ingredientsToAvoid);
+    if(profile.customIngredientsToAvoid) restrictionsStr += `Custom Ingredients to Avoid: ${profile.customIngredientsToAvoid}\n`;
+    
+    formatArraySection("Known Allergens", profile.knownAllergens, "Allergic to ");
+     if(profile.customAllergens) restrictionsStr += `Custom Allergens: ${profile.customAllergens}\n`;
 
+    formatArraySection("Health Conditions", profile.healthConditions);
+    formatArraySection("Health Goals", profile.healthGoalsList);
+    
     if (profile.customRestrictions) {
-      restrictionsStr += `Other Restrictions:\n- ${profile.customRestrictions}\n`;
+      restrictionsStr += `Other General Restrictions:\n- ${profile.customRestrictions}\n`;
     }
     
     if (restrictionsStr === "User Dietary Profile:\n") return "No specific dietary restrictions, preferences, or goals set.";

@@ -1,475 +1,270 @@
 
-/* Onboarding.module.css */
-/* Styles for the body tag are handled dynamically in page.tsx or globally */
-
-.carouselContainer {
-    width: 100vw;
+/* New Onboarding Styles */
+.onboardingRoot {
+    font-family: 'Poppins', sans-serif;
     height: 100vh;
     overflow: hidden;
-    position: relative;
+    background: linear-gradient(135deg, #e8f4fd, #e8f8f0); /* --safora-light-blue, --safora-light-green */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.carousel {
-    display: flex;
-    /* width set dynamically based on slide count */
+.onboardingContainer {
+    width: 100%;
+    height: 100vh; /* Changed from 100% to 100vh for full viewport height */
+    max-width: 100vw;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    background-color: white; /* Default screen background */
+}
+
+/* Responsive container width */
+@media (min-width: 480px) {
+    .onboardingContainer {
+        max-width: 480px;
+        height: 95vh; /* Adjust height for non-fullscreen on larger devices */
+        max-height: 800px; /* Max height */
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+}
+@media (min-width: 768px) {
+    .onboardingContainer {
+        max-width: 420px; /* Optimal for phone-like multi-step forms */
+         height: 90vh;
+        max-height: 700px;
+    }
+}
+
+
+.screen {
+    position: absolute;
+    width: 100%;
     height: 100%;
     transition: transform 0.5s ease-in-out;
-    cursor: grab; /* Indicate draggable */
-}
-
-.carouselSlide {
-    width: 100vw;
-    height: 100%;
-    flex-shrink: 0;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-between; /* Pushes indicator to bottom */
-    padding: 2rem 1.5rem; /* Consistent padding */
-    position: relative;
-    overflow: hidden; /* Clip any overflowing decorative elements */
+    overflow-y: auto; /* Allow scrolling for content that overflows vertically */
+    visibility: hidden; /* Hide screens by default */
+    opacity: 0;
+    background-color: white; /* Ensure screens have a background */
 }
 
-/* Specific Slide Backgrounds are handled by utility classes in globals.css or inline for simplicity if few */
-
-.indicatorContainer {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 1.5rem; /* Space from bottom */
-    z-index: 10; /* Above slide content */
+@media (min-width: 640px) {
+    .screen {
+        padding: 1.5rem;
+    }
+}
+@media (min-width: 768px) {
+    .screen {
+        padding: 2rem;
+    }
 }
 
-.indicator {
-    width: 8px;
+.screenActive {
+    transform: translateX(0);
+    visibility: visible;
+    opacity: 1;
+    z-index: 1;
+}
+
+.screenInactiveLeft { /* For screen animating out to the left */
+    transform: translateX(-100%);
+    visibility: hidden;
+    opacity: 0;
+}
+.screenInactiveRight { /* For screen animating in from the right or not yet shown */
+    transform: translateX(100%);
+    visibility: hidden;
+    opacity: 0;
+}
+
+
+.progressBar {
     height: 8px;
-    border-radius: 50%;
-    background-color: #d1d5db; /* gray-300 */
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.indicator.active {
-    width: 24px; /* Elongate active indicator */
-    border-radius: 4px; /* Rounded rectangle */
-}
-
-/* Active indicator colors matching slide themes */
-.indicator-0.active { background-color: #2ecc71; } /* emerald-500 */
-.indicator-1.active { background-color: #56ccf2; } /* sky-400 */
-.indicator-2.active { background-color: #6c63ff; } /* indigo-500 */
-.indicator-3.active { background-color: #f1c40f; } /* amber-400 */
-
-.contentContainer {
-    width: 100%;
-    max-width: 360px; /* Limit content width for readability */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    z-index: 5;
-    flex-grow: 1; /* Allow content to take available space */
-    justify-content: center; /* Center content vertically */
-}
-
-.illustrationContainer {
-    width: 100%;
-    min-height: 200px; 
-    height: auto; 
-    max-height: 30vh; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    background-color: #e0e0e0; /* Light grey track */
+    border-radius: 4px;
     margin-bottom: 1.5rem;
-}
-
-/* Specific styling for slide 2 illustration container to ensure it behaves well with the content */
-.slide2IllustrationContainer {
-    min-height: auto; 
-    max-height: 28vh; /* Further reduced for smaller image */
-}
-
-.responsiveGif {
-    max-width: 100%;
-    max-height: 100%; /* Ensure GIF scales down within its container */
-    object-fit: contain; /* Maintain aspect ratio */
-}
-
-
-.headline {
-    font-weight: 700;
-    font-size: 1.75rem; /* text-2xl or text-3xl */
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    color: #1a202c; /* gray-800 */
-}
-
-.subtext {
-    font-weight: 400;
-    font-size: 1rem; /* text-base */
-    line-height: 1.5;
-    color: #4a5568; /* gray-600 */
-    margin-bottom: 2rem;
-}
-
-.ctaButton {
-    background-color: #2ecc71; /* emerald-500 */
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 2rem;
-    border-radius: 50px; /* Pill shape */
-    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.25);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    margin-top: 1rem; /* Space above button */
-    border: none; /* Remove default border */
-}
-
-.ctaButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
-}
-
-.ctaButton:active {
-    transform: translateY(0);
-}
-
-.warningIcon {
-    width: 80px;
-    height: 80px;
-    background-color: #ff6b6b; /* red-400 */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    /* font-size is handled by text-4xl in JSX */
-    position: absolute;
-    opacity: 0.9;
-    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
-}
-
-.foodLabel {
-    width: 180px;
-    height: 240px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
     position: relative;
+    overflow: hidden; /* To clip progress-fill corners */
 }
 
-.labelTitle {
-    font-weight: 600;
-    font-size: 12px;
-    margin-bottom: 8px;
-    color: #374151; /* gray-700 */
-}
-
-.labelLine {
-    height: 6px;
-    background-color: #e2e8f0; /* cool-gray-200 */
-    border-radius: 3px;
-    margin-bottom: 6px;
-}
-
-.allergenIcons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 1rem;
-}
-
-.allergenIcon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #f8fafc; /* cool-gray-50 */
-    border: 1px solid #e2e8f0; /* cool-gray-200 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    opacity: 0.6;
-}
-
-
-.profileContainer {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background-color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-}
-
-.profileAvatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #e6e9f0, #eef1f5); /* Light gray gradient */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    color: #4a5568; /* gray-600 */
-}
-
-.shieldOverlay {
-    position: absolute;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    border: 2px solid rgba(46, 204, 113, 0.3); /* emerald-500 with opacity */
-    /* Animation applied via Tailwind: animate-pulseSlow */
-}
-
-.dietaryIcons {
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    border-radius: 50%;
-    display: flex; 
-    align-items: center;
-    justify-content: center;
-    /* Animation applied via Tailwind: animate-rotate */
-}
-
-.dietaryIcon {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.iconHalal {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #2ecc71; /* emerald-500 */
-}
-
-.iconVegan {
-    top: 50%;
-    right: 0;
-    transform: translateY(-50%);
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #2ecc71; /* emerald-500 */
-}
-
-.iconGluten {
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #ff6b6b; /* red-400 */
-}
-
-.iconDairy {
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-    background-color: #f8f9fa; /* cool-gray-50 */
-    color: #ff6b6b; /* red-400 */
-}
-
-.iconSugar {
-    top: 15%; 
-    left: 15%;  
-    transform: translate(-20%, -20%); 
-    background-color: #f8f9fa; 
-    color: #f1c40f; 
-}
-
-.iconPeanut {
-    bottom: 15%;
-    right: 15%; 
-    transform: translate(20%, 20%); 
-    background-color: #f8f9fa; 
-    color: #ff6b6b; 
-}
-
-
-.checklistContainer {
-    width: 240px;
-    background-color: white;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.checklistItem {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.checklistItem:last-child {
-    margin-bottom: 0;
-}
-
-
-.checklistIcon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #2ecc71; /* emerald-500 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    margin-right: 12px;
-    flex-shrink: 0;
-}
-
-.checklistText {
-    font-size: 14px;
-    color: #4a5568; /* gray-600 */
-    font-weight: 500;
-}
-
-.groceryBag {
-    position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 100px;
-    height: 120px;
-    background-color: #f8fafc; /* cool-gray-50 */
-    border-radius: 16px 16px 8px 8px;
-    border: 2px solid #e2e8f0; /* cool-gray-200 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 12px;
-    transform: rotate(15deg);
-}
-
-.groceryHandle {
-    width: 60px;
-    height: 20px;
-    border: 2px solid #e2e8f0; /* cool-gray-200 */
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    position: absolute;
-    top: -20px; /* Relative to groceryBag */
-}
-
-.groceryItem {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    margin-bottom: 8px;
-}
-
-.badge {
-    padding: 6px 12px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 600;
-    margin: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.badgeHalal {
-    background-color: #e6f7ef; /* emerald-50 */
-    color: #2ecc71; /* emerald-600 */
-}
-
-.badgeVegan {
-    background-color: #e6f7ef; /* emerald-50 */
-    color: #2ecc71; /* emerald-600 */
-}
-
-.badgeDairy {
-    background-color: #fff5f5; /* red-50 */
-    color: #ff6b6b; /* red-500 */
-}
-
-.badgeSugar {
-    background-color: #fff9e6; /* amber-50 */
-    color: #f1c40f; /* amber-500 */
-}
-
-.badgesContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.swipeIndicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1rem;
-    color: #a0aec0; /* gray-400 */
-    font-size: 14px;
-}
-
-.swipeArrow {
-    margin-left: 8px;
-    /* Animation applied via Tailwind: animate-swipeArrow */
-}
-
-.gridOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+.progressFill {
     height: 100%;
-    background-image: linear-gradient(rgba(86, 204, 242, 0.05) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(86, 204, 242, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    z-index: 1; /* Ensure it's behind content but above slide background */
+    border-radius: 4px;
+    background: linear-gradient(90deg, #2ecc71, #56ccf2); /* --safora-green, --safora-blue */
+    transition: width 0.5s ease;
 }
 
-.floatingFood {
-    position: absolute;
-    width: 40px;
-    height: 40px;
+.safAvatar {
+    width: 60px;
+    height: 60px;
+    background-color: #2ecc71; /* --safora-green */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    /* Animation applied via Tailwind: animate-float and inline animationDelay */
+    color: white;
+    font-size: 24px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+    animation: floatAnimation 3s ease-in-out infinite;
+    align-self: center;
+}
+@media (min-width: 640px) {
+    .safAvatar {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+}
+@media (min-width: 768px) {
+    .safAvatar {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
 }
 
-.food1 {
-    top: 20%;
-    left: 20%;
-    /* animation-delay: 0s; applied inline */
+
+@keyframes floatAnimation { /* Renamed to avoid conflict with existing 'float' */
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
 
-.food2 {
-    top: 30%;
-    right: 20%;
-    /* animation-delay: 0.5s; applied inline */
+.screenTitle {
+    font-size: 1.75rem; /* Tailwind text-2xl */
+    line-height: 1.2;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #333;
+    font-weight: 600;
+}
+@media (min-width: 640px) {
+    .screenTitle {
+        font-size: 2rem; /* text-3xl */
+        margin-bottom: 1.5rem;
+    }
 }
 
-.food3 {
-    bottom: 30%;
-    left: 30%;
-    /* animation-delay: 1s; applied inline */
+.screenSubtitle {
+    text-align: center;
+    color: #555; /* Tailwind text-gray-600 */
+    margin-bottom: 2rem; /* Tailwind mb-8 */
+    font-size: 1rem;
 }
-.food4 {
-    bottom: 20%;
-    right: 30%;
-    /* animation-delay: 1.5s; applied inline */
+@media (min-width: 640px) {
+    .screenSubtitle {
+        font-size: 1.125rem; /* text-lg */
+    }
+}
+
+
+.btnPrimary {
+    background: linear-gradient(90deg, #2ecc71, #56ccf2);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.875rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem; /* Base size */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(86, 204, 242, 0.2);
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    display: block; /* Ensure it takes full width up to max-width */
+}
+.btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(86, 204, 242, 0.3);
+}
+@media (min-width: 640px) {
+    .btnPrimary {
+        padding: 1rem 2rem;
+        font-size: 1.125rem; /* Slightly larger on bigger screens */
+    }
+}
+
+.inputField {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    color: #333;
+}
+.inputField::placeholder {
+    color: #aaa;
+}
+.inputField:focus {
+    border-color: #56ccf2; /* --safora-blue */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2);
+}
+
+.screenContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    text-align: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    width: 100%; /* Ensure content uses available width */
+}
+
+.bottomActions {
+    margin-top: auto; /* Pushes to the bottom */
+    padding-top: 1.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center buttons */
+}
+
+.fieldLabel {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 500; /* font-medium */
+    margin-top: 1.5rem; /* Tailwind mt-6 */
+    margin-bottom: 1rem; /* Tailwind mb-4 */
+    color: #444;
+    text-align: center;
+}
+
+.infoText {
+    color: #666; /* Tailwind text-gray-500 */
+    font-size: 0.875rem; /* text-sm */
+    margin-top: 1.5rem; /* Tailwind mt-6 */
+    text-align: center;
+}
+
+.logoContainer {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+}
+@media (min-width: 640px) {
+    .logoContainer {
+        top: 1.5rem;
+        left: 1.5rem;
+    }
+}
+
+/* Hide scrollbar for webkit browsers */
+.screen::-webkit-scrollbar {
+    display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.screen {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }

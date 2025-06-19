@@ -1,288 +1,204 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './Onboarding.module.css';
+import { Logo } from '@/components/core/Logo';
+import { Button } from '@/components/ui/button'; // Using ShadCN button for consistency
+import { Input } from '@/components/ui/input'; // Using ShadCN input
 import { cn } from '@/lib/utils';
-import { Logo } from '../../../components/core/Logo';
-import Image from 'next/image';
-import SecondOnboardingSlideImage from '@/image/2ndOnboardingSlide.png';
+import styles from './Onboarding.module.css';
+import { useProfile } from '@/hooks/useProfile';
+import type { UserProfile } from '@/lib/types';
 
-const OnboardingSlides = [
-  {
-    id: 'slide-1',
-    backgroundClass: 'bg-onboarding-slide1',
-    illustration: (
-      <div className={styles.illustrationContainer}>
-        <div className={styles.foodLabel}>
-          <div className={styles.labelTitle}>INGREDIENTS:</div>
-          <div className={styles.labelLine} style={{ width: '100%' }}></div>
-          <div className={styles.labelLine} style={{ width: '90%' }}></div>
-          <div className={styles.labelLine} style={{ width: '95%' }}></div>
-          <div className={styles.labelLine} style={{ width: '85%' }}></div>
-          <div className={styles.labelLine} style={{ width: '70%' }}></div>
-          <div className={styles.allergenIcons}>
-            <div className={styles.allergenIcon}>🥜</div>
-            <div className={styles.allergenIcon}>🌾</div>
-            <div className={styles.allergenIcon}>🥩</div>
-            <div className={styles.allergenIcon}>🧪</div>
-          </div>
-        </div>
-        <div className={cn(styles.warningIcon, "text-4xl")}>⚠️</div>
-      </div>
-    ),
-    headline: "Do you really know what's in your food?",
-    subtext: "Millions unknowingly consume harmful or forbidden ingredients every day.",
-  },
-  {
-    id: 'slide-2',
-    backgroundClass: 'bg-onboarding-slide2',
-    showLogo: true,
-    illustration: (
-        <div className={cn(styles.illustrationContainer, styles.slide2IllustrationContainer, "flex items-center justify-center")}>
-            <Image
-              src={SecondOnboardingSlideImage}
-              alt="Product scanning illustration"
-              width={160} 
-              height={133}
-              className={styles.responsiveGif}
-            />
-        </div>
-    ),
-    headline: "Scan in Seconds. Know Instantly.",
-    subtext: "Let AI do the label reading — Safora instantly checks ingredients for your needs.",
-  },
-  {
-    id: 'slide-3',
-    backgroundClass: 'bg-white',
-    showLogo: true,
-    illustration: (
-      <div className={styles.illustrationContainer}>
-        <div className={styles.profileContainer}>
-          <div className={styles.profileAvatar}>👤</div>
-        </div>
-        <div className={cn(styles.shieldOverlay, "animate-pulseSlow")}></div>
-        <div className={cn(styles.dietaryIcons, "animate-rotate")}>
-          <div className={cn(styles.dietaryIcon, styles.iconHalal)}>🌙</div>
-          <div className={cn(styles.dietaryIcon, styles.iconVegan)}>🥦</div>
-          <div className={cn(styles.dietaryIcon, styles.iconGluten)}>🌾</div>
-          <div className={cn(styles.dietaryIcon, styles.iconDairy)}>🥛</div>
-          <div className={cn(styles.dietaryIcon, styles.iconSugar)}>🍬</div>
-          <div className={cn(styles.dietaryIcon, styles.iconPeanut)}>🥜</div>
-        </div>
-      </div>
-    ),
-    headline: "Your Diet. Your Faith. Your Rules.",
-    subtext: "Safora adapts to your lifestyle — from halal to heart-healthy.",
-    badges: [
-      { text: "Halal", className: styles.badgeHalal },
-      { text: "Vegan", className: styles.badgeVegan },
-      { text: "No Dairy", className: styles.badgeDairy },
-      { text: "Low Sugar", className: styles.badgeSugar },
-    ],
-  },
-  {
-    id: 'slide-4',
-    backgroundClass: 'bg-onboarding-slide4',
-    showLogo: true,
-    illustration: (
-      <div className={styles.illustrationContainer}>
-        <div className={styles.checklistContainer}>
-          {[
-            "Halal Certified",
-            "Gluten Free",
-            "No Artificial Colors",
-            "Low Sugar",
-          ].map((item, idx) => (
-            <div key={idx} className={styles.checklistItem}>
-              <div className={styles.checklistIcon}>✓</div>
-              <div className={styles.checklistText}>{item}</div>
-            </div>
-          ))}
-        </div>
-        <div className={styles.groceryBag}>
-          <div className={styles.groceryHandle}></div>
-          <div className={cn(styles.groceryItem, "bg-yellow-400")}></div>
-          <div className={cn(styles.groceryItem, "bg-green-500")}></div>
-          <div className={cn(styles.groceryItem, "bg-red-400")}></div>
-        </div>
-        <div className={cn(styles.floatingFood, styles.food1, "animate-float")} style={{animationDelay: '0s'}}>🥗</div>
-        <div className={cn(styles.floatingFood, styles.food2, "animate-float")} style={{animationDelay: '0.5s'}}>🍎</div>
-        <div className={cn(styles.floatingFood, styles.food3, "animate-float")} style={{animationDelay: '1s'}}>🥑</div>
-        <div className={cn(styles.floatingFood, styles.food4, "animate-float")} style={{animationDelay: '1.5s'}}>🍇</div>
-      </div>
-    ),
-    headline: "Shop & Eat with Confidence",
-    subtext: "Your health guardian, wherever you go. Peace of mind starts with a scan.",
-    isLastSlide: true,
-  },
-];
+const TOTAL_SCREENS = 10; // As per your HTML structure
 
+// Define the structure for formData to match UserProfile relevant fields
+type OnboardingFormData = Pick<UserProfile, 
+  'name' | 
+  'dateOfBirth' | 
+  'location' | 
+  'selectedDiets' | 
+  'ingredientsToAvoid' | 
+  'customIngredientsToAvoid' |
+  'knownAllergens' |
+  'customAllergens' |
+  'healthConditions' |
+  'healthGoalsList'
+>;
 
-export default function OnboardingPage() {
+export default function NewOnboardingPage() {
   const router = useRouter();
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [startX, setStartX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const totalSlides = OnboardingSlides.length;
+  const { profile, updateProfile, loading: profileLoading } = useProfile();
+  const [currentScreen, setCurrentScreen] = useState(1);
+  const [formData, setFormData] = useState<Partial<OnboardingFormData>>({
+    name: '',
+    dateOfBirth: '',
+    // Initialize other fields as needed, e.g., location: { region: '', country: '', city: '' }
+  });
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'pan-y'; 
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
+    // Pre-fill formData if profile exists (e.g., user returning to onboarding)
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        name: profile.name || '',
+        dateOfBirth: profile.dateOfBirth || '',
+        location: profile.location || {},
+        selectedDiets: profile.selectedDiets || [],
+        ingredientsToAvoid: profile.ingredientsToAvoid || [],
+        customIngredientsToAvoid: profile.customIngredientsToAvoid || '',
+        knownAllergens: profile.knownAllergens || [],
+        customAllergens: profile.customAllergens || '',
+        healthConditions: profile.healthConditions || [],
+        healthGoalsList: profile.healthGoalsList || [],
+      }));
+    }
+  }, [profile]);
+
+
+  const handleInputChange = (field: keyof OnboardingFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const nextScreen = useCallback(() => {
+    if (currentScreen < TOTAL_SCREENS) {
+      setCurrentScreen(prev => prev + 1);
+    } else if (currentScreen === TOTAL_SCREENS) { // Screen 10: Account Prompt
+      // This is where "Sign Up with Email/Google" or "Continue as Guest" would be handled.
+      // For now, "Sign Up" buttons will lead to auth. "Continue as Guest" could save and go to home.
+      // Let's assume all lead to auth for now.
+      router.push('/auth');
+    }
+  }, [currentScreen, router]);
+
+  const prevScreen = useCallback(() => {
+    if (currentScreen > 1) {
+      setCurrentScreen(prev => prev - 1);
+    }
+  }, [currentScreen]);
+
+  // Swipe and Keyboard Navigation
+  useEffect(() => {
+    let touchstartX = 0;
+    let touchendX = 0;
+    let touchstartY = 0;
+    let touchendY = 0;
+
+    function handleSwipeGesture() {
+        const deltaX = touchendX - touchstartX;
+        const deltaY = touchendY - touchstartY;
+
+        // Only trigger swipe if horizontal movement is dominant and significant
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 75) {
+            if (deltaX < 0) { // Swipe Left
+                nextScreen();
+            }
+            if (deltaX > 0) { // Swipe Right
+                prevScreen();
+            }
+        }
+    }
+
+    const handleTouchStart = (e: TouchEvent) => {
+        touchstartX = e.changedTouches[0].screenX;
+        touchstartY = e.changedTouches[0].screenY;
     };
-  }, []);
+    const handleTouchEnd = (e: TouchEvent) => {
+        touchendX = e.changedTouches[0].screenX;
+        touchendY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'ArrowRight') nextScreen();
+        if (e.key === 'ArrowLeft') prevScreen();
+    };
+
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+        document.removeEventListener('touchstart', handleTouchStart);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [nextScreen, prevScreen]);
 
 
-  const handleDragStart = useCallback((clientX: number) => {
-    setIsDragging(true);
-    setStartX(clientX);
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'none';
+  const progressPercentage = (currentScreen / TOTAL_SCREENS) * 100;
+
+  const renderScreenContent = () => {
+    switch (currentScreen) {
+      case 1: // Welcome Screen
+        return (
+          <div className={styles.screenContent}>
+            <div className={styles.safAvatar}>😊</div>
+            <h1 className={styles.screenTitle}>Hi there! I'm Saf</h1>
+            <p className={styles.screenSubtitle}>Let's build your food profile so I can protect you from hidden risks.</p>
+            <div className={styles.bottomActions}>
+              <Button className={styles.btnPrimary} onClick={nextScreen}>Let's Begin</Button>
+            </div>
+          </div>
+        );
+      case 2: // Basic Info Screen
+        return (
+          <div className={styles.screenContent}>
+            <div className={styles.safAvatar}>👋</div>
+            <h1 className={styles.screenTitle}>First, what should I call you?</h1>
+            <Input
+              type="text"
+              className={styles.inputField}
+              placeholder="Your name"
+              value={formData.name || ''}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+            />
+            
+            <h2 className={styles.fieldLabel}>When were you born?</h2>
+            {/* Simple text input for DOB for now. Will replace with DatePicker later. */}
+            <Input
+              type="date" // Using HTML5 date input for now
+              className={styles.inputField}
+              placeholder="YYYY-MM-DD"
+              value={formData.dateOfBirth || ''}
+              onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+            />
+            <p className={styles.infoText}>This helps me personalize your health insights.</p>
+            <div className={styles.bottomActions}>
+              <Button className={styles.btnPrimary} onClick={nextScreen}>Continue</Button>
+            </div>
+          </div>
+        );
+      // Cases for screens 3-10 will be added in subsequent phases
+      default:
+        return <div>Screen {currentScreen} - Content TBD</div>;
     }
-  }, []);
-
-  const handleDragMove = useCallback((clientX: number) => {
-    if (!isDragging || !carouselRef.current) return;
-    const diff = clientX - startX;
-    const currentOffset = -currentSlide * window.innerWidth;
-
-    let newTranslateX = currentOffset + diff;
-    if ((currentSlide === 0 && diff > 0) || (currentSlide === totalSlides - 1 && diff < 0)) {
-      newTranslateX = currentOffset + diff / 3;
-    }
-    carouselRef.current.style.transform = `translateX(${newTranslateX}px)`;
-  }, [isDragging, startX, currentSlide, totalSlides]);
-
-  const handleDragEnd = useCallback(() => {
-    if (!isDragging || !carouselRef.current) return;
-    setIsDragging(false);
-    carouselRef.current.style.transition = 'transform 0.5s ease-in-out';
-
-    const endTranslateXString = carouselRef.current.style.transform.match(/translateX\(([^px]+)px\)/);
-    const endTranslateX = endTranslateXString ? parseFloat(endTranslateXString[1]) : 0;
-
-    const threshold = window.innerWidth / 4;
-    const slideWidth = window.innerWidth;
-    const currentOffset = -currentSlide * slideWidth;
-    const movedDistance = endTranslateX - currentOffset;
-
-    if (movedDistance < -threshold && currentSlide < totalSlides - 1) {
-      setCurrentSlide(prev => prev + 1);
-    } else if (movedDistance > threshold && currentSlide > 0) {
-      setCurrentSlide(prev => prev - 1);
-    } else {
-      carouselRef.current.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
-    }
-  }, [isDragging, currentSlide, totalSlides]);
-
-
-  useEffect(() => {
-    if (carouselRef.current) {
-        carouselRef.current.style.transform = `translateX(-${currentSlide * 100}vw)`;
-    }
-  }, [currentSlide]);
-
-  const onTouchStart = (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX);
-  const onTouchMove = (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX);
-  const onTouchEnd = () => handleDragEnd();
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    handleDragStart(e.clientX);
-    if(carouselRef.current) carouselRef.current.style.cursor = 'grabbing';
-  };
-  const onMouseMove = (e: React.MouseEvent) => handleDragMove(e.clientX);
-  const onMouseUp = () => {
-    handleDragEnd();
-    if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
-  };
-  const onMouseLeave = () => {
-    if (isDragging) {
-        handleDragEnd();
-        if(carouselRef.current) carouselRef.current.style.cursor = 'grab';
-    }
-  };
-
-  const handleIndicatorClick = (index: number) => {
-    setCurrentSlide(index);
-  };
-
-  const handleGetStarted = () => {
-    router.push('/auth');
   };
 
   return (
-    <div className={styles.carouselContainer}>
-      <div
-        ref={carouselRef}
-        className={styles.carousel}
-        style={{ width: `${totalSlides * 100}vw` }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseLeave}
-      >
-        {OnboardingSlides.map((slide) => (
-          <div key={slide.id} className={cn(styles.carouselSlide, styles[slide.id], slide.backgroundClass, `font-['Poppins']`)}>
-             {slide.showLogo && (
-                <div className={cn(
-                    "absolute z-20",
-                     (slide.id === 'slide-2' || slide.id === 'slide-3' || slide.id === 'slide-4') ? "top-6 left-6" : "top-6 left-6" 
-                )}>
-                    <Logo />
-                </div>
-            )}
-            {slide.id === 'slide-2' && <div className={styles.gridOverlay}></div>}
-
-            <div className={styles.contentContainer}>
-              <div className={cn(styles.illustrationContainer, slide.id === 'slide-2' ? styles.slide2IllustrationContainer : '')}>
-                {slide.illustration}
-              </div>
-              <h1 className={styles.headline}>{slide.headline}</h1>
-              <p className={styles.subtext}>{slide.subtext}</p>
-
-              {slide.badges && (
-                <div className={styles.badgesContainer}>
-                  {slide.badges.map((badge, idx) => (
-                    <div key={idx} className={cn(styles.badge, badge.className)}>
-                      {badge.text}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {slide.isLastSlide ? (
-                <button className={styles.ctaButton} onClick={handleGetStarted}>
-                  Get Started
-                </button>
-              ) : (
-                <div className={styles.swipeIndicator}>
-                  Swipe to continue <span className={cn(styles.swipeArrow, "animate-swipeArrow")}>→</span>
-                </div>
-              )}
+    <div className={styles.onboardingRoot}>
+        <div className={styles.onboardingContainer}>
+            <div className={styles.logoContainer}>
+                <Logo />
+            </div>
+            <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${progressPercentage}%` }}></div>
             </div>
 
-            <div className={styles.indicatorContainer}>
-              {OnboardingSlides.map((_, idx) => (
+            {[...Array(TOTAL_SCREENS)].map((_, i) => (
                 <div
-                  key={idx}
-                  className={cn(styles.indicator, styles[`indicator-${idx}`] , currentSlide === idx ? styles.active : '')}
-                  onClick={() => handleIndicatorClick(idx)}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+                key={i + 1}
+                id={`screen-${i + 1}`}
+                className={cn(
+                    styles.screen,
+                    currentScreen === i + 1 ? styles.screenActive : 
+                    currentScreen > i + 1 ? styles.screenInactiveLeft : styles.screenInactiveRight
+                )}
+                >
+                {currentScreen === i + 1 && renderScreenContent()}
+                </div>
+            ))}
+        </div>
     </div>
   );
 }
-
