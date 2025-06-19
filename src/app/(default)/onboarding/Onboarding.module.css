@@ -1,10 +1,30 @@
 
-/* New Onboarding Styles */
+/* CSS Variables from new HTML - can be integrated into Tailwind theme later if widely used */
+:root {
+    --safora-green: #2ecc71;
+    --safora-blue: #56ccf2;
+    --safora-light-blue: #e8f4fd;
+    --safora-light-green: #e8f8f0;
+    /* Variables for existing visual onboarding */
+    --slide-1-bg-start: #ffffff;
+    --slide-1-bg-end: #e6f7ef;
+    --slide-2-bg-start: #e6f7ff;
+    --slide-2-bg-end: #ffffff;
+    --slide-3-bg-start: #e0f2fe; /* light-sky-100 */
+    --slide-3-bg-end: #f0f9ff; /* light-sky-50 */
+    --slide-4-bg-start: #fffbeb; /* amber-50 */
+    --slide-4-bg-end: #fef3c7; /* amber-100 */
+
+    --onboarding-text-primary: #1f2937; /* gray-800 */
+    --onboarding-text-secondary: #4b5563; /* gray-600 */
+}
+
+/* Styles for Existing Visual Onboarding (Slides 1-4) */
 .onboardingRoot {
     font-family: 'Poppins', sans-serif;
     height: 100vh;
     overflow: hidden;
-    background: linear-gradient(135deg, #e8f4fd, #e8f8f0); /* --safora-light-blue, --safora-light-green */
+    background: linear-gradient(135deg, var(--safora-light-blue), var(--safora-light-green));
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,34 +32,273 @@
 
 .onboardingContainer {
     width: 100%;
-    height: 100vh; /* Changed from 100% to 100vh for full viewport height */
+    height: 100vh;
     max-width: 100vw;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
-    background-color: white; /* Default screen background */
+    background-color: white;
 }
 
-/* Responsive container width */
 @media (min-width: 480px) {
     .onboardingContainer {
         max-width: 480px;
-        height: 95vh; /* Adjust height for non-fullscreen on larger devices */
-        max-height: 800px; /* Max height */
+        height: 95vh;
+        max-height: 800px;
         border-radius: 24px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 }
 @media (min-width: 768px) {
     .onboardingContainer {
-        max-width: 420px; /* Optimal for phone-like multi-step forms */
-         height: 90vh;
+        max-width: 420px;
+        height: 90vh;
         max-height: 700px;
     }
 }
 
+.visualScreen { /* Renamed to avoid clash with newData_screen */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-in-out;
+    padding: 2rem 1.5rem; /* Default padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* To push actions to bottom */
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    overflow-y: auto; /* For content overflow on smaller heights */
+}
 
-.screen {
+@media (min-width: 640px) {
+    .visualScreen {
+        padding: 2.5rem 2rem;
+    }
+}
+
+.visualScreenActive { /* Renamed */
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+}
+
+.visualScreenInactiveLeft { /* Renamed */
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+}
+.visualScreenInactiveRight { /* Renamed */
+    transform: translateX(100%);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.logoContainer {
+    position: absolute;
+    top: 1.5rem; /* Tailwind top-6 */
+    left: 1.5rem; /* Tailwind left-6 */
+    z-index: 10;
+}
+
+.visualProgressBarContainer { /* Renamed for clarity */
+    position: absolute;
+    bottom: 1.5rem; /* Tailwind bottom-6 */
+    left: 1.5rem; /* Tailwind left-6 */
+    right: 1.5rem; /* Tailwind right-6 */
+    z-index: 5;
+}
+
+.visualProgressBar { /* Renamed */
+    height: 8px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.visualProgressFill { /* Renamed */
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--safora-green), var(--safora-blue));
+    transition: width 0.5s ease;
+}
+
+.slideContent {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center content between title and actions */
+    width: 100%;
+    padding-top: 2rem; /* Space below logo */
+    padding-bottom: 6rem; /* Space above progress bar and actions */
+}
+
+.illustrationContainer {
+    width: 100%;
+    max-width: 320px; /* Max width for illustration */
+    margin: 1rem auto; /* Centering and vertical spacing */
+    aspect-ratio: 4/3; /* Maintain aspect ratio if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For absolutely positioned children if any */
+    max-height: 30vh; /* Increased from 28vh */
+    min-height: 200px; /* Maintained */
+}
+
+.slide2IllustrationContainer {
+  width: 100%;
+  max-width: 320px; /* Max width for illustration */
+  margin: 1rem auto; /* Centering and vertical spacing */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-height: 28vh; /* Max height for slide 2 illustration */
+  min-height: auto; /* Allows it to be smaller than 200px if 28vh is smaller */
+}
+
+.responsiveGif {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensures the whole image is visible, scaled down */
+    border-radius: 0.75rem; /* Tailwind rounded-xl */
+}
+
+
+.shieldOverlay {
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, rgba(46, 204, 113, 0) 70%);
+    border-radius: 50%;
+}
+
+.dietaryIcons {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dietaryIcons svg {
+    position: absolute;
+    width: 20%; /* Relative to parent */
+    height: 20%;
+    color: var(--safora-green);
+    opacity: 0.7;
+}
+
+.floatingFood {
+    position: absolute;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0.75rem; /* Tailwind rounded-xl */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Tailwind gap-2 */
+    font-size: 0.875rem; /* Tailwind text-sm */
+    font-weight: 500; /* Tailwind font-medium */
+}
+
+.food1 { top: 10%; left: 15%; }
+.food2 { top: 25%; right: 10%; }
+.food3 { bottom: 20%; left: 20%; }
+.food4 { bottom: 10%; right: 25%; }
+
+
+.slideTitle {
+    font-size: 1.75rem; /* ~text-2xl */
+    font-weight: 700; /* Tailwind font-bold */
+    color: var(--onboarding-text-primary);
+    margin-bottom: 0.75rem; /* Tailwind mb-3 */
+    line-height: 1.3;
+}
+
+.slideDescription {
+    font-size: 1rem; /* ~text-base */
+    color: var(--onboarding-text-secondary);
+    margin-bottom: 2rem; /* Tailwind mb-8 */
+    line-height: 1.6;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.slideActions {
+    width: 100%;
+    padding: 0 1.5rem; /* Horizontal padding for actions */
+    position: absolute;
+    bottom: 4rem; /* Above progress bar */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.skipButton {
+    position: absolute;
+    top: 1.5rem; /* Tailwind top-6 */
+    right: 1.5rem; /* Tailwind right-6 */
+    z-index: 10;
+    font-size: 0.875rem; /* text-sm */
+    color: var(--onboarding-text-secondary);
+}
+
+/* Specific background gradients for visual slides */
+.slide1Bg { background: linear-gradient(135deg, var(--slide-1-bg-start), var(--slide-1-bg-end)); }
+.slide2Bg { background: linear-gradient(135deg, var(--slide-2-bg-start), var(--slide-2-bg-end)); }
+.slide3Bg { background: linear-gradient(135deg, var(--slide-3-bg-start), var(--slide-3-bg-end)); }
+.slide4Bg { background: linear-gradient(135deg, var(--slide-4-bg-start), var(--slide-4-bg-end)); }
+
+/* Styles for New Data Collection Onboarding (Screens 5 onwards) */
+/* These styles are based on the HTML provided by the user */
+
+.newData_onboardingContainer { /* This will be the root div when currentDataCollectionStep > 0 */
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    overflow: hidden; /* Prevents body scroll on swipe */
+    background: linear-gradient(135deg, var(--safora-light-blue), var(--safora-light-green));
+    display: flex; /* Added for centering the inner container */
+    justify-content: center; /* Added for centering */
+    align-items: center; /* Added for centering */
+}
+
+.newData_innerContainer { /* Wrapper for content within newData_onboardingContainer */
+    width: 100%;
+    height: 100vh;
+    max-width: 100vw; /* Default to full viewport width */
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden; /* For screen transitions */
+    background-color: white; /* Screens have white background */
+}
+
+@media (min-width: 480px) {
+    .newData_innerContainer {
+        max-width: 480px; /* Max width for phone-like view */
+        height: 95vh; /* Adjust height for non-fullscreen on larger devices */
+        max-height: 800px; /* Max height */
+        border-radius: 24px; /* Rounded corners for the "device" */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Shadow for depth */
+    }
+}
+@media (min-width: 768px) { /* Further constrain on larger screens if desired */
+    .newData_innerContainer {
+        max-width: 420px;
+        height: 90vh;
+        max-height: 700px;
+    }
+}
+/* Removed .onboarding-container responsive styles from new HTML as newData_innerContainer handles it */
+
+.newData_screen {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -47,224 +306,426 @@
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* Allow scrolling for content that overflows vertically */
+    background-color: white;
+    border-radius: 0; /* Will be on newData_innerContainer for larger screens */
+    overflow-y: auto;
     visibility: hidden; /* Hide screens by default */
     opacity: 0;
-    background-color: white; /* Ensure screens have a background */
 }
 
 @media (min-width: 640px) {
-    .screen {
+    .newData_screen {
         padding: 1.5rem;
     }
 }
 @media (min-width: 768px) {
-    .screen {
+    .newData_screen {
         padding: 2rem;
     }
 }
 
-.screenActive {
+.newData_screen.active {
     transform: translateX(0);
     visibility: visible;
     opacity: 1;
-    z-index: 1;
+    z-index: 1; /* Ensure active screen is on top */
 }
-
-.screenInactiveLeft { /* For screen animating out to the left */
+.newData_screen.inactiveLeft {
     transform: translateX(-100%);
     visibility: hidden;
     opacity: 0;
 }
-.screenInactiveRight { /* For screen animating in from the right or not yet shown */
+.newData_screen.inactiveRight {
     transform: translateX(100%);
     visibility: hidden;
     opacity: 0;
 }
 
 
-.progressBar {
-    height: 8px;
-    background-color: #e0e0e0; /* Light grey track */
-    border-radius: 4px;
+.newData_progressBar {
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
     margin-bottom: 1.5rem;
     position: relative;
-    overflow: hidden; /* To clip progress-fill corners */
 }
 
-.progressFill {
+.newData_progressFill {
     height: 100%;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #2ecc71, #56ccf2); /* --safora-green, --safora-blue */
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--safora-green), var(--safora-blue));
     transition: width 0.5s ease;
 }
 
-.safAvatar {
-    width: 60px;
-    height: 60px;
-    background-color: #2ecc71; /* --safora-green */
+.newData_safAvatar {
+    width: 50px;
+    height: 50px;
+    background-color: var(--safora-green);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 24px;
+    font-size: 20px;
     margin-bottom: 1rem;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-    animation: floatAnimation 3s ease-in-out infinite;
+    animation: newData_float 3s ease-in-out infinite; /* Using new keyframe name */
     align-self: center;
 }
+
 @media (min-width: 640px) {
-    .safAvatar {
+    .newData_safAvatar {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+}
+@media (min-width: 768px) {
+    .newData_safAvatar {
         width: 70px;
         height: 70px;
         font-size: 28px;
     }
 }
-@media (min-width: 768px) {
-    .safAvatar {
-        width: 80px;
-        height: 80px;
-        font-size: 32px;
-    }
-}
 
-
-@keyframes floatAnimation { /* Renamed to avoid conflict with existing 'float' */
+@keyframes newData_float { /* Renamed to avoid conflict with existing 'float' in tailwind.config */
     0% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
 }
 
-.screenTitle {
-    font-size: 1.75rem; /* Tailwind text-2xl */
+.newData_h1 { /* For h1 tags within new data collection screens */
+    font-size: 1.5rem; /* Tailwind text-2xl is 1.5rem */
     line-height: 1.2;
     text-align: center;
     margin-bottom: 1rem;
-    color: #333;
-    font-weight: 600;
+    font-weight: 600; /* Tailwind font-semibold */
+    color: #1f2937; /* gray-800 */
 }
+
 @media (min-width: 640px) {
-    .screenTitle {
-        font-size: 2rem; /* text-3xl */
+    .newData_h1 {
+        font-size: 1.875rem; /* text-3xl */
         margin-bottom: 1.5rem;
     }
 }
-
-.screenSubtitle {
-    text-align: center;
-    color: #555; /* Tailwind text-gray-600 */
-    margin-bottom: 2rem; /* Tailwind mb-8 */
-    font-size: 1rem;
-}
-@media (min-width: 640px) {
-    .screenSubtitle {
-        font-size: 1.125rem; /* text-lg */
-    }
-}
+/* Removed @media 768px for h1 as Tailwind classes handle it, or can be added if needed */
 
 
-.btnPrimary {
-    background: linear-gradient(90deg, #2ecc71, #56ccf2);
+.newData_btnPrimary {
+    background: linear-gradient(90deg, var(--safora-green), var(--safora-blue));
     color: white;
     border: none;
     border-radius: 50px;
     padding: 0.875rem 1.5rem;
     font-weight: 600;
-    font-size: 1rem; /* Base size */
+    font-size: 0.875rem; /* text-sm */
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(86, 204, 242, 0.2);
+    box-shadow: 0 4px 15px rgba(86, 204, 242, 0.3);
     width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
-    display: block; /* Ensure it takes full width up to max-width */
+    max-width: 300px;
+    margin-left: auto; /* For centering if parent is flex */
+    margin-right: auto; /* For centering if parent is flex */
+    display: flex; /* For icon alignment if used */
+    align-items: center; /* For icon alignment */
+    justify-content: center; /* For icon alignment */
 }
-.btnPrimary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(86, 204, 242, 0.3);
-}
+
 @media (min-width: 640px) {
-    .btnPrimary {
+    .newData_btnPrimary {
         padding: 1rem 2rem;
-        font-size: 1.125rem; /* Slightly larger on bigger screens */
+        font-size: 1rem; /* text-base */
+        max-width: 350px;
     }
 }
 
-.inputField {
+.newData_btnPrimary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(86, 204, 242, 0.4);
+}
+
+.newData_btnSecondary {
+    background-color: transparent;
+    color: #4b5563; /* gray-600 */
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 50px;
+    padding: 0.875rem 1.5rem;
+    font-weight: 500; /* medium */
+    font-size: 0.875rem; /* text-sm */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 640px) {
+    .newData_btnSecondary {
+        padding: 1rem 2rem;
+        font-size: 1rem; /* text-base */
+        max-width: 350px;
+    }
+}
+
+.newData_btnSecondary:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    border-color: #9ca3af; /* gray-400 */
+}
+
+.newData_chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f3f4f6; /* gray-100 */
+    border-radius: 50px;
+    padding: 0.5rem 1.25rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    font-size: 0.875rem; /* text-sm */
+    color: #374151; /* gray-700 */
+}
+
+.newData_chip.selected {
+    background-color: var(--safora-light-green);
+    border-color: var(--safora-green);
+    color: var(--safora-green);
+    font-weight: 500;
+}
+
+.newData_chip:hover:not(.selected) {
+    background-color: #e5e7eb; /* gray-200 */
+}
+
+.newData_inputField {
     width: 100%;
     padding: 1rem;
-    border: 2px solid #eee;
+    border: 2px solid #e5e7eb; /* gray-200 */
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 1rem; /* text-base */
     transition: all 0.3s ease;
     margin-bottom: 1rem;
-    color: #333;
+    color: #1f2937; /* gray-800 */
 }
-.inputField::placeholder {
-    color: #aaa;
+.newData_inputField::placeholder {
+    color: #9ca3af; /* gray-400 */
 }
-.inputField:focus {
-    border-color: #56ccf2; /* --safora-blue */
+
+.newData_inputField:focus {
+    border-color: var(--safora-blue);
     outline: none;
     box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2);
 }
 
-.screenContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    text-align: center;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    width: 100%; /* Ensure content uses available width */
+.newData_safMessage { /* Renamed */
+    background-color: var(--safora-light-blue);
+    border-left: 4px solid var(--safora-blue);
+    padding: 1rem;
+    border-radius: 0 12px 12px 0;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: #4b5563; /* gray-600 */
+    text-align: left; /* Ensure text is aligned left */
 }
 
-.bottomActions {
-    margin-top: auto; /* Pushes to the bottom */
-    padding-top: 1.5rem;
-    width: 100%;
+.newData_screenContent {
+    flex: 1; /* Takes available space */
     display: flex;
     flex-direction: column;
+    width: 100%; /* Ensure it uses the full width of .newData_screen */
+    align-items: center; /* Center content like avatar, title */
+    /* text-align: center; Removed, let child elements control their text-align */
+    padding: 1rem 0; /* Vertical padding */
+}
+
+.newData_bottomActions {
+    margin-top: auto; /* Pushes to the bottom */
+    padding-top: 1.5rem; /* Space above buttons */
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* Stack buttons if multiple */
+    gap: 0.75rem; /* Space between buttons if stacked */
     align-items: center; /* Center buttons */
 }
 
-.fieldLabel {
-    font-size: 1.125rem; /* text-lg */
-    font-weight: 500; /* font-medium */
-    margin-top: 1.5rem; /* Tailwind mt-6 */
-    margin-bottom: 1rem; /* Tailwind mb-4 */
-    color: #444;
-    text-align: center;
+/* Styles for dropdowns and calendar from new HTML */
+/* Note: Calendar is very basic in HTML, will need a proper component later */
+.newData_monthSelector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 350px; /* Limit width */
 }
-
-.infoText {
-    color: #666; /* Tailwind text-gray-500 */
-    font-size: 0.875rem; /* text-sm */
-    margin-top: 1.5rem; /* Tailwind mt-6 */
-    text-align: center;
+.newData_monthArrow {
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+.newData_calendarHeader, .newData_calendarPicker {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px; /* Tailwind gap-2 */
+    width: 100%;
+    max-width: 350px; /* Limit width */
+}
+.newData_calendarHeader { margin-bottom: 0.5rem; font-size: 0.8rem; color: #777; }
+.newData_calendarHeader span { text-align: center; }
+.newData_calendarDay {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.newData_calendarDay:hover { background-color: #f0f0f0; }
+.newData_calendarDay.selected { background-color: var(--safora-green); color: white; }
 
-.logoContainer {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    z-index: 10;
+.newData_dropdownField {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+    max-width: 400px; /* Limit width of dropdowns */
+}
+.newData_dropdownSelected {
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    text-align: left;
 }
 @media (min-width: 640px) {
-    .logoContainer {
-        top: 1.5rem;
-        left: 1.5rem;
-    }
+    .newData_dropdownSelected { padding: 1rem 1.25rem; font-size: 1rem; }
+}
+.newData_dropdownSelected:hover { border-color: var(--safora-blue); background-color: #f0f9ff; }
+.newData_dropdownSelected.active { border-color: var(--safora-green); background-color: #f0fdf4; }
+
+.newData_dropdownOptions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-top: none; /* Avoid double border with selected */
+    border-radius: 0 0 12px 12px; /* Match bottom corners */
+    max-height: 0;
+    overflow: hidden;
+    z-index: 1000;
+    transition: max-height 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+.newData_dropdownOptions.show {
+    max-height: 250px; /* Or other desired max height */
+    opacity: 1;
+    visibility: visible;
+    overflow-y: auto;
+    border-color: var(--safora-green); /* Show border when open */
+}
+.newData_dropdownOption {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f1f3f4;
+    text-align: left;
+}
+@media (min-width: 640px) {
+    .newData_dropdownOption { padding: 0.875rem 1.25rem; font-size: 1rem; }
+}
+.newData_dropdownOption:last-child { border-bottom: none; }
+.newData_dropdownOption:hover { background-color: #f0f9ff; color: var(--safora-blue); }
+.newData_dropdownOption.selected { background-color: #f0fdf4; color: var(--safora-green); font-weight: 600; }
+
+.newData_dropdownOptions::-webkit-scrollbar { width: 6px; }
+.newData_dropdownOptions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+.newData_dropdownOptions::-webkit-scrollbar-thumb { background: var(--safora-green); border-radius: 3px; }
+
+.newData_tooltip {
+    position: relative;
+    display: inline-flex; /* Changed to inline-flex for better alignment with icon */
+    align-items: center;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+.newData_tooltipText { /* Renamed */
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.5rem;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position above the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+    white-space: normal; /* Allow text to wrap */
+}
+.newData_tooltip:hover .newData_tooltipText {
+    visibility: visible;
+    opacity: 1;
+}
+
+.newData_summaryItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    text-align: left;
+    width: 100%;
+}
+.newData_summaryIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--safora-light-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: var(--safora-green);
+    flex-shrink: 0;
+}
+
+/* Ensure screen content takes up available space */
+.newData_screen > .newData_screenContent {
+    flex: 1;
 }
 
 /* Hide scrollbar for webkit browsers */
-.screen::-webkit-scrollbar {
+.visualScreen::-webkit-scrollbar, .newData_screen::-webkit-scrollbar {
     display: none;
 }
 /* Hide scrollbar for IE, Edge and Firefox */
-.screen {
+.visualScreen, .newData_screen {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
+/* Ensure Poppins is globally available if not already set in layout.tsx */
+/* This is typically handled in globals.css or layout body className */
+/* body { font-family: 'Poppins', sans-serif; } */

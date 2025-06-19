@@ -37,28 +37,28 @@ export interface UserProfileLocation {
 }
 
 export interface UserProfile {
-  // Fields from original design
-  dietaryPreferences: Partial<DietaryPreferences>;
-  allergies: Partial<Allergies>;
-  healthGoals: Partial<HealthGoals>; // Boolean based goals
-  customRestrictions?: string;
+  // Fields from original visual onboarding form
+  dietaryPreferences: Partial<DietaryPreferences>; // Keep for now, can be deprecated later
+  allergies: Partial<Allergies>; // Keep for now, can be deprecated later
+  healthGoals: Partial<HealthGoals>; // Keep for now, can be deprecated later
+  customRestrictions?: string; // General custom notes
 
-  // New detailed fields from multi-step onboarding
+  // New detailed fields from multi-step data collection
   name?: string;
   dateOfBirth?: string; // Store as YYYY-MM-DD string
   location?: Partial<UserProfileLocation>;
 
-  selectedDiets?: string[]; // e.g., ["Vegan", "Gluten-Free"]
-  ingredientsToAvoid?: string[]; // e.g., ["Pork", "Alcohol"]
+  selectedDiets?: string[]; 
+  ingredientsToAvoid?: string[];
   customIngredientsToAvoid?: string;
   
-  knownAllergens?: string[]; // e.g., ["Peanuts", "Shellfish"]
+  knownAllergens?: string[];
   customAllergens?: string;
 
-  healthConditions?: string[]; // e.g., ["Diabetes", "Hypertension"]
-  healthGoalsList?: string[]; // Replaces/augments boolean healthGoals, e.g., ["Weight Loss", "Eat Cleaner"]
+  healthConditions?: string[];
+  healthGoalsList?: string[];
 
-  profileCompletionStatus?: 'initial' | 'partial_onboarding' | 'complete';
+  profileCompletionStatus?: 'initial' | 'visual_complete' | 'data_collection_started' | 'data_collection_complete';
 }
 
 

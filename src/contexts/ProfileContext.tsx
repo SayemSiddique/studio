@@ -7,17 +7,20 @@ import type { UserProfile } from '@/lib/types';
 interface ProfileContextType {
   profile: UserProfile | null;
   loading: boolean;
-  updateProfile: (newProfile: Partial<UserProfile>) => Promise<void>; // Allow partial updates
+  updateProfile: (newProfile: Partial<UserProfile>) => Promise<void>;
   getProfileForAI: () => string; 
 }
 
 export const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 const initialProfile: UserProfile = {
+  // Old structure defaults (can be phased out)
   dietaryPreferences: {},
   allergies: {},
   healthGoals: {},
   customRestrictions: "",
+
+  // New detailed fields
   name: "",
   dateOfBirth: "",
   location: {},
@@ -40,6 +43,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (storedProfile) {
       try {
         const parsedProfile = JSON.parse(storedProfile);
+        // Ensure all fields from initialProfile are present, even if not in storedProfile
         setProfile({ ...initialProfile, ...parsedProfile });
       } catch (error) {
         console.error("Failed to parse stored profile:", error);
@@ -69,30 +73,55 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     let restrictionsStr = "User Dietary Profile:\n";
     
     if (profile.name) restrictionsStr += `Name: ${profile.name}\n`;
-    // DOB and Location might not be relevant for food analysis AI, but can be included if needed.
-
-    const formatArraySection = (title: string, items: string[] | undefined, prefix: string = "") => {
+    if (profile.dateOfBirth) restrictionsStr += `Date of Birth: ${profile.dateOfBirth}\n`;
+    if (profile.location?.country) restrictionsStr += `Location: ${profile.location.city ? profile.location.city + ', ' : ''}${profile.location.country}\n`;
+    
+    const formatArraySection = (title: string, items: string[] | undefined, customItem?: string | undefined, prefix: string = "") => {
       if (items && items.length > 0) {
         restrictionsStr += `${title}:\n${items.map(item => `- ${prefix}${item}`).join("\n")}\n`;
       }
+      if (customItem && customItem.trim() !== "") {
+        restrictionsStr += `Custom ${title.toLowerCase()}:\n- ${customItem}\n`;
+      }
     };
     
-    // Combine old boolean preferences with new array if both exist, or prioritize new array.
-    // For now, focusing on new arrays:
     formatArraySection("Dietary Choices", profile.selectedDiets);
-    formatArraySection("Ingredients to Avoid", profile.ingredientsToAvoid);
-    if(profile.customIngredientsToAvoid) restrictionsStr += `Custom Ingredients to Avoid: ${profile.customIngredientsToAvoid}\n`;
-    
-    formatArraySection("Known Allergens", profile.knownAllergens, "Allergic to ");
-     if(profile.customAllergens) restrictionsStr += `Custom Allergens: ${profile.customAllergens}\n`;
-
+    formatArraySection("Ingredients to Avoid", profile.ingredientsToAvoid, profile.customIngredientsToAvoid);
+    formatArraySection("Known Allergens", profile.knownAllergens, profile.customAllergens, "Allergic to ");
     formatArraySection("Health Conditions", profile.healthConditions);
     formatArraySection("Health Goals", profile.healthGoalsList);
     
-    if (profile.customRestrictions) {
-      restrictionsStr += `Other General Restrictions:\n- ${profile.customRestrictions}\n`;
+    if (profile.customRestrictions && profile.customRestrictions.trim() !== "") {
+      restrictionsStr += `Other General Notes/Restrictions:\n- ${profile.customRestrictions}\n`;
     }
     
+    // Include old boolean preferences if they exist and new arrays are empty (for backward compatibility during transition)
+    // This part can be removed once fully migrated to new array fields
+    if ((!profile.selectedDiets || profile.selectedDiets.length === 0) && Object.values(profile.dietaryPreferences).some(v => v)) {
+      restrictionsStr += "Legacy Dietary Preferences:\n";
+      Object.entries(profile.dietaryPreferences).forEach(([key, value]) => {
+        if (value === true && !key.startsWith("other")) {
+          restrictionsStr += `- ${key.replace("is", "")}\n`;
+        }
+      });
+    }
+     if ((!profile.knownAllergens || profile.knownAllergens.length === 0) && Object.values(profile.allergies).some(v => v)) {
+      restrictionsStr += "Legacy Allergies:\n";
+      Object.entries(profile.allergies).forEach(([key, value]) => {
+        if (value === true && !key.startsWith("other")) {
+          restrictionsStr += `- ${key.replace("has", "")}\n`;
+        }
+      });
+    }
+     if ((!profile.healthGoalsList || profile.healthGoalsList.length === 0) && Object.values(profile.healthGoals).some(v => v)) {
+      restrictionsStr += "Legacy Health Goals:\n";
+      Object.entries(profile.healthGoals).forEach(([key, value]) => {
+        if (value === true && !key.startsWith("other")) {
+          restrictionsStr += `- ${key.replace("wants", "")}\n`;
+        }
+      });
+    }
+
     if (restrictionsStr === "User Dietary Profile:\n") return "No specific dietary restrictions, preferences, or goals set.";
 
     return restrictionsStr.trim();
