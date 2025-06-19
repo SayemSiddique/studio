@@ -1,23 +1,5 @@
-
 /* CSS Variables from new HTML - can be integrated into Tailwind theme later if widely used */
-:root {
-    --safora-green: #2ecc71;
-    --safora-blue: #56ccf2;
-    --safora-light-blue: #e8f4fd;
-    --safora-light-green: #e8f8f0;
-    /* Variables for existing visual onboarding */
-    --slide-1-bg-start: #ffffff;
-    --slide-1-bg-end: #e6f7ef;
-    --slide-2-bg-start: #e6f7ff;
-    --slide-2-bg-end: #ffffff;
-    --slide-3-bg-start: #e0f2fe; /* light-sky-100 */
-    --slide-3-bg-end: #f0f9ff; /* light-sky-50 */
-    --slide-4-bg-start: #fffbeb; /* amber-50 */
-    --slide-4-bg-end: #fef3c7; /* amber-100 */
-
-    --onboarding-text-primary: #1f2937; /* gray-800 */
-    --onboarding-text-secondary: #4b5563; /* gray-600 */
-}
+/* :root definitions moved to globals.css */
 
 /* Styles for Existing Visual Onboarding (Slides 1-4) */
 .onboardingRoot {
@@ -175,7 +157,6 @@
     height: 120%;
     background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, rgba(46, 204, 113, 0) 70%);
     border-radius: 50%;
-    /* animation property removed, will be handled by Tailwind class */
 }
 
 .dietaryIcons {
@@ -185,7 +166,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* animation property removed, will be handled by Tailwind class */
 }
 
 .dietaryIcons svg {
@@ -207,7 +187,6 @@
     gap: 0.5rem; /* Tailwind gap-2 */
     font-size: 0.875rem; /* Tailwind text-sm */
     font-weight: 500; /* Tailwind font-medium */
-    /* animation property removed, will be handled by Tailwind class */
 }
 
 .food1 { top: 10%; left: 15%; }
@@ -315,10 +294,10 @@
     flex-direction: column;
     background-color: white;
     border-radius: inherit; /* Inherit from parent if parent has radius */
-    overflow-y: auto;
+    /* overflow-y: auto; This might be better on screenContent */
     visibility: hidden; /* Hidden by default for inactive screens */
     opacity: 0; /* Hidden by default */
-    transform: translateX(100%); /* Default off-screen to the right */
+    /* transform: translateX(100%); Default off-screen to the right. Set by active/inactive classes */
 }
 
 @media (min-width: 640px) { .newData_screen { padding: 1.5rem; } }
@@ -344,8 +323,8 @@
 
 .newData_progressBarContainer {
     padding: 0 1rem 1rem 1rem; /* Padding around it */
-    margin-top: auto; /* Pushes to bottom */
     width: 100%; /* Take full width within its flex item context */
+    /* margin-top: auto; Removed this to place it via flex order in JSX */
 }
 
 .newData_progressBar {
@@ -393,8 +372,6 @@
     color: #1f2937; /* gray-800 */
 }
 @media (min-width: 640px) { .newData_h1 { font-size: 1.875rem; margin-bottom: 1.5rem; } } /* text-3xl */
-/* Removed larger h1 from HTML, as it's better controlled by Tailwind utilities if needed */
-
 
 .newData_btnPrimary {
     background: linear-gradient(90deg, var(--safora-green), var(--safora-blue));
@@ -439,12 +416,11 @@
 @media (min-width: 640px) { .newData_btnSecondary { padding: 1rem 2rem; font-size: 1rem; max-width: 350px; } }
 .newData_btnSecondary:hover { background-color: #f3f4f6; border-color: #9ca3af; }
 
-
 .newData_chipContainer {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.5rem; /* Reduced from 0.75rem in HTML to match visual style */
     margin-bottom: 1rem;
     width: 100%;
     max-width: 420px; /* Limit width of chip container for better centering */
@@ -463,6 +439,7 @@
     font-size: 0.875rem;
     color: #374151; /* gray-700 */
     line-height: 1.25;
+    margin: 0.25rem; /* Add small margin for better spacing when wrapping */
 }
 .newData_chip.newData_selected {
     background-color: var(--safora-light-green);
@@ -503,15 +480,15 @@
 }
 
 .newData_screenContent {
-    flex: 1;
+    flex: 1; /* Make content take available space */
     display: flex;
     flex-direction: column;
     width: 100%;
-    align-items: center;
+    align-items: center; /* Center children horizontally */
     padding: 1rem 0;
     text-align: center;
     overflow-y: auto; /* Allow content to scroll if it overflows */
-    max-height: calc(100% - 80px); /* Example: Adjust based on header/footer heights */
+    /* max-height: calc(100% - 80px); Consider removing or adjusting if header/footer fixed heights are not strict */
 }
 
 .newData_bottomActions {
@@ -521,12 +498,21 @@
     flex-direction: column;
     gap: 0.75rem;
     align-items: center;
+    margin-top: auto; /* Pushes to bottom of flex container */
 }
 
 .newData_summaryContainerScrollable {
+    width: 100%;
+    max-width: 400px; /* Consistent width */
+    margin-left: auto;
+    margin-right: auto;
     max-height: 50vh; /* Or a fixed pixel value like 300px */
     overflow-y: auto;
     padding-right: 0.5rem; /* Space for scrollbar */
+    background-color: #f9fafb; /* bg-gray-50 equivalent */
+    padding: 1rem; /* p-4 */
+    border-radius: 0.75rem; /* rounded-xl */
+    margin-bottom: 1.5rem; /* mb-6 */
 }
 .newData_summaryContainerScrollable::-webkit-scrollbar { width: 6px; }
 .newData_summaryContainerScrollable::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
@@ -537,6 +523,7 @@
 .newData_summaryIcon { width: 32px; height: 32px; border-radius: 50%; background-color: var(--safora-light-green); display: flex; align-items: center; justify-content: center; margin-right: 1rem; color: var(--safora-green); flex-shrink: 0; }
 
 
+/* Calendar styles from HTML - will map to ShadCN Calendar props or be applied if custom Calendar needed */
 .newData_monthSelector { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; width: 100%; max-width: 350px; }
 .newData_monthArrow { cursor: pointer; padding: 0.5rem; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; }
 .newData_calendarHeader, .newData_calendarPicker { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 100%; max-width: 350px; }
@@ -547,6 +534,7 @@
 .newData_calendarDay.newData_selected { background-color: var(--safora-green); color: white; }
 
 
+/* Dropdown styles from HTML - for custom dropdowns if ShadCN DropdownMenu not used, or as reference */
 .newData_dropdownField { position: relative; width: 100%; margin-bottom: 1rem; max-width: 400px; }
 .newData_dropdownSelected { background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 12px; padding: 0.875rem 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; font-size: 0.875rem; text-align: left; }
 @media (min-width: 640px) { .newData_dropdownSelected { padding: 1rem 1.25rem; font-size: 1rem; } }
@@ -575,3 +563,6 @@
 .visualScreen::-webkit-scrollbar, .newData_screen::-webkit-scrollbar { display: none; }
 /* Hide scrollbar for IE, Edge and Firefox */
 .visualScreen, .newData_screen { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Keyframes for animations already in tailwind.config.ts via plugin */
+/* @keyframes float, pulseSlow, rotate, etc. */
