@@ -131,7 +131,7 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    document.body.style.touchAction = 'pan-y';
+    document.body.style.touchAction = 'pan-y'; 
     return () => {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
@@ -285,4 +285,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-
