@@ -57,7 +57,7 @@
     }
 }
 
-.visualScreen { /* Renamed to avoid clash with newData_screen */
+.visualScreen {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -79,19 +79,19 @@
     }
 }
 
-.visualScreenActive { /* Renamed */
+.visualScreenActive {
     transform: translateX(0);
     opacity: 1;
     visibility: visible;
     z-index: 1;
 }
 
-.visualScreenInactiveLeft { /* Renamed */
+.visualScreenInactiveLeft {
     transform: translateX(-100%);
     opacity: 0;
     visibility: hidden;
 }
-.visualScreenInactiveRight { /* Renamed */
+.visualScreenInactiveRight {
     transform: translateX(100%);
     opacity: 0;
     visibility: hidden;
@@ -103,8 +103,8 @@
     left: 1.5rem; /* Tailwind left-6 */
     z-index: 10;
 }
-/* For new data collection part, if logo needs different positioning within newData_innerContainer */
-.newData_logoContainer {
+
+.newData_logoContainer { /* For new data collection part, if logo needs different positioning within newData_innerContainer */
     position: absolute;
     top: 1rem;
     left: 1rem;
@@ -112,7 +112,7 @@
 }
 
 
-.visualProgressBarContainer { /* Renamed for clarity */
+.visualProgressBarContainer {
     position: absolute;
     bottom: 1.5rem; /* Tailwind bottom-6 */
     left: 1.5rem; /* Tailwind left-6 */
@@ -120,14 +120,14 @@
     z-index: 5;
 }
 
-.visualProgressBar { /* Renamed */
+.visualProgressBar {
     height: 8px;
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.visualProgressFill { /* Renamed */
+.visualProgressFill {
     height: 100%;
     border-radius: 4px;
     background: linear-gradient(90deg, var(--safora-green), var(--safora-blue));
@@ -268,12 +268,11 @@
 .slide3Bg { background: linear-gradient(135deg, var(--slide-3-bg-start), var(--slide-3-bg-end)); }
 .slide4Bg { background: linear-gradient(135deg, var(--slide-4-bg-start), var(--slide-4-bg-end)); }
 
-/* Styles for New Data Collection Onboarding (Screens 5 onwards) */
-/* These styles are based on the HTML provided by the user */
 
-/* Overall container for the data collection phase IF it's different from visual phase */
+/* Styles for New Data Collection Onboarding (Screens 5 onwards) */
+
 .newData_onboardingContainer { /* This will be the root div when currentDataCollectionStep > 0 */
-    /* Same as .onboardingRoot for now, can be differentiated if visual stage is different */
+    /* Applied to .onboardingContainer in page.tsx when currentDataCollectionStep > 0 */
 }
 
 .newData_innerContainer { /* Wrapper for content within newData_onboardingContainer */
@@ -286,14 +285,13 @@
     background-color: white; /* Screens have white background */
 }
 
-/* Apply phone-like constraints for new data screens on larger devices */
 @media (min-width: 480px) {
     .newData_innerContainer {
-        max-width: 480px; 
+        max-width: 480px;
         height: 95vh;
         max-height: 800px;
-        border-radius: 24px; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 }
 @media (min-width: 768px) { /* Further constrain on larger screens */
@@ -308,15 +306,16 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
     padding: 1rem;
     display: flex;
     flex-direction: column;
     background-color: white;
     border-radius: 0; /* Will be on newData_innerContainer for larger screens */
     overflow-y: auto;
-    visibility: hidden; /* Hide screens by default */
+    visibility: hidden;
     opacity: 0;
+    transform: translateX(100%); /* Default off-screen to the right */
 }
 
 @media (min-width: 640px) {
@@ -330,30 +329,34 @@
     }
 }
 
-.newData_screen.active {
+.newData_screen.newData_active {
     transform: translateX(0);
     visibility: visible;
     opacity: 1;
-    z-index: 1; /* Ensure active screen is on top */
+    z-index: 1;
 }
-.newData_screen.inactiveLeft {
+.newData_screen.newData_inactiveLeft {
     transform: translateX(-100%);
     visibility: hidden;
     opacity: 0;
 }
-.newData_screen.inactiveRight {
+.newData_screen.newData_inactiveRight {
     transform: translateX(100%);
     visibility: hidden;
     opacity: 0;
 }
 
+.newData_progressBarContainer { /* New container for progress bar at bottom */
+    padding: 0 1rem 1rem 1rem; /* Add some padding around it */
+    margin-top: auto; /* Pushes to bottom if screen content is short */
+}
 
 .newData_progressBar {
     height: 6px;
     background-color: #e0e0e0; /* gray-300 */
     border-radius: 3px;
-    margin-bottom: 1.5rem;
-    position: relative; /* For progress fill */
+    /* margin-bottom: 1.5rem; Removed, using container for spacing */
+    position: relative;
 }
 
 .newData_progressFill {
@@ -375,7 +378,7 @@
     font-size: 20px;
     margin-bottom: 1rem;
     box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-    /* animation: newData_float 3s ease-in-out infinite; */ /* Apply with Tailwind */
+    animation: newData_float 3s ease-in-out infinite; /* Apply with Tailwind */
     align-self: center;
 }
 
@@ -394,8 +397,7 @@
     }
 }
 
-/* Keyframes from your HTML, renamed to avoid conflict with Tailwind's float */
-@keyframes newData_float { 
+@keyframes newData_float { /* Renamed to avoid conflict with Tailwind's float */
     0% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }
     100% { transform: translateY(0px); }
@@ -431,8 +433,8 @@
     box-shadow: 0 4px 15px rgba(86, 204, 242, 0.3);
     width: 100%;
     max-width: 300px;
-    margin-left: auto; /* For centering if parent is flex */
-    margin-right: auto; /* For centering if parent is flex */
+    margin-left: auto;
+    margin-right: auto;
     display: flex; /* For icon alignment if used */
     align-items: center; /* For icon alignment */
     justify-content: center; /* For icon alignment */
@@ -483,13 +485,21 @@
     border-color: #9ca3af; /* gray-400 */
 }
 
+.newData_chipContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Or left, as preferred */
+    gap: 0.5rem; /* Space between chips */
+    margin-bottom: 1rem;
+}
+
 .newData_chip {
     display: inline-flex;
     align-items: center;
     background-color: #f3f4f6; /* gray-100 */
     border-radius: 50px;
     padding: 0.5rem 1.25rem;
-    margin: 0.25rem; /* Reduced margin for tighter packing */
+    /* margin: 0.25rem; Removed, handled by gap in container */
     cursor: pointer;
     transition: all 0.2s ease;
     border: 2px solid transparent;
@@ -498,16 +508,17 @@
     line-height: 1.25; /* For better text wrapping in chips */
 }
 
-.newData_chip.selected {
+.newData_chip.newData_selected { /* Make specific to avoid conflict if .selected is global */
     background-color: var(--safora-light-green);
     border-color: var(--safora-green);
     color: var(--safora-green);
     font-weight: 500;
 }
 
-.newData_chip:hover:not(.selected) {
+.newData_chip:hover:not(.newData_selected) {
     background-color: #e5e7eb; /* gray-200 */
 }
+
 
 .newData_inputField {
     width: 100%;
@@ -529,7 +540,7 @@
     box-shadow: 0 0 0 3px rgba(86, 204, 242, 0.2);
 }
 
-.newData_safMessage { 
+.newData_safMessage {
     background-color: var(--safora-light-blue);
     border-left: 4px solid var(--safora-blue);
     padding: 1rem;
@@ -537,7 +548,7 @@
     margin: 1rem 0;
     font-size: 0.9rem;
     color: #4b5563; /* gray-600 */
-    text-align: left; 
+    text-align: left;
 }
 
 .newData_screenContent {
@@ -546,12 +557,13 @@
     flex-direction: column;
     width: 100%; /* Ensure it uses the full width of .newData_screen */
     align-items: center; /* Center content like avatar, title */
-    padding: 1rem 0; /* Vertical padding */
+    padding: 1rem 0; /* Vertical padding for content within screen */
+    text-align: center; /* Center text by default */
 }
 
 .newData_bottomActions {
-    margin-top: auto; /* Pushes to the bottom */
-    padding-top: 1.5rem; /* Space above buttons */
+    /* margin-top: auto; Pushed by progress bar container now */
+    padding-top: 1rem; /* Space above buttons if progress bar is also there */
     width: 100%;
     display: flex;
     flex-direction: column; /* Stack buttons if multiple */
@@ -586,7 +598,8 @@
 }
 .newData_calendarHeader { margin-bottom: 0.5rem; font-size: 0.8rem; color: #777; }
 .newData_calendarHeader span { text-align: center; }
-.newData_calendarDay {
+
+.newData_calendarDay { /* Style for individual day cell in custom calendar, if used */
     aspect-ratio: 1;
     display: flex;
     align-items: center;
@@ -596,7 +609,8 @@
     font-size: 0.9rem;
 }
 .newData_calendarDay:hover { background-color: #f0f0f0; }
-.newData_calendarDay.selected { background-color: var(--safora-green); color: white; }
+.newData_calendarDay.newData_selected { background-color: var(--safora-green); color: white; }
+
 
 .newData_dropdownField {
     position: relative;
@@ -621,7 +635,7 @@
     .newData_dropdownSelected { padding: 1rem 1.25rem; font-size: 1rem; }
 }
 .newData_dropdownSelected:hover { border-color: var(--safora-blue); background-color: #f0f9ff; }
-.newData_dropdownSelected.active { border-color: var(--safora-green); background-color: #f0fdf4; }
+.newData_dropdownSelected.newData_active { border-color: var(--safora-green); background-color: #f0fdf4; }
 
 .newData_dropdownOptions {
     position: absolute;
@@ -630,7 +644,7 @@
     right: 0;
     background: white;
     border: 1px solid #e0e0e0; /* Softer border */
-    border-radius: 12px; 
+    border-radius: 12px;
     max-height: 0;
     overflow: hidden;
     z-index: 1000;
@@ -639,7 +653,7 @@
     visibility: hidden;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Softer shadow */
 }
-.newData_dropdownOptions.show {
+.newData_dropdownOptions.newData_show { /* make specific */
     max-height: 250px; /* Or other desired max height */
     opacity: 1;
     visibility: visible;
@@ -659,7 +673,7 @@
 }
 .newData_dropdownOption:last-child { border-bottom: none; }
 .newData_dropdownOption:hover { background-color: #f0f9ff; color: var(--safora-blue); }
-.newData_dropdownOption.selected { background-color: #f0fdf4; color: var(--safora-green); font-weight: 600; }
+.newData_dropdownOption.newData_selected { background-color: #f0fdf4; color: var(--safora-green); font-weight: 600; }
 
 .newData_dropdownOptions::-webkit-scrollbar { width: 6px; }
 .newData_dropdownOptions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
@@ -667,12 +681,12 @@
 
 .newData_tooltip {
     position: relative;
-    display: inline-flex; 
+    display: inline-flex;
     align-items: center;
     margin-left: 0.5rem;
     cursor: pointer;
 }
-.newData_tooltipText { 
+.newData_tooltipText {
     visibility: hidden;
     width: 200px;
     background-color: #333;
@@ -682,13 +696,13 @@
     padding: 0.5rem;
     position: absolute;
     z-index: 1;
-    bottom: 125%; 
+    bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.3s;
     font-size: 0.8rem;
-    white-space: normal; 
+    white-space: normal;
 }
 .newData_tooltip:hover .newData_tooltipText {
     visibility: visible;
@@ -726,31 +740,13 @@
     scrollbar-width: none;  /* Firefox */
 }
 
-/* Ensure screen content takes up available space */
-.newData_screen > .newData_screenContent {
-    flex: 1;
-}
-
 /* Styling for disabled dropdown option */
-.newData_dropdownOption.disabled {
+.newData_dropdownOption.newData_disabled {
     color: #aaa;
     cursor: not-allowed;
     background-color: #f9f9f9;
 }
-.newData_dropdownOption.disabled:hover {
+.newData_dropdownOption.newData_disabled:hover {
     color: #aaa;
     background-color: #f9f9f9;
 }
-
-/* Chip container for better wrapping */
-.newData_chipContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center; /* Or left, as preferred */
-    gap: 0.5rem; /* Space between chips */
-    margin-bottom: 1rem;
-}
-
-/* Ensure Poppins is globally available if not already set in layout.tsx */
-/* This is typically handled in globals.css or layout body className */
-/* body { font-family: 'Poppins', sans-serif; } */

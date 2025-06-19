@@ -1,5 +1,4 @@
 
-
 export interface DietaryPreferences {
   isVegetarian: boolean;
   isVegan: boolean;
@@ -39,20 +38,22 @@ export interface UserProfileLocation {
 
 export interface UserProfile {
   // Old structure fields (can be progressively deprecated or used for migration)
-  dietaryPreferences: Partial<DietaryPreferences>; 
-  allergies: Partial<Allergies>; 
-  healthGoals: Partial<HealthGoals>; 
+  dietaryPreferences: Partial<DietaryPreferences>;
+  allergies: Partial<Allergies>;
+  healthGoals: Partial<HealthGoals>;
   customRestrictions?: string;
 
   // New detailed fields from multi-step data collection
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   dateOfBirth?: string; // Store as YYYY-MM-DD string
+  age?: number; // Calculated from DOB
   location?: Partial<UserProfileLocation>;
 
-  selectedDiets?: string[]; 
+  selectedDiets?: string[];
   ingredientsToAvoid?: string[];
   customIngredientsToAvoid?: string;
-  
+
   knownAllergens?: string[];
   customAllergens?: string;
 
@@ -69,7 +70,7 @@ export interface ProductInfo {
   brand?: string;
   imageUrl?: string;
   dataAiHint?: string;
-  ingredients: string[] | string; 
+  ingredients: string[] | string;
   nutritionalInfo?: Record<string, string>;
   category?: string;
 }
@@ -83,4 +84,3 @@ export interface ScanResult extends ProductInfo {
   alternatives?: string[];
   scannedAt: string; // ISO Date string
 }
-

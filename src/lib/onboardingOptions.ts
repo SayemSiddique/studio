@@ -1,5 +1,4 @@
 
-
 // src/lib/onboardingOptions.ts
 
 export const countryData: Record<string, string[]> = {
@@ -15,50 +14,93 @@ export const countryData: Record<string, string[]> = {
     "Italy": ["Rome", "Milan", "Naples", "Turin", "Palermo", "Genoa", "Bologna", "Florence", "Bari", "Catania", "Venice", "Verona", "Messina", "Padua", "Trieste", "Taranto", "Brescia", "Prato", "Parma", "Modena", "Reggio Calabria", "Reggio Emilia", "Perugia", "Livorno", "Ravenna", "Cagliari", "Foggia", "Rimini", "Salerno", "Ferrara", "Sassari", "Latina", "Giugliano in Campania", "Monza", "Syracuse", "Pescara", "Bergamo", "Forlì", "Trento", "Vicenza"],
     "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza", "Málaga", "Murcia", "Palma", "Las Palmas", "Bilbao", "Alicante", "Córdoba", "Valladolid", "Vigo", "Gijón", "L'Hospitalet de Llobregat", "A Coruña", "Granada", "Vitoria-Gasteiz", "Elche", "Santa Cruz de Tenerife", "Oviedo", "Badalona", "Cartagena", "Terrassa", "Jerez de la Frontera", "Sabadell", "Móstoles", "Alcalá de Henares", "Pamplona", "Fuenlabrada", "Almería", "Leganés", "Donostia-San Sebastián", "Burgos", "Santander", "Castellón de la Plana", "Alcorcón", "Albacete", "Getafe"],
     "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Tijuana", "León", "Juárez", "Torreón", "Querétaro", "San Luis Potosí", "Mérida", "Mexicali", "Aguascalientes", "Acapulco", "Cuernavaca", "Chihuahua", "Morelia", "Toluca", "Saltillo", "Reynosa", "Cancún", "Veracruz", "Hermosillo", "Culiacán", "Mazatlán", "Durango", "Xalapa", "Oaxaca", "Tuxtla Gutiérrez", "San Nicolás de los Garza", "Villahermosa", "Tampico", "Nuevo Laredo", "Celaya", "Irapuato", "Matamoros", "Ensenada", "Gómez Palacio", "Pachuca", "Tlalnepantla"],
-    "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Changwon", "Goyang", "Yongin", "Seongnam", "Bucheon", "Cheongju", "Ansan", "Jeonju", "Anyang", "Cheonan", "Pohang", "Uijeongbu", "Siheung", "Paju", "Gimhae", "Hwaseong", "Jeju City", "Pyeongtaek", "Gunsan", "Iksan", "Yangsan", "Suncheon", "Chuncheon", "Wonju", "Gangneung", "Asan", "Mokpo", "Yeosu", "Tongyeong", "Gyeongju", "Sokcho", "Andong"]
+    "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Changwon", "Goyang", "Yongin", "Seongnam", "Bucheon", "Cheongju", "Ansan", "Jeonju", "Anyang", "Cheonan", "Pohang", "Uijeongbu", "Siheung", "Paju", "Gimhae", "Hwaseong", "Jeju City", "Pyeongtaek", "Gunsan", "Iksan", "Yangsan", "Suncheon", "Chuncheon", "Wonju", "Gangneung", "Asan", "Mokpo", "Yeosu", "Tongyeong", "Gyeongju", "Sokcho", "Andong"],
+    // Add more countries and their cities as needed
 };
 
-export const regions: string[] = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America", "Other"];
+export const regions: string[] = [
+    "All Regions", // Added to allow selection of any country
+    "Africa",
+    "Asia",
+    "Europe",
+    "North America",
+    "Oceania",
+    "South America",
+    "Middle East",
+    "Caribbean",
+    "Central America"
+];
+
 
 export const dietaryPaths: string[] = [
-  "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto", 
-  "Low-Carb", "Mediterranean", "DASH", "Whole30", "Gluten-Free", 
-  "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Halal", "Kosher", 
-  "Jain", "Buddhist Diet", "Low-FODMAP", "Low-Residue", "Diabetic Diet", 
-  "Renal Diet", "No Specific Diet"
+  "Vegetarian", "Vegan", "Pescatarian", "Flexitarian", "Paleo", "Keto",
+  "Low-Carb", "Mediterranean", "DASH Diet", "Whole30", "Gluten-Free",
+  "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Halal", "Kosher",
+  "Jain Diet", "Buddhist Diet", "Low-FODMAP", "Low-Residue", "Diabetic Diet",
+  "Renal (Kidney) Diet", "Anti-Inflammatory Diet", "Raw Food Diet", "No Specific Diet"
 ];
 
 export const ingredientsToAvoidOptions: { name: string; emoji?: string }[] = [
-  { name: "Pork", emoji: "🐖" }, { name: "Alcohol", emoji: "🍷" }, 
-  { name: "Shellfish", emoji: "🦞" }, { name: "Beef", emoji: "🐄" }, 
-  { name: "Poultry", emoji: "🐔" }, { name: "Gelatin", emoji: "🍮" }, 
-  { name: "Rennet" }, { name: "Carmine/Cochineal", emoji: "🐞" }, 
-  { name: "Lard", emoji: "🥓" }, { name: "Artificial Sweeteners", emoji: "🧪" },
-  { name: "Artificial Colors", emoji: "🎨" }, { name: "MSG", emoji: "🧂" },
-  { name: "High Fructose Corn Syrup" }, { name: "Trans Fats" },
-  { name: "Nitrates/Nitrites" }
+  { name: "Pork", emoji: "🐖" }, { name: "Beef", emoji: "🐄" },
+  { name: "Poultry", emoji: "🐔" }, { name: "Fish (specific types if needed)", emoji: "🐟" },
+  { name: "Shellfish (general)", emoji: "🦞" }, { name: "Alcohol", emoji: "🍷" },
+  { name: "Gelatin" }, { name: "Rennet (animal-derived)" },
+  { name: "Lard/Tallow" }, { name: "Carmine/Cochineal (E120)", emoji: "🐞" },
+  { name: "Artificial Sweeteners (e.g., Aspartame, Sucralose)", emoji: "🧪" },
+  { name: "Artificial Colors (e.g., Red 40, Yellow 5)", emoji: "🎨" },
+  { name: "MSG (Monosodium Glutamate)", emoji: "🧂" },
+  { name: "High Fructose Corn Syrup" }, { name: "Trans Fats (Partially Hydrogenated Oils)" },
+  { name: "Nitrates/Nitrites (in processed meats)" }, { name: "Sulfites (often in wine, dried fruit)" },
+  { name: "Caffeine (if avoiding)", emoji: "☕" }
 ];
 
 export const commonAllergens: { name: string; emoji?: string }[] = [
-  { name: "Peanuts", emoji: "🥜" }, { name: "Tree Nuts", emoji: "🌰" }, 
-  { name: "Milk", emoji: "🥛" }, { name: "Eggs", emoji: "🥚" }, 
-  { name: "Wheat/Gluten", emoji: "🌾" }, { name: "Soy", emoji: "🫘" }, 
-  { name: "Fish", emoji: "🐟" }, { name: "Shellfish", emoji: "🦐" },
-  { name: "Sesame Seeds" }, { name: "Mustard" }, { name: "Celery" },
-  { name: "Lupin" }, { name: "Sulphites" }, { name: "Corn", emoji: "🌽" }
+  { name: "Peanuts", emoji: "🥜" }, { name: "Tree Nuts (e.g., Almonds, Walnuts)", emoji: "🌰" },
+  { name: "Milk", emoji: "🥛" }, { name: "Eggs", emoji: "🥚" },
+  { name: "Wheat", emoji: "🌾" }, { name: "Gluten (distinct from wheat if needed)" },
+  { name: "Soy", emoji: "🫘" }, { name: "Fish", emoji: "🐟" },
+  { name: "Shellfish (e.g., Shrimp, Crab, Lobster)", emoji: "🦐" },
+  { name: "Sesame", emoji: "🌱" }, { name: "Mustard" }, { name: "Celery" },
+  { name: "Lupin" }, { name: "Molluscs (e.g., Clams, Oysters)" },
+  { name: "Sulphur Dioxide/Sulphites (if >10ppm)" }, { name: "Corn", emoji: "🌽" }
+  // Add more specific allergens if required
 ];
 
+// A more extensive list for a dropdown "Other Allergies"
+export const otherAllergensList: string[] = [
+    "Avocado", "Banana", "Beef (Alpha-gal Syndrome)", "Buckwheat", "Chamomile", "Chicken", "Cinnamon", "Citrus Fruits", 
+    "Coconut", "Kiwi", "Latex (cross-reactivity with some fruits)", "Legumes (other than soy/peanut, e.g., lentils, chickpeas)",
+    "Mango", "Meat (specific types other than common ones)", "Mushroom", "Oats (often due to gluten cross-contamination)", 
+    "Poppy Seed", "Potato", "Rice", "Seeds (other than sesame, e.g., sunflower, pumpkin)", "Spices (various)", "Strawberry", "Tomato",
+    "Yeast"
+];
+
+
 export const healthConditionsOptions: string[] = [
-  "Diabetes (Type 1)", "Diabetes (Type 2)", "Hypertension (High Blood Pressure)",
-  "High Cholesterol", "Heart Disease", "Celiac Disease", "Crohn's Disease",
-  "Ulcerative Colitis", "IBS (Irritable Bowel Syndrome)", "GERD (Acid Reflux)",
-  "Chronic Kidney Disease", "Gout", "Osteoporosis", "Anemia", "Thyroid Disorders",
-  "Lactose Intolerance", "None"
+  "Diabetes (Type 1)", "Diabetes (Type 2)", "Pre-diabetes", "Hypertension (High Blood Pressure)",
+  "High Cholesterol (Hyperlipidemia)", "Heart Disease (CVD)", "Arrhythmia", "Atrial Fibrillation",
+  "Celiac Disease", "Crohn's Disease", "Ulcerative Colitis (IBD)",
+  "IBS (Irritable Bowel Syndrome)", "GERD (Acid Reflux)/Heartburn",
+  "Chronic Kidney Disease (CKD)", "Gout", "Osteoporosis/Osteopenia",
+  "Anemia (Iron-deficiency or other)", "Thyroid Disorders (Hypo/Hyperthyroidism, Hashimoto's)",
+  "PCOS (Polycystic Ovary Syndrome)", "Endometriosis", "Fatty Liver Disease (NAFLD/NASH)",
+  "Autoimmune Conditions (e.g., Rheumatoid Arthritis, Lupus)",
+  "Migraines (diet-triggered)", "Skin Conditions (e.g., Eczema, Psoriasis - diet related)",
+  "Mental Health (e.g., Depression, Anxiety - diet can play a role)",
+  "Cancer (active treatment or recovery)", "Food Additive Intolerance",
+  "Histamine Intolerance", "Lactose Intolerance", "Fructose Malabsorption",
+  "Eating Disorders (past or present - use with caution)",
+  "Pregnancy/Breastfeeding (requires specific dietary considerations)",
+  "Post-Surgery Recovery", "None"
 ];
 
 export const healthGoalsOptions: string[] = [
-  "Weight Loss", "Weight Gain", "Muscle Building", "Improve Energy",
-  "Better Sleep", "Stress Reduction", "Gut Health", "Blood Sugar Management",
-  "Heart Health", "Mindful Eating", "Eat More Plants", "Reduce Processed Foods",
-  "Just Staying Safe"
+  "Weight Loss", "Weight Maintenance", "Weight Gain (Healthy)", "Muscle Building/Strength",
+  "Improve Athletic Performance", "Increase Energy Levels", "Better Sleep Quality",
+  "Stress Reduction/Management", "Improve Gut Health/Digestion", "Blood Sugar Management/Control",
+  "Lower Cholesterol", "Lower Blood Pressure", "Improve Heart Health", "Boost Immunity",
+  "Improve Skin Health", "Improve Mood/Mental Clarity", "Mindful Eating Practices",
+  "Eat More Plant-Based Foods", "Reduce Processed Food Intake", "Increase Fiber Intake",
+  "Stay Hydrated", "Learn Healthier Cooking", "General Well-being", "Age Gracefully",
+  "Support Pregnancy/Postpartum Health", "Just Staying Safe with My Restrictions"
 ];
