@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safora - Product Scan Result</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { /* CSS Variables */
+            --primary-color: hsl(123, 41%, 39%); --primary-foreground-color: hsl(0, 0%, 98%);
+            --background-color: hsl(84, 48%, 96%); --foreground-color: hsl(0, 0%, 20%);
+            --card-background-color: hsl(0, 0%, 100%); --border-color: hsl(0, 0%, 88%);
+            --muted-foreground-color: hsl(0, 0%, 45%);
+            --green-bg: hsl(120, 60%, 95%); --green-text: hsl(120, 60%, 30%); --green-border: hsl(120, 60%, 70%);
+            --red-bg: hsl(0, 70%, 95%); --red-text: hsl(0, 70%, 40%); --red-border: hsl(0, 70%, 70%);
+            --yellow-bg: hsl(45, 100%, 95%); --yellow-text: hsl(45, 100%, 30%); --yellow-border: hsl(45, 100%, 70%);
+            --font-body: 'Poppins', sans-serif; --font-headline: 'Poppins', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background-color: var(--background-color); color: var(--foreground-color); }
+        .figma-export-container { max-width: 1200px; margin: 0 auto; }
+        /* Navbar Styles (Simplified) */
+        .navbar { background-color: var(--card-background-color); border-bottom: 1px solid var(--border-color); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; text-decoration:none; color: var(--primary-color); }
+        .navbar-logo img { width: 32px; height: 32px; }
+        .navbar-logo span { font-size: 24px; font-weight: 700; font-family: var(--font-headline); }
+
+        .main-content { padding: 32px 24px; }
+        .product-result-card { /* safora-card */
+            background-color: var(--card-background-color); border-radius: 0.75rem;
+            border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow:hidden;
+        }
+        .product-info-grid { display: grid; grid-template-columns: 1fr; }
+        @media (min-width: 768px) { .product-info-grid { grid-template-columns: 1fr 2fr; } } /* md:w-1/3, md:w-2/3 */
+        .product-image-container { width:100%; height: 256px; /* h-64 */ }
+        @media (min-width: 768px) { .product-image-container { height: auto; /* md:h-full */ } }
+        .product-image-container img { width:100%; height:100%; object-fit:cover; }
+        .product-details-content { padding: 24px; /* md:p-8 */ display:flex; flex-direction:column;}
+        .product-brand { font-size:14px; color: var(--muted-foreground-color); margin-bottom:4px; }
+        .product-title-actions { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;}
+        .product-title { font-family: var(--font-headline); font-size:32px; /* text-3xl/4xl */ color:var(--primary-color); flex-grow:1;}
+        .favorite-button { background:none; border:none; cursor:pointer; padding:8px; color:var(--muted-foreground-color); }
+        .favorite-button svg { width:28px; height:28px; }
+        .favorite-button.favorited svg { color: hsl(0, 84%, 60%); fill: hsl(0, 84%, 60%); }
+        .favorite-button:hover svg { color: hsl(0, 84%, 50%); }
+        .barcode-badge { /* safora-badge like */
+            display: inline-block; padding: 4px 10px; font-size: 14px; border-radius: 0.375rem;
+            background-color: var(--muted-color); color: var(--muted-foreground-color); border:1px solid var(--border-color);
+            margin-bottom: 24px; align-self:flex-start;
+        }
+        .loading-analysis { display:flex; flex-direction:column; gap:8px; margin:24px 0; }
+        .loading-text { display:flex; align-items:center; gap:8px; color:var(--primary-color); }
+        .loading-text svg { width:20px; height:20px; animation:spin 1s linear infinite; }
+        @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+        .safora-progress-bar { height: 8px; background-color: var(--muted-color); border-radius: 4px; overflow: hidden; width:100%; }
+        .safora-progress-fill { height: 100%; background-color: var(--primary-color); border-radius: 4px; width: 60%; /* Example progress */ }
+        
+        .compatibility-alert { /* safora-alert like */
+            padding: 16px; border-radius: 0.5rem; border: 1px solid; margin-bottom: 24px;
+        }
+        .compatibility-alert.safe { background-color: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+        .compatibility-alert.allergen { background-color: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+        .compatibility-alert.not-recommended { background-color: var(--yellow-bg); border-color: var(--yellow-border); color: var(--yellow-text); }
+        .compatibility-alert-header { display:flex; align-items:center; gap:8px; }
+        .compatibility-alert-header svg { width:24px; height:24px; }
+        .compatibility-alert-title { font-size:20px; font-weight:600; }
+        .compatibility-alert-description { margin-top:8px; font-size:14px; }
+        .compatibility-alert-description ul { list-style-type: disc; padding-left:20px; margin-top:4px; }
+
+        .accordion-section { margin-top:32px; }
+        .accordion-item { border-bottom: 1px solid var(--border-color); }
+        .accordion-item:last-child { border-bottom:none; }
+        .accordion-trigger {
+            display:flex; justify-content:space-between; align-items:center; width:100%;
+            padding:16px; font-size:20px; font-weight:600; text-align:left;
+            background:none; border:none; cursor:pointer; color:var(--primary-color);
+        }
+        .accordion-trigger:hover { background-color: hsla(123, 41%, 39%, 0.05); }
+        .accordion-trigger-icon { display:flex; align-items:center; gap:12px; }
+        .accordion-trigger-icon svg { width:24px; height:24px; color:hsla(123, 41%, 39%, 0.8); }
+        .accordion-chevron { width:20px; height:20px; transition: transform 0.2s; }
+        /* .accordion-trigger[data-state=open] .accordion-chevron { transform: rotate(180deg); } */
+        .accordion-content { padding: 0 16px 16px 16px; font-size:14px; line-height:1.7; color:hsla(0,0%,20%,0.9); }
+        .accordion-content .prose { background-color:hsla(0,0%,0%,0.03); padding:16px; border-radius:0.375rem; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+        .accordion-content ul { list-style-type:disc; padding-left:20px; margin-top:8px; }
+
+        .scan-again-footer { margin-top:32px; padding:24px; text-align:center; }
+        .safora-button { /* Base button */
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 20px; border-radius: 0.5rem; font-size: 16px; font-weight: 500;
+            text-decoration: none; border: 1px solid transparent; cursor: pointer;
+        }
+        .safora-button-primary { background-color: var(--primary-color); color: var(--primary-foreground-color); border-color: var(--primary-color); font-size: 18px; padding:14px 24px;}
+        .safora-button-primary:hover { background-color: hsl(123, 41%, 35%); }
+        .safora-button-primary svg { width:20px; height:20px; margin-right:8px; }
+    </style>
+</head>
+<body>
+    <div class="figma-export-container">
+        <!-- Navbar (Placeholder) -->
+        <nav class="navbar component-navbar">
+            <a href="#" class="navbar-logo">
+                <img src="https://placehold.co/32x32/388E3C/FFFFFF.png?text=S" alt="Safora Logo">
+                <span>Safora</span>
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <div class="product-result-card component-product-result-card">
+                <div class="product-info-grid">
+                    <div class="product-image-container">
+                        <img src="https://placehold.co/400x400/A5D6A7/388E3C.png?text=Organic+Apples" alt="Organic Fuji Apples">
+                    </div>
+                    <div class="product-details-content">
+                        <p class="product-brand">Nature's Crisp</p>
+                        <div class="product-title-actions">
+                            <h1 class="product-title">Organic Fuji Apples (Bag)</h1>
+                            <button class="favorite-button component-favorite-button" aria-label="Add to favorites">
+                                <!-- Icon changes if favorited -->
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            </button>
+                        </div>
+                        <span class="barcode-badge">Barcode: SAFORA-MOCK-001</span>
+                        
+                        <!-- Loading State Example -->
+                        <div class="loading-analysis component-loading-state hidden"> <!-- Remove 'hidden' to show -->
+                            <div class="loading-text">
+                                <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+                                <span>Analyzing with AI... This may take a moment.</span>
+                            </div>
+                            <div class="safora-progress-bar"><div class="safora-progress-fill" style="width: 60%;"></div></div>
+                        </div>
+
+                        <!-- Compatibility Alert (Example: Safe) -->
+                        <div class="compatibility-alert safe component-compatibility-status">
+                            <div class="compatibility-alert-header">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                <h2 class="compatibility-alert-title">Safe</h2>
+                            </div>
+                            <div class="compatibility-alert-description">
+                                <ul>
+                                    <li>Fresh, organic, and nutritious choice.</li>
+                                    <li>Aligns with your current dietary profile.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- Other Alert States (allergen, not-recommended) would be styled similarly -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-section component-details-accordion">
+                <div class="accordion-item">
+                    <button class="accordion-trigger">
+                        <span class="accordion-trigger-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            Ingredients
+                        </span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="accordion-content"> <!-- Content shown by default for Figma -->
+                        <div class="prose">Organic Fuji Apples</div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-trigger">
+                        <span class="accordion-trigger-icon">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 00-7.523 16.972L4.29 22l1.025-2.563A10 10 0 1012 2zm0 0v6l3 3m0 0a3 3 0 01-6 0m3-3V2m0 6L9 5m3 3l3-3M9 5a3 3 0 00-3 3m0 0L3 8m3 0L9 5m0 0L6 2"></path></svg>
+                            AI Nutritional Summary
+                        </span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="accordion-content"> <!-- Content shown by default for Figma -->
+                        <p>Organic Fuji Apples are a great source of fiber and Vitamin C. They are naturally low in calories and fat. Eating apples regularly can contribute to good heart health and may aid in weight management. This product contains only apples, making it a simple and healthy choice.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-trigger">
+                         <span class="accordion-trigger-icon">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            Suggested Alternatives
+                        </span>
+                        <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="accordion-content"> <!-- Content shown by default for Figma -->
+                        <ul>
+                            <li>Organic Gala Apples</li>
+                            <li>Honeycrisp Apples</li>
+                            <li>Fresh Pears</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="scan-again-footer">
+                <a href="#" class="safora-button safora-button-primary">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 10.71L19 8.13V5c0-1.1-.9-2-2-2h-3.13l-2.58-2.58a2 2 0 00-2.82 0L5.87 3H3a2 2 0 00-2 2v3.13l-2.58 2.58a2 2 0 000 2.82L3 16.13V19c0 1.1.9 2 2 2h3.13l2.58 2.58a2 2 0 002.82 0L16.13 21H19c1.1 0 2-.9 2-2v-3.13l2.58-2.58a2 2 0 000-2.82zM12 16a4 4 0 110-8 4 4 0 010 8z"/><path d="M12 13a1 1 0 100-2 1 1 0 000 2zM2 12h1M21 12h1M12 2v1M12 21v1M4.93 4.93l.7.7M18.37 18.37l.7.7M19.07 4.93l-.7.7M4.23 18.37l-.7.7"/></svg>
+                    Scan Another Product
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+      

@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safora - Camera View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { /* CSS Variables */
+            --primary-color: hsl(123, 41%, 39%); --primary-foreground-color: hsl(0, 0%, 98%);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #000; color: white; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .camera-view-container { /* Fixed inset-0 */
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background-color: #000; z-index: 50;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px;
+        }
+        .video-wrapper {
+            position: relative; width: 100%; max-width: 500px; /* max-w-2xl */
+            aspect-ratio: 9 / 16; /* mobile portrait */
+            background-color: #333; /* bg-gray-800 */
+            border-radius: 0.75rem; /* rounded-lg */
+            overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        @media (min-width: 640px) { .video-wrapper { aspect-ratio: 16 / 9; } } /* sm:aspect-video */
+        
+        .video-placeholder { /* Represents <video> tag */
+            width: 100%; height: 100%; object-fit: cover; background-color:#111; display:flex; align-items:center; justify-content:center; flex-direction:column;
+        }
+        .video-placeholder svg {width:64px; height:64px; color:#666; margin-bottom:16px;}
+
+        .scan-overlay-barcode {
+            position: absolute; top:0; left:0; right:0; bottom:0;
+            display: flex; align-items: center; justify-content: center; pointer-events: none;
+        }
+        .barcode-reticle {
+            width: 75%; height: 33.33%; border: 4px solid var(--primary-color);
+            border-radius: 0.75rem; opacity: 0.75; position:relative;
+            /* animation: pulse 1.5s infinite ease-in-out; */
+        }
+        .barcode-scanline {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
+            background-color: red; transform: translateY(-50%);
+            /* animation: scan 2s linear infinite; */
+        }
+        /* @keyframes pulse { 0%, 100% { opacity: 0.75; } 50% { opacity: 0.5; } } */
+        /* @keyframes scan { 0% { transform: translateY(-50%) scaleY(1); } 50% { transform: translateY(-50%) scaleY(1.5); } 100% { transform: translateY(-50%) scaleY(1); } } */
+
+        .scan-overlay-ocr { /* For OCR mode */
+             position: absolute; top:0; left:0; right:0; bottom:0;
+            display: flex; align-items: center; justify-content: center; pointer-events: none;
+        }
+        .scan-overlay-ocr svg { width:100px; height:100px; color:var(--primary-color); opacity:0.75; }
+
+        .close-camera-button {
+            position: absolute; top: 16px; right: 16px;
+            background-color: rgba(0,0,0,0.3); color: white;
+            border: none; border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .close-camera-button:hover { background-color: rgba(0,0,0,0.5); }
+        .close-camera-button svg { width:24px; height:24px; }
+
+        .camera-controls {
+            display: flex; align-items: center; justify-content: space-around;
+            width: 100%; max-width: 448px; /* max-w-md */ margin-top: 24px;
+        }
+        .control-button {
+            background: none; border: none; color: white; padding: 12px;
+            border-radius: 50%; cursor: pointer; display:flex; align-items:center; justify-content:center;
+        }
+        .control-button:hover { background-color: rgba(255,255,255,0.1); }
+        .control-button svg { width:28px; height:28px; }
+        .capture-button {
+            background-color: var(--primary-color); color: var(--primary-foreground-color);
+            width: 80px; height: 80px; border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 18px;
+        }
+        .capture-button:hover { background-color: hsl(123, 41%, 35%); }
+        .capture-button:active { transform: scale(0.95); }
+        .capture-button.disabled { background-color: #555; cursor:not-allowed; }
+
+        .camera-alert {
+            background-color: hsl(0, 72%, 51%, 0.8); color:white;
+            padding:12px; border-radius:0.5rem; margin-top:24px;
+            max-width:448px; width:100%; text-align:left;
+            display:flex; align-items:flex-start; gap:8px;
+        }
+        .camera-alert svg {width:20px; height:20px; flex-shrink:0; margin-top:2px;}
+        .camera-alert-title {font-weight:600; margin-bottom:4px;}
+        .camera-alert-description {font-size:14px;}
+    </style>
+</head>
+<body>
+    <div class="camera-view-container component-scan-camera-view">
+        <div class="video-wrapper component-video-player-wrapper">
+            <!-- Placeholder for actual video stream -->
+            <div class="video-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.6 11.6L22 7v10l-6.4-4.5v-1zM4 5h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path></svg>
+                <p style="font-size:14px; color:#666;">Camera Feed</p>
+            </div>
+
+            <!-- Barcode Scan Overlay (Example State) -->
+            <div class="scan-overlay-barcode component-barcode-scan-overlay">
+                <div class="barcode-reticle">
+                    <div class="barcode-scanline"></div>
+                </div>
+            </div>
+            
+            <!-- OCR Scan Overlay (Alternative State - one would be hidden) -->
+            <!-- <div class="scan-overlay-ocr component-ocr-scan-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+            </div> -->
+
+            <button class="close-camera-button component-close-button" aria-label="Close camera">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div class="camera-controls component-camera-controls">
+            <button class="control-button component-gallery-button" aria-label="Open gallery">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </button>
+            <button class="control-button capture-button component-capture-button" aria-label="Capture image">
+                <!-- Barcode icon for barcode mode -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="3" y2="18"></line><line x1="8" y1="6" x2="8" y2="18"></line><line x1="13" y1="6" x2="13" y2="18"></line><line x1="18" y1="6" x2="18" y2="18"></line></svg>
+                <!-- ScanText icon for OCR mode -->
+                <!-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path><path d="m15 5 4 4"></path><path d="M14.5 10.5 17 8l3.5 3.5-2.5 2.5"></path><path d="m21.5 14.5-2.5 2.5"></path></svg> -->
+            </button>
+            <button class="control-button component-flash-button" aria-label="Toggle flash">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </button>
+        </div>
+        
+        <!-- Camera Permission Alert (Example of when denied) -->
+        <div class="camera-alert component-camera-permission-alert hidden"> <!-- Remove 'hidden' to show -->
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18.24-8.24-14.39a2 2 0 0 0-3.48 0L1.73 18.24A2 2 0 0 0 3.48 22h17.04a2 2 0 0 0 1.21-3.76Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <div>
+                <h5 class="camera-alert-title">Camera Access Required</h5>
+                <p class="camera-alert-description">Camera permission was denied. Please enable it in browser settings.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+      
