@@ -1,8 +1,223 @@
-<!-- Placeholder: design-exports/figma-html/profile/profile-view.html - Corresponds to /profile page -->
+
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Safora - View Profile</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>body{font-family:'Poppins',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background-color:#f0f0f0;margin:0;} .container{width:100%;max-width:420px; /* Or wider for profile view */ background-color:white;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.1);padding:20px;text-align:center;} h1{color:hsl(123,41%,39%);margin-bottom:20px;font-size:20px;}</style>
-</head><body><div class="container"><h1>Profile View Page</h1><p>UI displaying all user profile data in a read-only format, with an "Edit Profile" button. See src/app/(app)/profile/page.tsx.</p></div></body></html>
-      
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safora - View Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { /* CSS Variables */
+            --primary-color: hsl(123, 41%, 39%); --primary-foreground-color: hsl(0, 0%, 98%);
+            --background-color: hsl(84, 48%, 96%); --foreground-color: hsl(0, 0%, 20%);
+            --card-background-color: hsl(0, 0%, 100%); --border-color: hsl(0, 0%, 88%);
+            --muted-foreground-color: hsl(0, 0%, 45%);
+            --font-body: 'Poppins', sans-serif; --font-headline: 'Poppins', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background-color: var(--background-color); color: var(--foreground-color); }
+        .figma-export-container { max-width: 1200px; margin: 0 auto; }
+        /* Navbar Styles (Simplified) */
+        .navbar { background-color: var(--card-background-color); border-bottom: 1px solid var(--border-color); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+        .navbar-logo { display: flex; align-items: center; gap: 8px; text-decoration:none; color: var(--primary-color); }
+        .navbar-logo img { width: 32px; height: 32px; }
+        .navbar-logo span { font-size: 24px; font-weight: 700; font-family: var(--font-headline); }
+        .main-content { padding: 32px 24px; }
+        .profile-view-container { max-width: 768px; /* max-w-3xl */ margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        .profile-header-card { /* safora-card like */
+            background-color: var(--card-background-color); border-radius: 0.75rem;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px;
+        }
+        @media (min-width: 640px) { .profile-header-card { flex-direction: row; } }
+        .profile-avatar { width: 96px; height: 96px; border-radius: 50%; border: 2px solid var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .profile-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; }
+        .profile-avatar-fallback { width:100%; height:100%; border-radius:50%; background-color: var(--muted-color); display:flex; align-items:center; justify-content:center; font-size:32px; color:var(--primary-color); font-weight:bold;}
+        .profile-info { text-align: center; }
+        @media (min-width: 640px) { .profile-info { text-align: left; } }
+        .profile-name { font-family: var(--font-headline); font-size: 32px; color: var(--primary-color); margin-bottom: 4px; }
+        .profile-email { font-size: 16px; color: var(--muted-foreground-color); margin-bottom: 16px; }
+        .safora-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 0.5rem; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid transparent; cursor: pointer; }
+        .safora-button-outline { background-color: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
+        .safora-button-outline:hover { background-color: hsla(123, 41%, 39%, 0.05); }
+        .safora-button-outline svg { width: 16px; height: 16px; }
+        .detail-card { /* safora-card like */
+            background-color: var(--card-background-color); border-radius: 0.75rem;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .detail-card-header { padding: 16px 24px; border-bottom: 1px solid var(--border-color); }
+        .detail-card-title { display:flex; align-items:center; gap:12px; font-size: 20px; font-weight: 600; color: var(--primary-color); }
+        .detail-card-title svg { width:24px; height:24px; }
+        .detail-card-description { font-size: 13px; color: var(--muted-foreground-color); margin-top:4px; }
+        .detail-card-content { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .detail-item { margin-bottom: 8px; }
+        .detail-item-label { font-size: 13px; font-weight: 500; color: var(--muted-foreground-color); margin-bottom:2px; }
+        .detail-item-value { font-size: 15px; color: var(--foreground-color); }
+        .detail-item-value ul { list-style: disc; padding-left: 20px; margin-top: 4px; }
+        .detail-item-value ul li { margin-bottom: 2px; }
+        .detail-item-value .custom-items-label { font-size: 12px; font-style: italic; color: var(--muted-foreground-color); margin-top:4px;}
+        .detail-item-value .custom-item { font-size: 14px; padding-left: 10px; border-left: 2px solid hsla(123, 41%, 39%, 0.3); margin-left:10px; }
+        .not-specified { font-style: italic; color: var(--muted-foreground-color); font-size:14px; }
+
+        /* Footer */
+        .footer { border-top: 1px solid hsla(0, 0%, 88%, 0.4); background-color: hsla(84, 48%, 96%, 0.95); padding: 24px; text-align: center; font-size: 14px; color: var(--muted-foreground-color); margin-top:32px;}
+        .footer p { margin-bottom:4px; }
+    </style>
+</head>
+<body>
+    <div class="figma-export-container">
+        <!-- Navbar (Placeholder) -->
+        <nav class="navbar component-navbar">
+            <a href="#" class="navbar-logo">
+                <img src="https://placehold.co/32x32/388E3C/FFFFFF.png?text=S" alt="Safora Logo">
+                <span>Safora</span>
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <div class="profile-view-container component-profile-view">
+                <div class="profile-header-card component-profile-header">
+                    <div class="profile-avatar">
+                        <!-- <img src="https://placehold.co/96x96.png?text=A" alt="Alex Smith"> -->
+                         <div class="profile-avatar-fallback">A</div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name">Alex Smith</h1>
+                        <p class="profile-email">alex.smith@example.com</p>
+                        <a href="#" class="safora-button safora-button-outline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Edit Profile
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Personal Information Card -->
+                <div class="detail-card component-detail-card-personal">
+                    <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            Personal Information
+                        </h2>
+                        <p class="detail-card-description">Your basic profile details.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item"><p class="detail-item-label">First Name</p><p class="detail-item-value">Alex</p></div>
+                        <div class="detail-item"><p class="detail-item-label">Last Name</p><p class="detail-item-value">Smith</p></div>
+                        <div class="detail-item"><p class="detail-item-label">Date of Birth</p><p class="detail-item-value">January 1, 1990</p></div>
+                        <div class="detail-item"><p class="detail-item-label">Age</p><p class="detail-item-value">34 years old</p></div>
+                        <div class="detail-item"><p class="detail-item-label">Location</p><p class="detail-item-value">New York, United States, North America</p></div>
+                    </div>
+                </div>
+
+                <!-- Dietary Paths Card -->
+                <div class="detail-card component-detail-card-dietary">
+                    <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                            Dietary Paths
+                        </h2>
+                        <p class="detail-card-description">Your chosen dietary lifestyles.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item-value">
+                            <ul><li>Vegan</li><li>Gluten-Free</li><li>Low-Carb</li></ul>
+                        </div>
+                         <!-- <p class="not-specified">No dietary paths specified.</p> -->
+                    </div>
+                </div>
+
+                <!-- Ingredients to Avoid Card -->
+                <div class="detail-card component-detail-card-avoid">
+                     <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                            Ingredients to Avoid
+                        </h2>
+                        <p class="detail-card-description">Specific ingredients you avoid for personal, religious, or ethical reasons.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item-value">
+                            <ul><li>Pork</li><li>Alcohol</li></ul>
+                            <p class="custom-items-label">Custom additions:</p>
+                            <p class="custom-item">Aspartame</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Allergens Card -->
+                 <div class="detail-card component-detail-card-allergens">
+                     <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.29 3.86-.92 6.03L3.46 12l6.83 2.11.92 6.03L13.71 18l2.83-8.14L22.54 12l-6-1.86-2.83-8.14z"></path><path d="m12 12 2.83 2.11.92-6.03L12.93 6l-.92 6.03z"></path></svg>
+                            Known Allergens
+                        </h2>
+                        <p class="detail-card-description">Allergens Safora helps you avoid.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item-value">
+                            <ul><li>Peanuts</li><li>Shellfish</li><li>Latex</li></ul>
+                            <p class="custom-items-label">Custom additions:</p>
+                            <p class="custom-item">Kiwi</p>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Health Conditions Card -->
+                 <div class="detail-card component-detail-card-conditions">
+                     <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Health Conditions
+                        </h2>
+                        <p class="detail-card-description">Your health conditions Safora should be aware of.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item-value">
+                            <ul><li>Hypertension</li></ul>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Health Goals Card -->
+                 <div class="detail-card component-detail-card-goals">
+                     <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                            Health Goals
+                        </h2>
+                        <p class="detail-card-description">Your wellness objectives.</p>
+                    </div>
+                    <div class="detail-card-content">
+                        <div class="detail-item-value">
+                            <ul><li>Weight Loss</li><li>Increase Energy</li></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other Notes Card (Conditional) -->
+                 <div class="detail-card component-detail-card-notes">
+                     <div class="detail-card-header">
+                        <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                            Other General Notes
+                        </h2>
+                    </div>
+                    <div class="detail-card-content">
+                        <p class="detail-item-value">Prefer organic whenever possible. Avoid artificial sweeteners.</p>
+                         <!-- <p class="not-specified">No other notes provided.</p> -->
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer class="footer component-footer">
+            <p>&copy; 2024 Safora AI Food Insights. All rights reserved.</p>
+            <p>Your guide to smarter, healthier eating choices.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
+    
